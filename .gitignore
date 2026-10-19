@@ -1,0 +1,22 @@
+# Secrets: keep only the templates
+.env
+.env.*
+!.env.example
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
+
+# Local tooling
+.remember/
+
+# Frontend (portfoliter-rr-v8)
+node_modules/
+.react-router/
+build/
+
+# Backend (portfoliter-go)
+/portfoliter-go/server
+*.test
+*.out

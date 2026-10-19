@@ -1,0 +1,23 @@
+# Local: docker compose up --build
+name: portfoliter
+
+services:
+  backend:
+    build: ./portfoliter-go
+    env_file: ./portfoliter-go/.env.local
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  frontend:
+    build: ./portfoliter-rr-v8
+    env_file: ./portfoliter-rr-v8/.env.local
+    environment:
+      # .env.local points at localhost for running outside Docker; inside compose use the service name
+      API_BASE_URL: http://backend:8080
+      PORT: "3000"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
