@@ -7,4 +7,7 @@ var themeCatalog = []Theme{
 	{Key: "dating", Name: "Dating app", Description: "Dark dating-profile look; projects are a swipeable card deck."},
 	{Key: "field-guide", Name: "Field guide", Description: "Light naturalist field guide; projects are pinned specimens."},
 	{Key: "parcel", Name: "Parcel", Description: "Kraft-paper shipping box with a shipping label, bubble wrap and stickers."},
+	{Key: "spec-sheet", Name: "Spec sheet", Description: "Serious and minimal: white page, one sans-serif, label-and-content rows, deep blue accent."},
+	{Key: "skytrain", Name: "Skytrain", Description: "Career drawn as a Bangkok BTS line map; jobs are stations, projects are interchanges."},
+	{Key: "status-page", Name: "Status page", Description: "Uptime status page; skills are components, past jobs are resolved incidents."},
 }

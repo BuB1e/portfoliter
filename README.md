@@ -17,8 +17,7 @@ MCP server. Your own frontend reads the data and renders the site.
  PostgreSQL   Cloudflare R2 (avatar, project covers, resume)
 ```
 
-This branch (`feature/harit-som`) is the owner's own site: it adds three designs (`dating`,
-`field-guide`, `parcel`) on top of `develop`. If you are cloning to build your own portfolio, start
+This branch (`feature/harit-som`) is the owner's own site: it adds six designs on top of `develop`. If you are cloning to build your own portfolio, start
 from `develop`, where the frontend is a placeholder page that loads your data and prints it.
 Sections below describe `develop`; [Designs on this branch](#designs-on-this-branch) covers the rest.
 
@@ -237,6 +236,9 @@ To add a design:
 | `dating` (default) | Dark dating-app profile; projects are a swipeable card deck | `app/themes/dating/DatingPage.tsx` |
 | `field-guide` | Naturalist field guide; projects are pinned specimens | `app/themes/field-guide/FieldGuidePage.tsx` |
 | `parcel` | Kraft shipping box with a label, bubble wrap and stickers | `app/themes/parcel/ParcelPage.tsx` |
+| `spec-sheet` | Serious and minimal: white page, one sans-serif, label-and-content rows | `app/themes/spec-sheet/SpecSheetPage.tsx` |
+| `skytrain` | Bangkok BTS line map; jobs are stations, projects are interchanges | `app/themes/skytrain/SkytrainPage.tsx` |
+| `status-page` | Uptime status page; skills are components, past jobs are resolved incidents | `app/themes/status-page/StatusPage.tsx` |
 
 Ask Claude "list my themes" or "switch the site to parcel". The production compose file on this
 branch binds the backend to `127.0.0.1:8082` and the frontend to `127.0.0.1:3002`.

@@ -67,7 +67,7 @@ If you build more than one design and want Claude to switch between them with `s
 
 ## Designs on this branch (`feature/harit-som`)
 
-This branch replaces the placeholder with three designs. `routes/home.tsx` renders
+This branch replaces the placeholder with six designs. `routes/home.tsx` renders
 `themePages[themeKey(portfolio.theme)]` from `app/themes/registry.ts`, and `root.tsx` sets
 `<html data-theme>` during SSR so each design's page colors in `app.css` apply before hydration.
 
@@ -76,9 +76,13 @@ This branch replaces the placeholder with three designs. `routes/home.tsx` rende
 | `dating` (default) | `app/themes/dating/DatingPage.tsx` | `app/components/dating/` |
 | `field-guide` | `app/themes/field-guide/FieldGuidePage.tsx` | `app/components/field-guide/` |
 | `parcel` | `app/themes/parcel/ParcelPage.tsx` | `app/components/parcel/` |
+| `spec-sheet` | `app/themes/spec-sheet/SpecSheetPage.tsx` | `app/components/spec-sheet/` |
+| `skytrain` | `app/themes/skytrain/SkytrainPage.tsx` | `app/components/skytrain/` |
+| `status-page` | `app/themes/status-page/StatusPage.tsx` | `app/components/status-page/` |
 
 Each page loads its own Google Fonts with `<link precedence>`; tokens are prefixed per design in
-`app.css` (`fg-*`, `parcel-*`). `npm test` runs the Vitest check for the theme key fallback.
+`app.css` (`fg-*`, `parcel-*`, `ss-*`, `sky-*`, `st-*`). The status page's uptime bars are
+decorative and generated from each skill name, so the server and the browser render the same bars. `npm test` runs the Vitest check for the theme key fallback.
 
 ## Deploy
 
