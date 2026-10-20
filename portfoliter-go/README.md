@@ -46,11 +46,29 @@ claude mcp add --transport http portfoliter http://localhost:8080/mcp \
 | site design | `set_theme` | `list_themes` | |
 | files (R2) | `create_upload_url` + `finalize_upload` | `list_files`, `get_file_url` | `delete_file` |
 | change_log | written by every write | `list_changes` | none (audit trail) |
+| Claude web sign-ins | OAuth sign-in page | | `revoke_oauth_sessions` |
 
 - Upserts replace the whole row; omit `id` to create, pass `id` to update.
 - New experiences/projects/education/certifications/sections are drafts until `set_published`.
 - Editing an already-published row changes the live site immediately (no per-row draft copy).
 - Every write is recorded in `change_log` with before/after snapshots in the same transaction.
+
+### Claude web connectors (OAuth)
+
+Claude web cannot send a static header, so `/mcp` also accepts OAuth access tokens from a single-owner
+sign-in (`internal/oauth`). In Claude: Add custom connector, URL `<PUBLIC_BASE_URL>/mcp`,
+Authentication "Sign in now", OAuth client "Use Claude's published identity". Claude opens
+`/oauth/authorize`; paste the MCP write key there.
+
+- Discovery: a 401 from `/mcp` carries `WWW-Authenticate: Bearer resource_metadata=...`;
+  `/.well-known/oauth-protected-resource[/mcp]` and `/.well-known/oauth-authorization-server`.
+- Only client_id metadata documents on `OAUTH_ALLOWED_CLIENT_HOSTS` (default `claude.ai,claude.com`)
+  can reach the sign-in page. PKCE S256 is required.
+- 5 wrong keys per IP in 15 minutes locks sign-in for the rest of the window (uses `X-Real-IP` from nginx).
+- Access tokens last 1 hour, refresh tokens 30 days and rotate on use; only SHA-256 hashes are stored
+  (`portfoliter.oauth_tokens`). Authorization codes are in memory (60 s, single use).
+- `revoke_oauth_sessions` signs every connector out. The static key keeps working.
+- Behind nginx, route `/.well-known/oauth-` and `/oauth/` to the backend, like `/mcp`.
 
 ### Themes
 

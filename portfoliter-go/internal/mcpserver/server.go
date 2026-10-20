@@ -50,11 +50,17 @@ type listChangesInput struct {
 
 type noInput struct{}
 
+// SessionRevoker signs out every OAuth client (Claude web connectors).
+type SessionRevoker interface {
+	DeleteAll(ctx context.Context) (int64, error)
+}
+
 // New builds the MCP server whose tools write through the admin store and R2.
-func New(store *admin.Store, files *storage.R2, finalizer *uploads.Service) *mcp.Server {
+func New(store *admin.Store, files *storage.R2, finalizer *uploads.Service, sessions SessionRevoker) *mcp.Server {
 	s := mcp.NewServer(&mcp.Implementation{Name: "portfoliter", Version: "0.1.0"},
 		&mcp.ServerOptions{Instructions: instructions})
 	addFileTools(s, store, files, finalizer)
+	addSessionTools(s, sessions)
 
 	readOnly := &mcp.ToolAnnotations{ReadOnlyHint: true}
 	destructive := true
