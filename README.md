@@ -17,8 +17,10 @@ MCP server. Your own frontend reads the data and renders the site.
  PostgreSQL   Cloudflare R2 (avatar, project covers, resume)
 ```
 
-This branch (`develop`) is a starting point. The backend is complete. The frontend is a placeholder
-page that loads your data and prints it, so you can build your own design on top of it.
+This branch (`feature/harit-som`) is the owner's own site: it adds three designs (`dating`,
+`field-guide`, `parcel`) on top of `develop`. If you are cloning to build your own portfolio, start
+from `develop`, where the frontend is a placeholder page that loads your data and prints it.
+Sections below describe `develop`; [Designs on this branch](#designs-on-this-branch) covers the rest.
 
 ## Contents
 
@@ -227,6 +229,18 @@ To add a design:
 3. Add `{Key: "minimal", Name: "Minimal", Description: "..."}` to `themeCatalog`.
 4. Run `cd portfoliter-go && go test ./...`.
 5. Deploy both apps together, then ask Claude to list and switch themes.
+
+### Designs on this branch
+
+| Key | Look | Page |
+|---|---|---|
+| `dating` (default) | Dark dating-app profile; projects are a swipeable card deck | `app/themes/dating/DatingPage.tsx` |
+| `field-guide` | Naturalist field guide; projects are pinned specimens | `app/themes/field-guide/FieldGuidePage.tsx` |
+| `parcel` | Kraft shipping box with a label, bubble wrap and stickers | `app/themes/parcel/ParcelPage.tsx` |
+
+Ask Claude "list my themes" or "switch the site to parcel". The production compose file on this
+branch binds the backend to `127.0.0.1:8082` and the frontend to `127.0.0.1:3002`.
+Frontend tests: `cd portfoliter-rr-v8 && npm test`.
 
 ## Deploy to production
 

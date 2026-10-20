@@ -1,15 +1,158 @@
 @import "tailwindcss";
 
+/* Tokens for every design live here; field-guide and parcel are prefixed so names never clash. */
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-sans: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+
+  /* dating */
+  --color-night: #2b0f35;
+  --color-night-raised: #3d1849;
+  --color-card: #fff4ee;
+  --color-flame: #ff4d6d;
+  --color-lilac: #cdb8ff;
+  --color-mint: #6ee7b7;
+  --color-ink: #1a0b20;
+  --color-muted: #6b4a73;
+
+  /* field-guide */
+  --font-fg-serif: "Newsreader", Georgia, serif;
+  --font-fg-sans: "Work Sans", system-ui, sans-serif;
+  --color-fg-sage: #dde5d3;
+  --color-fg-paper: #f7f9f2;
+  --color-fg-pine: #1f3a2e;
+  --color-fg-ochre: #e2a93b;
+  --color-fg-rust: #a4462b;
+  --color-fg-moss: #6f8a5e;
+  --color-fg-header: #e9eee1;
+
+  /* parcel */
+  --font-parcel-stencil: "Big Shoulders Stencil Display", Impact, sans-serif;
+  --font-parcel-body: "Archivo", system-ui, sans-serif;
+  --color-parcel-kraft: #c69c6d;
+  --color-parcel-kraft-dark: #8b6542;
+  --color-parcel-box: #d9b48a;
+  --color-parcel-tape: #d7263d;
+  --color-parcel-label: #fbfbf7;
+  --color-parcel-ink: #1e1b18;
+  --color-parcel-header: #f1ede2;
+  --color-parcel-sticker: #ffd23f;
+  --color-parcel-sticker-alt: #9be0c8;
+
+  --animate-match-pop: match-pop 0.5s cubic-bezier(0.2, 1.6, 0.4, 1);
+
+  @keyframes match-pop {
+    from {
+      transform: scale(0.4);
+      opacity: 0;
+    }
+  }
 }
 
-html,
-body {
-  @apply bg-white dark:bg-gray-950;
+/* Page chrome per design; data-theme is set on <html> by root.tsx. */
+[data-theme="dating"] {
+  @apply bg-night text-card;
+  color-scheme: dark;
 
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
+  :focus-visible {
+    outline: 3px solid var(--color-mint);
+    outline-offset: 3px;
+  }
+}
+
+[data-theme="field-guide"] {
+  @apply bg-fg-sage font-fg-sans text-fg-pine;
+  color-scheme: light;
+
+  a {
+    text-decoration-color: var(--color-fg-ochre);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-fg-rust);
+    outline-offset: 3px;
+  }
+}
+
+[data-theme="parcel"] {
+  @apply font-parcel-body text-parcel-ink;
+  color-scheme: light;
+  background-color: var(--color-parcel-kraft);
+  /* paper grain + corrugated lines */
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .24 0 0 0 0 .13 0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(92deg, transparent 0 22px, rgb(139 101 66 / 0.08) 22px 23px);
+
+  :focus-visible {
+    outline: 3px solid var(--color-parcel-tape);
+    outline-offset: 3px;
+  }
+}
+
+/* parcel pieces that are pure CSS drawings */
+@utility parcel-barcode {
+  background: repeating-linear-gradient(
+    90deg,
+    var(--color-parcel-ink) 0 3px,
+    transparent 3px 5px,
+    var(--color-parcel-ink) 5px 6px,
+    transparent 6px 9px,
+    var(--color-parcel-ink) 9px 13px,
+    transparent 13px 15px,
+    var(--color-parcel-ink) 15px 16px,
+    transparent 16px 20px
+  );
+}
+
+@utility parcel-bubble {
+  border: 1px solid rgb(255 255 255 / 0.9);
+  background: radial-gradient(
+    circle at 32% 30%,
+    #fff 0 12%,
+    rgb(255 255 255 / 0.55) 22%,
+    rgb(200 225 240 / 0.35) 60%,
+    rgb(255 255 255 / 0.15)
+  );
+  box-shadow:
+    inset -3px -4px 6px rgb(0 0 0 / 0.08),
+    0 2px 3px rgb(0 0 0 / 0.12);
+}
+
+@utility parcel-bubble-popped {
+  background: rgb(255 255 255 / 0.18);
+  box-shadow: inset 2px 2px 4px rgb(0 0 0 / 0.15);
+}
+
+/* packing tape strip down the middle of a box cover */
+@utility parcel-box-tape {
+  &::after {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    left: 50%;
+    width: 46px;
+    transform: translateX(-50%);
+    background: rgb(240 210 160 / 0.75);
+    border-inline: 1px dashed rgb(139 101 66 / 0.6);
+  }
+}
+
+/* ticked checkbox drawn before each list item */
+@utility parcel-check {
+  position: relative;
+  padding-left: 1.8rem;
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.45rem;
+    width: 1.05rem;
+    height: 1.05rem;
+    border: 2px solid var(--color-parcel-ink);
+    background: var(--color-parcel-label)
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5l3 3 7-8' fill='none' stroke='%23d7263d' stroke-width='2.6'/%3E%3C/svg%3E")
+      center / 90% no-repeat;
   }
 }

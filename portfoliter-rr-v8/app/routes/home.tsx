@@ -1,37 +1,24 @@
 import type { Route } from "./+types/home";
-import { fetchPortfolio } from "../lib/api.server";
+import { fetchPortfolio } from "~/lib/api.server";
+import { themeKey } from "~/lib/theme";
+import { themePages, themeTitles } from "~/themes/registry";
 
 export async function loader({ request }: Route.LoaderArgs) {
   return { portfolio: await fetchPortfolio(request.signal) };
 }
 
 export function meta({ loaderData }: Route.MetaArgs) {
-  const profile = loaderData?.portfolio?.profile;
+  const portfolio = loaderData?.portfolio;
+  const profile = portfolio?.profile;
   return [
-    { title: profile?.fullName ?? "Portfolio" },
+    { title: profile ? themeTitles[themeKey(portfolio.theme)](profile.fullName) : "Portfoliter" },
     { name: "description", content: profile?.headline ?? "" },
   ];
 }
 
+// The active design comes from site_settings.theme, switched through the set_theme MCP tool.
 export default function Home({ loaderData }: Route.ComponentProps) {
   const { portfolio } = loaderData;
-
-  if (!portfolio) {
-    return (
-      <main className="p-8">
-        <p>No portfolio published yet.</p>
-      </main>
-    );
-  }
-
-  const { profile } = portfolio;
-  return (
-    <main className="p-8 space-y-4">
-      <h1 className="text-3xl font-bold">{profile.fullName}</h1>
-      {profile.headline && <p className="text-lg">{profile.headline}</p>}
-      <pre className="text-sm overflow-x-auto">
-        {JSON.stringify(portfolio, null, 2)}
-      </pre>
-    </main>
-  );
+  const Page = themePages[themeKey(portfolio?.theme)];
+  return <Page portfolio={portfolio} />;
 }

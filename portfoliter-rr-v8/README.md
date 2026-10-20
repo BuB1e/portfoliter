@@ -65,6 +65,21 @@ If you build more than one design and want Claude to switch between them with `s
 4. Optional: set `<html data-theme={key}>` in `root.tsx` (read the home loader data with
    `useRouteLoaderData("routes/home")`) so each design can style `html` and `body` without a flash.
 
+## Designs on this branch (`feature/harit-som`)
+
+This branch replaces the placeholder with three designs. `routes/home.tsx` renders
+`themePages[themeKey(portfolio.theme)]` from `app/themes/registry.ts`, and `root.tsx` sets
+`<html data-theme>` during SSR so each design's page colors in `app.css` apply before hydration.
+
+| Key | Page | Components |
+|---|---|---|
+| `dating` (default) | `app/themes/dating/DatingPage.tsx` | `app/components/dating/` |
+| `field-guide` | `app/themes/field-guide/FieldGuidePage.tsx` | `app/components/field-guide/` |
+| `parcel` | `app/themes/parcel/ParcelPage.tsx` | `app/components/parcel/` |
+
+Each page loads its own Google Fonts with `<link precedence>`; tokens are prefixed per design in
+`app.css` (`fg-*`, `parcel-*`). `npm test` runs the Vitest check for the theme key fallback.
+
 ## Deploy
 
 `Dockerfile` builds and serves the app on port 3000. See the root README for the Compose setup.
