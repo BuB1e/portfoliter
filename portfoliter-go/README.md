@@ -1,12 +1,15 @@
 # portfoliter-go
 
-Read API for the personal portfolio. All tables live in the `portfoliter` schema (see `internal/migrations/00001_init.sql`).
+Read API and MCP server for the portfolio. All tables live in the `portfoliter` schema (see `internal/migrations/`).
+Start with the [root README](../README.md) for setup.
 
 ## Run
 
 ```sh
 cp .env.example .env.local    # fill in values
+set -a && . ./.env.local && set +a
 go run ./cmd/server           # creates schema + applies migrations, then serves on APP_PORT
+go test ./...
 ```
 
 ## Endpoints
@@ -14,7 +17,7 @@ go run ./cmd/server           # creates schema + applies migrations, then serves
 | Method | Path | Auth | Response |
 |---|---|---|---|
 | GET | `/healthz` | none | `{"status":"ok"}` |
-| GET | `/v1/portfolio` | `X-API-Key` header | profile + every published section; 404 until the profile row exists |
+| GET | `/v1/portfolio` | `X-API-Key` header | `theme` + profile + every published section; 404 until the profile row exists |
 
 The backend stores only `API_READ_KEY_SHA256`. The frontend sends the raw key; the server hashes it and compares in constant time.
 
@@ -24,6 +27,7 @@ The backend stores only `API_READ_KEY_SHA256`. The frontend sends the raw key; t
 - experiences, projects, education, certifications, sections show only rows with `is_published = true`.
 - `projects.project_type` is `PERSONAL` or `WORK`; only `WORK` projects may set `experience_id`.
 - `change_log` records before/after of every MCP write (used once the MCP exists).
+- `site_settings` is a single row (`id = 1`); `theme` picks which frontend design renders (`''` means the default, the first catalog entry).
 
 ## MCP (AI write path)
 
@@ -39,6 +43,7 @@ claude mcp add --transport http portfoliter http://localhost:8080/mcp \
 | profile | `set_profile` | `get_portfolio` | `delete_profile` |
 | link, experience, project, skill, education, certification, section | `upsert_*` | `get_portfolio`, `get_item` | `delete_item` |
 | visibility / order | `set_published`, `reorder` | | |
+| site design | `set_theme` | `list_themes` | |
 | files (R2) | `create_upload_url` + `finalize_upload` | `list_files`, `get_file_url` | `delete_file` |
 | change_log | written by every write | `list_changes` | none (audit trail) |
 
@@ -46,6 +51,15 @@ claude mcp add --transport http portfoliter http://localhost:8080/mcp \
 - New experiences/projects/education/certifications/sections are drafts until `set_published`.
 - Editing an already-published row changes the live site immediately (no per-row draft copy).
 - Every write is recorded in `change_log` with before/after snapshots in the same transaction.
+
+### Themes
+
+The theme catalog (key, name, description) lives in `internal/admin/theme_catalog.go` and is empty on
+`develop`, so `list_themes` returns `[]` and `set_theme` refuses every value until a design exists.
+The keys must match `THEME_KEYS` in `portfoliter-rr-v8/app/lib/theme.ts` in the same order (the first
+is the default); `TestThemeCatalogMatchesFrontend` reads that file and fails when they differ.
+To add a theme: build its page in the frontend, add the key to both lists, run `go test ./...`.
+Both apps deploy from the same commit, so the lists ship together.
 
 ## Files (Cloudflare R2)
 

@@ -7,7 +7,9 @@ import (
 )
 
 // Portfolio is the published view of every section, as served to the frontend.
+// Theme is the site design key from site_settings; empty means the frontend's default design.
 type Portfolio struct {
+	Theme          string          `json:"theme"`
 	Profile        Profile         `json:"profile"`
 	Links          []Link          `json:"links"`
 	Experiences    []Experience    `json:"experiences"`

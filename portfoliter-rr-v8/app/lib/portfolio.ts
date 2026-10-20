@@ -74,6 +74,8 @@ export interface Section {
 }
 
 export interface Portfolio {
+  // Active design key from set_theme; "" until one is set. See lib/theme.ts.
+  theme: string;
   profile: Profile;
   links: Link[];
   experiences: Experience[];

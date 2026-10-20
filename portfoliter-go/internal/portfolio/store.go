@@ -12,6 +12,9 @@ import (
 var ErrNotFound = errors.New("portfolio not found")
 
 const (
+	themeQuery = `
+		SELECT COALESCE((SELECT theme FROM portfoliter.site_settings WHERE id = 1), '')`
+
 	profileQuery = `
 		SELECT full_name, headline, bio, avatar_key, location, email, resume_key
 		FROM portfoliter.profile
@@ -100,6 +103,9 @@ func (s *Store) GetPublished(ctx context.Context) (Portfolio, error) {
 	)
 
 	batch := &pgx.Batch{}
+	batch.Queue(themeQuery).QueryRow(func(row pgx.Row) error {
+		return row.Scan(&p.Theme)
+	})
 	batch.Queue(profileQuery).Query(func(rows pgx.Rows) error {
 		profile, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[Profile])
 		p.Profile = profile

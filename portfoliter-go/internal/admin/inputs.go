@@ -72,6 +72,10 @@ type CertificationInput struct {
 	CredentialURL *string `json:"credentialUrl,omitempty"`
 }
 
+type ThemeInput struct {
+	Theme string `json:"theme" jsonschema:"theme key from list_themes"`
+}
+
 type SectionInput struct {
 	ID    int64  `json:"id,omitempty" jsonschema:"omit to create, set to update"`
 	Key   string `json:"key" jsonschema:"unique, e.g. awards, talks"`

@@ -17,6 +17,8 @@ Upsert tools replace the whole row: send every field you want to keep. Omit id t
 New experiences, projects, education, certifications and sections are created as drafts (not visible on the site);
 call set_published after the owner confirms. Profile, links and skills are always visible.
 Every write is recorded; list_changes shows recent edits.
+list_themes shows every site design and which one is live. set_theme switches the whole design
+and is live immediately; confirm with the owner first.
 Files (avatar, project cover, resume) live in a private R2 bucket:
 1. call create_upload_url;
 2. upload with an HTTP PUT to uploadUrl sending the exact Content-Type returned
@@ -99,6 +101,15 @@ func New(store *admin.Store, files *storage.R2, finalizer *uploads.Service) *mcp
 		}
 		return textResult("deleted profile"), nil, nil
 	})
+	mcp.AddTool(s, &mcp.Tool{
+		Name:        "list_themes",
+		Description: "Every site design (key, name, description) with isActive marking the live one.",
+		Annotations: readOnly,
+	}, func(ctx context.Context, _ *mcp.CallToolRequest, _ noInput) (*mcp.CallToolResult, any, error) {
+		out, err := store.ListThemes(ctx)
+		return textResult(out), nil, err
+	})
+	addSave(s, "set_theme", "Switch the whole site design to a key from list_themes. Live on the next page load. Confirm with the owner first.", store.SetTheme)
 	addSave(s, "upsert_link", "Create or replace a social/contact link (always visible).", store.UpsertLink)
 	addSave(s, "upsert_experience", "Create (as draft) or replace a work experience.", store.UpsertExperience)
 	addSave(s, "upsert_project", "Create (as draft) or replace a project. WORK projects may link an experienceId.", store.UpsertProject)

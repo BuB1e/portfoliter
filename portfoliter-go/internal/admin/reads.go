@@ -12,6 +12,7 @@ import (
 func (s *Store) GetAll(ctx context.Context) (string, error) {
 	const query = `
 		SELECT jsonb_build_object(
+			'siteSettings', (SELECT to_jsonb(t) FROM portfoliter.site_settings t),
 			'profile', (SELECT to_jsonb(p) FROM portfoliter.profile p),
 			'links', (SELECT COALESCE(jsonb_agg(to_jsonb(t) ORDER BY t.sort_order, t.id), '[]')
 				FROM portfoliter.links t),

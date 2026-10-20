@@ -1,87 +1,70 @@
-# Welcome to React Router!
+# portfoliter-rr-v8
 
-A modern, production-ready template for building full-stack React applications using React Router.
+The frontend: a React Router v8 app with server-side rendering. On `develop` it is a placeholder that
+loads your portfolio and prints it as JSON, ready for you to replace with your own design.
+Start with the [root README](../README.md) for setup.
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+## Run
 
-## Features
-
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
-
-## Getting Started
-
-### Installation
-
-Install the dependencies:
-
-```bash
-npm install
+```sh
+cp .env.example .env.local      # API_BASE_URL and the raw API_READ_KEY
+npm ci
+set -a && . ./.env.local && set +a
+npm run dev                     # http://localhost:5173
 ```
 
-### Development
+| Command | What it does |
+|---|---|
+| `npm run dev` | dev server with hot reload |
+| `npm run typecheck` | generate route types and run `tsc` |
+| `npm run build` | production build into `build/` |
+| `npm start` | serve the production build (`PORT`, default 3000) |
 
-Start the development server with HMR:
+## How the page gets its data
 
-```bash
-npm run dev
-```
+| File | Role |
+|---|---|
+| `app/routes/home.tsx` | `loader` fetches the portfolio on the server; the component renders it |
+| `app/lib/api.server.ts` | `fetchPortfolio()` calls `GET /v1/portfolio` with the read key; returns `null` on 404 (no profile yet) |
+| `app/lib/portfolio.ts` | TypeScript types that mirror the API response |
+| `app/lib/theme.ts` | `THEME_KEYS`, the designs this frontend can render (empty on `develop`) |
+| `app/root.tsx` | HTML shell, fonts, error boundary |
+| `app/app.css` | Tailwind CSS v4 entry; put your colors and fonts in `@theme` |
 
-Your application will be available at `http://localhost:5173`.
+Rules that keep it working:
 
-## Building for Production
+- Fetch only in the `loader`. The `.server.ts` suffix keeps the read key out of the browser bundle.
+- `API_BASE_URL` and `API_READ_KEY` have no `VITE_` prefix on purpose, so they never reach the client.
+- Only published items are returned. Drafts never reach the frontend.
+- File URLs (`avatarUrl`, `coverUrl`, `resumeUrl`) are presigned and expire; do not cache pages longer
+  than `R2_GET_URL_TTL` on the backend.
+- Format dates from the `YYYY-MM-DD` string yourself instead of `toLocaleDateString`, so the server and
+  the browser render the same text and hydration does not fail.
+- `sections[].items` is free-form JSON. Check each item's shape before rendering it.
 
-Create a production build:
+## Build your design
 
-```bash
-npm run build
-```
+1. Replace the JSON dump in `app/routes/home.tsx` with your layout. Split it into components under
+   `app/components/`.
+2. Update `meta()` for the page title and description.
+3. Add your fonts in `links` in `app/root.tsx` and your tokens in `app/app.css`.
+4. Handle the empty state: `portfolio` is `null` until a profile exists.
 
-## Deployment
+## Several designs switchable from the AI
 
-### Docker Deployment
+If you build more than one design and want Claude to switch between them with `set_theme`:
 
-To build and run using Docker:
+1. Add each design's key to `THEME_KEYS` in `app/lib/theme.ts`, e.g. `["minimal", "bold"] as const`.
+   The first key is the default.
+2. Add the same keys, in the same order, to `themeCatalog` in
+   `portfoliter-go/internal/admin/theme_catalog.go`. `go test ./...` in `portfoliter-go` fails if the
+   two lists differ.
+3. In `home.tsx`, pick the page from `portfolio.theme`; use the first key when it is `""` or unknown.
+   A map such as `Record<ThemeKey, ComponentType<{ portfolio: Portfolio | null }>>` keeps TypeScript
+   checking that every key has a page.
+4. Optional: set `<html data-theme={key}>` in `root.tsx` (read the home loader data with
+   `useRouteLoaderData("routes/home")`) so each design can style `html` and `body` without a flash.
 
-```bash
-docker build -t my-app .
+## Deploy
 
-# Run the container
-docker run -p 3000:3000 my-app
-```
-
-The containerized application can be deployed to any platform that supports Docker, including:
-
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
-
-### DIY Deployment
-
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
-├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
-```
-
-## Styling
-
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
-
----
-
-Built with ❤️ using React Router.
+`Dockerfile` builds and serves the app on port 3000. See the root README for the Compose setup.
