@@ -8,7 +8,8 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
-	"strings"
+
+	"github.com/modelcontextprotocol/go-sdk/auth"
 
 	"portfoliter-go/internal/portfolio"
 )
@@ -19,29 +20,31 @@ type PortfolioReader interface {
 	GetPublished(ctx context.Context) (portfolio.Portfolio, error)
 }
 
-// KeyHashes are SHA-256 digests of the read key (frontend) and write key (MCP clients).
-type KeyHashes struct {
-	Read  [32]byte
-	Write [32]byte
+// MCPAuth protects /mcp: it verifies bearer tokens and serves the OAuth endpoints Claude web signs in through.
+type MCPAuth interface {
+	Verify(ctx context.Context, token string, r *http.Request) (*auth.TokenInfo, error)
+	ResourceMetadataURL() string
+	Register(mux *http.ServeMux)
 }
 
-func NewHandler(reader PortfolioReader, mcpHandler http.Handler, keys KeyHashes) http.Handler {
+// readKeyHash is the SHA-256 of the frontend's read key.
+func NewHandler(reader PortfolioReader, mcpHandler http.Handler, readKeyHash [32]byte, mcpAuth MCPAuth) http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, _ *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
 	})
-	mux.Handle("GET /v1/portfolio", requireKey(keys.Read, apiKey, getPortfolio(reader)))
-	mux.Handle("/mcp", requireKey(keys.Write, bearerToken, mcpHandler))
+	mux.Handle("GET /v1/portfolio", requireKey(readKeyHash, apiKey, getPortfolio(reader)))
+
+	// A 401 from /mcp carries WWW-Authenticate with resource_metadata, which starts Claude's sign-in.
+	requireToken := auth.RequireBearerToken(mcpAuth.Verify,
+		&auth.RequireBearerTokenOptions{ResourceMetadataURL: mcpAuth.ResourceMetadataURL()})
+	mux.Handle("/mcp", requireToken(mcpHandler))
+	mcpAuth.Register(mux)
 	return mux
 }
 
 func apiKey(r *http.Request) string {
 	return r.Header.Get(apiKeyHeader)
-}
-
-func bearerToken(r *http.Request) string {
-	token, _ := strings.CutPrefix(r.Header.Get("Authorization"), "Bearer ")
-	return token
 }
 
 // requireKey compares the SHA-256 of the extracted key with the expected hash.

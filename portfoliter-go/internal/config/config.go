@@ -6,14 +6,16 @@ import (
 	"net"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	"portfoliter-go/internal/storage"
 )
 
 const (
-	defaultGetURLTTL = time.Hour
-	defaultPutURLTTL = 15 * time.Minute
+	defaultGetURLTTL           = time.Hour
+	defaultPutURLTTL           = 15 * time.Minute
+	defaultOAuthAllowedClients = "claude.ai,claude.com"
 )
 
 type Config struct {
@@ -22,6 +24,10 @@ type Config struct {
 	APIReadKeyHash  [32]byte
 	APIWriteKeyHash [32]byte
 	R2              storage.R2Config
+	// PublicBaseURL is the site origin clients see, e.g. https://portfolio.haritsom.com (no trailing slash).
+	PublicBaseURL string
+	// OAuthAllowedClientHosts are the only hosts whose client_id metadata documents may sign in.
+	OAuthAllowedClientHosts []string
 }
 
 // Load reads config from the process environment and fails on missing keys.
@@ -50,6 +56,7 @@ func Load() (Config, error) {
 		SecretAccessKey: get("R2_SECRET_ACCESS_KEY"),
 		Bucket:          get("R2_BUCKET"),
 	}
+	publicBaseURL := get("PUBLIC_BASE_URL")
 	if len(missing) > 0 {
 		return Config{}, fmt.Errorf("missing env vars: %v", missing)
 	}
@@ -71,6 +78,9 @@ func Load() (Config, error) {
 	if r2.PutURLTTL, err = optionalDuration("R2_PUT_URL_TTL", defaultPutURLTTL); err != nil {
 		return Config{}, err
 	}
+	if publicBaseURL, err = parseBaseURL(publicBaseURL); err != nil {
+		return Config{}, err
+	}
 
 	dsn := url.URL{
 		Scheme:   "postgres",
@@ -86,7 +96,36 @@ func Load() (Config, error) {
 		APIReadKeyHash:  readKeyHash,
 		APIWriteKeyHash: writeKeyHash,
 		R2:              r2,
+		PublicBaseURL:   publicBaseURL,
+		OAuthAllowedClientHosts: splitList(
+			optionalString("OAUTH_ALLOWED_CLIENT_HOSTS", defaultOAuthAllowedClients)),
 	}, nil
+}
+
+// parseBaseURL accepts an absolute http(s) origin and strips any trailing slash.
+func parseBaseURL(raw string) (string, error) {
+	u, err := url.Parse(raw)
+	if err != nil || (u.Scheme != "https" && u.Scheme != "http") || u.Host == "" {
+		return "", fmt.Errorf("PUBLIC_BASE_URL must be an absolute URL like https://example.com")
+	}
+	return strings.TrimRight(raw, "/"), nil
+}
+
+func optionalString(key, fallback string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return fallback
+}
+
+func splitList(csv string) []string {
+	var out []string
+	for _, part := range strings.Split(csv, ",") {
+		if part = strings.TrimSpace(part); part != "" {
+			out = append(out, part)
+		}
+	}
+	return out
 }
 
 func optionalDuration(key string, fallback time.Duration) (time.Duration, error) {

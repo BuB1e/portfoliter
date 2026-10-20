@@ -21,6 +21,7 @@ import (
 	"portfoliter-go/internal/httpapi"
 	"portfoliter-go/internal/mcpserver"
 	"portfoliter-go/internal/migrations"
+	"portfoliter-go/internal/oauth"
 	"portfoliter-go/internal/portfolio"
 	"portfoliter-go/internal/storage"
 	"portfoliter-go/internal/uploads"
@@ -62,19 +63,23 @@ func run() error {
 	}
 
 	files := storage.NewR2(cfg.R2)
-	mcpServer := mcpserver.New(admin.NewStore(pool), files, uploads.NewService(files))
+	oauthStore := oauth.NewPGStore(pool)
+	mcpServer := mcpserver.New(admin.NewStore(pool), files, uploads.NewService(files), oauthStore)
 	mcpHandler := mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return mcpServer },
 		&mcp.StreamableHTTPOptions{
 			Stateless: true,
-			// /mcp requires the write key, which already blocks DNS-rebinding callers;
+			// /mcp requires the write key or an OAuth token, which already blocks DNS-rebinding callers;
 			// keeping the check would reject requests forwarded by a local reverse proxy.
 			DisableLocalhostProtection: true,
 		})
-	keys := httpapi.KeyHashes{Read: cfg.APIReadKeyHash, Write: cfg.APIWriteKeyHash}
+	mcpAuth := oauth.NewServer(oauth.Config{
+		BaseURL:      cfg.PublicBaseURL,
+		OwnerKeyHash: cfg.APIWriteKeyHash,
+	}, oauthStore, oauth.NewCIMDFetcher(cfg.OAuthAllowedClientHosts, nil))
 
 	srv := &http.Server{
 		Addr:              ":" + cfg.Port,
-		Handler:           httpapi.NewHandler(portfolio.NewStore(pool, files), mcpHandler, keys),
+		Handler:           httpapi.NewHandler(portfolio.NewStore(pool, files), mcpHandler, cfg.APIReadKeyHash, mcpAuth),
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 
