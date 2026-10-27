@@ -9,7 +9,10 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-var ErrNotFound = errors.New("portfolio not found")
+var (
+	ErrNotFound        = errors.New("portfolio not found")
+	ErrProjectNotFound = errors.New("project not found")
+)
 
 const (
 	themeQuery = `
@@ -31,12 +34,46 @@ const (
 		WHERE is_published
 		ORDER BY sort_order, start_date DESC`
 
-	projectsQuery = `
-		SELECT id, slug, title, project_type::text AS project_type, experience_id, summary, content,
-		       repo_url, demo_url, cover_key, start_date, end_date, is_featured
-		FROM portfoliter.projects
-		WHERE is_published
-		ORDER BY sort_order, id`
+	// Links to a draft experience or education row are returned as null, so drafts never leak.
+	publishedProjectsFrom = `
+		SELECT p.id, p.slug, p.title, p.project_type::text AS project_type,
+		       CASE WHEN e.is_published THEN p.experience_id END AS experience_id,
+		       CASE WHEN ed.is_published THEN p.education_id END AS education_id,
+		       p.summary, p.content, p.repo_url, p.demo_url, p.cover_key, p.start_date, p.end_date, p.is_featured
+		FROM portfoliter.projects p
+		LEFT JOIN portfoliter.experiences e ON e.id = p.experience_id
+		LEFT JOIN portfoliter.education ed ON ed.id = p.education_id
+		WHERE p.is_published`
+
+	projectsQuery = publishedProjectsFrom + `
+		ORDER BY p.sort_order, p.id`
+
+	projectBySlugQuery = publishedProjectsFrom + `
+		AND p.slug = $1`
+
+	skillsOfProjectQuery = `
+		SELECT s.name
+		FROM portfoliter.project_skills ps
+		JOIN portfoliter.skills s ON s.id = ps.skill_id
+		WHERE ps.project_id = $1
+		ORDER BY s.sort_order, s.name`
+
+	skillsOfExperienceQuery = `
+		SELECT s.name
+		FROM portfoliter.experience_skills es
+		JOIN portfoliter.skills s ON s.id = es.skill_id
+		WHERE es.experience_id = $1
+		ORDER BY s.sort_order, s.name`
+
+	experienceByIDQuery = `
+		SELECT id, company, role, employment_type, location, start_date, end_date, description
+		FROM portfoliter.experiences
+		WHERE is_published AND id = $1`
+
+	educationByIDQuery = `
+		SELECT id, institution, degree, field, start_date, end_date, description
+		FROM portfoliter.education
+		WHERE is_published AND id = $1`
 
 	skillsQuery = `
 		SELECT name, category
@@ -56,7 +93,7 @@ const (
 		ORDER BY s.sort_order, s.name`
 
 	educationQuery = `
-		SELECT institution, degree, field, start_date, end_date, description
+		SELECT id, institution, degree, field, start_date, end_date, description
 		FROM portfoliter.education
 		WHERE is_published
 		ORDER BY sort_order, start_date DESC`
@@ -144,6 +181,46 @@ func (s *Store) GetPublished(ctx context.Context) (Portfolio, error) {
 	return p, nil
 }
 
+// GetPublishedProject loads one published project by slug with its skills and the published
+// experience or education it links to. Drafts and unknown slugs return ErrProjectNotFound.
+func (s *Store) GetPublishedProject(ctx context.Context, slug string) (ProjectDetail, error) {
+	rows, err := s.pool.Query(ctx, projectBySlugQuery, slug)
+	if err != nil {
+		return ProjectDetail{}, fmt.Errorf("load project %q: %w", slug, err)
+	}
+	project, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[Project])
+	if errors.Is(err, pgx.ErrNoRows) {
+		return ProjectDetail{}, ErrProjectNotFound
+	}
+	if err != nil {
+		return ProjectDetail{}, fmt.Errorf("load project %q: %w", slug, err)
+	}
+
+	d := ProjectDetail{Project: project}
+	var experienceSkills []string
+	batch := &pgx.Batch{}
+	queueNames(batch, skillsOfProjectQuery, project.ID, &d.Skills)
+	if project.ExperienceID != nil {
+		queueOptional(batch, experienceByIDQuery, *project.ExperienceID, &d.Experience)
+		queueNames(batch, skillsOfExperienceQuery, *project.ExperienceID, &experienceSkills)
+	}
+	if project.EducationID != nil {
+		queueOptional(batch, educationByIDQuery, *project.EducationID, &d.Education)
+	}
+	if err := s.pool.SendBatch(ctx, batch).Close(); err != nil {
+		return ProjectDetail{}, fmt.Errorf("load project %q links: %w", slug, err)
+	}
+	d.Skills = namesOrEmpty(d.Skills)
+	if d.Experience != nil {
+		d.Experience.Skills = namesOrEmpty(experienceSkills)
+	}
+
+	if d.CoverURL, err = s.sign(ctx, d.CoverKey); err != nil {
+		return ProjectDetail{}, err
+	}
+	return d, nil
+}
+
 // signFiles fills every *URL field from its *Key. Signing is local; no call to R2.
 func (s *Store) signFiles(ctx context.Context, p *Portfolio) error {
 	var err error
@@ -177,6 +254,26 @@ func queueList[T any](batch *pgx.Batch, query string, dst *[]T) {
 		items, err := pgx.CollectRows(rows, pgx.RowToStructByName[T])
 		*dst = items
 		return err
+	})
+}
+
+func queueNames(batch *pgx.Batch, query string, id int64, dst *[]string) {
+	batch.Queue(query, id).Query(func(rows pgx.Rows) error {
+		names, err := pgx.CollectRows(rows, pgx.RowTo[string])
+		*dst = names
+		return err
+	})
+}
+
+// queueOptional scans at most one row into *dst; no row leaves it nil.
+func queueOptional[T any](batch *pgx.Batch, query string, id int64, dst **T) {
+	batch.Queue(query, id).Query(func(rows pgx.Rows) error {
+		items, err := pgx.CollectRows(rows, pgx.RowToStructByName[T])
+		if err != nil || len(items) == 0 {
+			return err
+		}
+		*dst = &items[0]
+		return nil
 	})
 }
 

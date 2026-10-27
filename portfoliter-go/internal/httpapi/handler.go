@@ -18,7 +18,11 @@ const apiKeyHeader = "X-API-Key"
 
 type PortfolioReader interface {
 	GetPublished(ctx context.Context) (portfolio.Portfolio, error)
+	GetPublishedProject(ctx context.Context, slug string) (portfolio.ProjectDetail, error)
 }
+
+// maxSlugLength bounds the path value before it reaches the database; longer slugs are a 404.
+const maxSlugLength = 200
 
 // MCPAuth protects /mcp: it verifies bearer tokens and serves the OAuth endpoints Claude web signs in through.
 type MCPAuth interface {
@@ -34,6 +38,7 @@ func NewHandler(reader PortfolioReader, mcpHandler http.Handler, readKeyHash [32
 		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
 	})
 	mux.Handle("GET /v1/portfolio", requireKey(readKeyHash, apiKey, getPortfolio(reader)))
+	mux.Handle("GET /v1/projects/{slug}", requireKey(readKeyHash, apiKey, getProject(reader)))
 
 	// A 401 from /mcp carries WWW-Authenticate with resource_metadata, which starts Claude's sign-in.
 	requireToken := auth.RequireBearerToken(mcpAuth.Verify,
@@ -68,6 +73,28 @@ func getPortfolio(reader PortfolioReader) http.Handler {
 		}
 		if err != nil {
 			slog.ErrorContext(r.Context(), "get portfolio", "err", err)
+			writeJSON(w, http.StatusInternalServerError, errorBody("internal"))
+			return
+		}
+		writeJSON(w, http.StatusOK, p)
+	})
+}
+
+// getProject serves one published project; drafts and unknown slugs are 404.
+func getProject(reader PortfolioReader) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		slug := r.PathValue("slug")
+		if slug == "" || len(slug) > maxSlugLength {
+			writeJSON(w, http.StatusNotFound, errorBody("not_found"))
+			return
+		}
+		p, err := reader.GetPublishedProject(r.Context(), slug)
+		if errors.Is(err, portfolio.ErrProjectNotFound) {
+			writeJSON(w, http.StatusNotFound, errorBody("not_found"))
+			return
+		}
+		if err != nil {
+			slog.ErrorContext(r.Context(), "get project", "slug", slug, "err", err)
 			writeJSON(w, http.StatusInternalServerError, errorBody("internal"))
 			return
 		}

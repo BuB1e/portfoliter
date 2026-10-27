@@ -142,6 +142,7 @@ Talk to Claude in plain language. Examples:
 - "Add a link to my GitHub, https://github.com/janedoe."
 - "Add my job at Acme as Software Engineer from March 2023, still there. Skills Go, PostgreSQL."
 - "Add a personal project called Mango Index with this summary: ... Then publish it."
+- "Add my senior project GrowthCheck as a university project under my Kasetsart degree."
 - "Upload ~/Pictures/me.jpg as my avatar."
 - "What did you change today?"
 
@@ -155,6 +156,10 @@ How the data behaves:
   recent edits (`list_changes`), and ask Claude to put a value back if something went wrong.
 - **Files** go to R2 through a presigned upload. The backend strips photo metadata (location, camera)
   and recompresses images before they are used.
+- **Projects** have a type: `WORK` (may link the job it was built at), `PERSONAL` or `UNIVERSITY`
+  (may link the education entry it belongs to). The site groups them in that order. A project's
+  `summary` is the short description on its card (plain text, at most 200 characters for new text);
+  `content` is markdown shown on its own page at `/projects/<slug>`.
 - **Free-form sections** (awards, talks, anything else) are stored as a list of JSON items, so your
   frontend decides what each section looks like.
 
@@ -190,17 +195,23 @@ What the API returns (only published items; dates are `YYYY-MM-DD`; file URLs ar
   "links":          [{ "platform": "github", "url": "..." }],
   "experiences":    [{ "id": 1, "company": "...", "role": "...", "startDate": "2023-03-01",
                        "endDate": null, "description": "...", "skills": ["Go"] }],
-  "projects":       [{ "id": 1, "slug": "...", "title": "...", "projectType": "WORK",
-                       "experienceId": 1, "summary": "...", "coverUrl": null, "isFeatured": true,
-                       "repoUrl": null, "demoUrl": null, "skills": ["Go"] }],
+  "projects":       [{ "id": 1, "slug": "...", "title": "...", "projectType": "WORK", // or PERSONAL, UNIVERSITY
+                       "experienceId": 1, "educationId": null, "summary": "...", "content": "markdown",
+                       "coverUrl": null, "isFeatured": true, "repoUrl": null, "demoUrl": null,
+                       "startDate": null, "endDate": null, "skills": ["Go"] }],
   "skills":         [{ "name": "Go", "category": "language" }],
-  "education":      [{ "institution": "...", "degree": "...", "field": "..." }],
+  "education":      [{ "id": 1, "institution": "...", "degree": "...", "field": "..." }],
   "certifications": [{ "name": "...", "issuer": "...", "issuedDate": "2024-04-12" }],
   "sections":       [{ "key": "awards", "title": "Awards", "items": [ /* any JSON */ ] }]
 }
 ```
 
 The API returns `404` until a profile exists; `fetchPortfolio()` turns that into `null`.
+`experienceId` and `educationId` are `null` when the linked row is still a draft.
+
+`GET /v1/projects/<slug>` (same read key) returns one published project with the fields above plus
+`experience` and `education`, the full published rows it links to (or `null`). Drafts and unknown
+slugs are `404`; `fetchProject()` turns that into `null` and the `/projects/:slug` page shows "not found".
 See [the frontend README](portfoliter-rr-v8/README.md) for the full guide.
 
 ## Themes: switch designs from the AI
@@ -257,8 +268,12 @@ Migrations run automatically when the backend starts. To update: `git pull`, the
 
 ```sh
 cd portfoliter-go    && go vet ./... && go test ./...
-cd portfoliter-rr-v8 && npm run typecheck && npm run build
+cd portfoliter-rr-v8 && npm run typecheck && npm test && npm run build
 ```
+
+Database tests (migrations, the API and MCP writes) start a throwaway `postgres:17-alpine` with
+testcontainers, so Docker must be running; they are skipped when it is not. They never read the
+`DB_*` env vars, so they cannot touch your real database.
 
 ## Troubleshooting
 

@@ -9,7 +9,7 @@ Start with the [root README](../README.md) for setup.
 cp .env.example .env.local    # fill in values
 set -a && . ./.env.local && set +a
 go run ./cmd/server           # creates schema + applies migrations, then serves on APP_PORT
-go test ./...
+go test ./...                 # DB tests start postgres:17-alpine via testcontainers (Docker required)
 ```
 
 ## Endpoints
@@ -18,6 +18,7 @@ go test ./...
 |---|---|---|---|
 | GET | `/healthz` | none | `{"status":"ok"}` |
 | GET | `/v1/portfolio` | `X-API-Key` header | `theme` + profile + every published section; 404 until the profile row exists |
+| GET | `/v1/projects/{slug}` | `X-API-Key` header | one published project (markdown `content`, cover, dates, links, skills) plus its published `experience` / `education`; 404 for drafts and unknown slugs |
 
 The backend stores only `API_READ_KEY_SHA256`. The frontend sends the raw key; the server hashes it and compares in constant time.
 
@@ -25,7 +26,14 @@ The backend stores only `API_READ_KEY_SHA256`. The frontend sends the raw key; t
 
 - `profile` is a single row (`id = 1`). Links and skills are always shown.
 - experiences, projects, education, certifications, sections show only rows with `is_published = true`.
-- `projects.project_type` is `PERSONAL` or `WORK`; only `WORK` projects may set `experience_id`.
+- `projects.project_type` is `WORK`, `PERSONAL` or `UNIVERSITY` (migration 00005). Only `WORK` projects may
+  set `experience_id`; only `UNIVERSITY` projects may set `education_id` (FK to `education`, `ON DELETE SET NULL`).
+  The public API returns either link as `null` while the linked row is a draft.
+- `projects.summary` is the card's short description; MCP writes reject new text over 200 characters
+  (re-sending an older, longer summary unchanged is allowed, so existing rows are never truncated).
+  `projects.content` is the markdown shown on the project page.
+- Down of 00005 rebuilds the enum without `UNIVERSITY` (Postgres cannot drop an enum value): UNIVERSITY
+  projects become PERSONAL, each conversion is written to `change_log`, and `education_id` is dropped.
 - `change_log` records before/after of every MCP write (used once the MCP exists).
 - `site_settings` is a single row (`id = 1`); `theme` picks which frontend design renders (`''` means the default, the first catalog entry).
 
