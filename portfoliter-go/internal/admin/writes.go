@@ -68,8 +68,11 @@ func (s *Store) UpsertExperience(ctx context.Context, in ExperienceInput) (int64
 }
 
 func (s *Store) UpsertProject(ctx context.Context, in ProjectInput) (int64, error) {
-	if in.ProjectType != "PERSONAL" && in.ProjectType != "WORK" {
-		return 0, fmt.Errorf("projectType must be PERSONAL or WORK")
+	if err := validateProject(in); err != nil {
+		return 0, err
+	}
+	if err := s.checkSummary(ctx, in.ID, in.Summary); err != nil {
+		return 0, err
 	}
 	start, err := parseDate("startDate", in.StartDate)
 	if err != nil {
@@ -82,20 +85,20 @@ func (s *Store) UpsertProject(ctx context.Context, in ProjectInput) (int64, erro
 	const (
 		insert = `
 			INSERT INTO portfoliter.projects (slug, title, project_type, experience_id, summary, content,
-				repo_url, demo_url, cover_key, start_date, end_date, is_featured)
-			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING id`
+				repo_url, demo_url, cover_key, start_date, end_date, is_featured, education_id)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING id`
 		update = `
 			UPDATE portfoliter.projects SET slug = $1, title = $2, project_type = $3, experience_id = $4,
 				summary = $5, content = $6, repo_url = $7, demo_url = $8, cover_key = $9,
-				start_date = $10, end_date = $11, is_featured = $12, updated_at = now()
-			WHERE id = $13 RETURNING id`
+				start_date = $10, end_date = $11, is_featured = $12, education_id = $13, updated_at = now()
+			WHERE id = $14 RETURNING id`
 	)
 	afterSave := func(tx pgx.Tx, id int64) error {
 		return setSkills(ctx, tx, "project_skills", "project_id", id, in.Skills)
 	}
 	return s.upsert(ctx, "project", in.ID, insert, update, afterSave,
 		in.Slug, in.Title, in.ProjectType, in.ExperienceID, in.Summary, in.Content,
-		in.RepoURL, in.DemoURL, in.CoverKey, start, end, in.IsFeatured)
+		in.RepoURL, in.DemoURL, in.CoverKey, start, end, in.IsFeatured, in.EducationID)
 }
 
 func (s *Store) UpsertSkill(ctx context.Context, in SkillInput) (int64, error) {

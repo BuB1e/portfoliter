@@ -17,6 +17,7 @@ npm run dev                     # http://localhost:5173
 |---|---|
 | `npm run dev` | dev server with hot reload |
 | `npm run typecheck` | generate route types and run `tsc` |
+| `npm test` | unit tests with Vitest (`vitest.config.ts`) |
 | `npm run build` | production build into `build/` |
 | `npm start` | serve the production build (`PORT`, default 3000) |
 
@@ -27,6 +28,10 @@ npm run dev                     # http://localhost:5173
 | `app/routes/home.tsx` | `loader` fetches the portfolio on the server; the component renders it |
 | `app/lib/api.server.ts` | `fetchPortfolio()` calls `GET /v1/portfolio` with the read key; returns `null` on 404 (no profile yet) |
 | `app/lib/portfolio.ts` | TypeScript types that mirror the API response |
+| `app/routes/project.tsx` | `/projects/:slug`: `loader` fetches the portfolio and `fetchProject()` (`GET /v1/projects/:slug`) in parallel; unknown or draft slugs render "Project not found" with status 404 |
+| `app/lib/projects.ts` | `groupProjects()` (Work, Personal, University; empty groups dropped), `projectPath()`, `shortDescription()` for cards |
+| `app/components/ProjectCard.tsx`, `ProjectGroups.tsx` | the home page's project groups; each card is one `<Link>` to its project page |
+| `app/components/Markdown.tsx` | safe markdown for project `content` (react-markdown, raw HTML dropped, unsafe URLs stripped) |
 | `app/lib/theme.ts` | `THEME_KEYS`, the designs this frontend can render (empty on `develop`) |
 | `app/root.tsx` | HTML shell, fonts, error boundary |
 | `app/app.css` | Tailwind CSS v4 entry; put your colors and fonts in `@theme` |

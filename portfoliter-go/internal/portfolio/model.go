@@ -50,12 +50,15 @@ type Experience struct {
 	Skills         []string    `db:"-" json:"skills"`
 }
 
+// Project.ProjectType is WORK, PERSONAL or UNIVERSITY. Summary is the card's short description;
+// Content is the markdown detail. ExperienceID/EducationID are null when the linked row is a draft.
 type Project struct {
 	ID           int64       `db:"id" json:"id"`
 	Slug         string      `db:"slug" json:"slug"`
 	Title        string      `db:"title" json:"title"`
 	ProjectType  string      `db:"project_type" json:"projectType"`
 	ExperienceID *int64      `db:"experience_id" json:"experienceId"`
+	EducationID  *int64      `db:"education_id" json:"educationId"`
 	Summary      string      `db:"summary" json:"summary"`
 	Content      string      `db:"content" json:"content"`
 	RepoURL      *string     `db:"repo_url" json:"repoUrl"`
@@ -74,12 +77,20 @@ type Skill struct {
 }
 
 type Education struct {
+	ID          int64       `db:"id" json:"id"`
 	Institution string      `db:"institution" json:"institution"`
 	Degree      *string     `db:"degree" json:"degree"`
 	Field       *string     `db:"field" json:"field"`
 	StartDate   pgtype.Date `db:"start_date" json:"startDate"`
 	EndDate     pgtype.Date `db:"end_date" json:"endDate"`
 	Description string      `db:"description" json:"description"`
+}
+
+// ProjectDetail is one published project for its own page, with the published rows it links to.
+type ProjectDetail struct {
+	Project
+	Experience *Experience `json:"experience"`
+	Education  *Education  `json:"education"`
 }
 
 type Certification struct {
