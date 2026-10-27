@@ -35,10 +35,11 @@ type ProjectInput struct {
 	ID           int64    `json:"id,omitempty" jsonschema:"omit to create, set to update"`
 	Slug         string   `json:"slug" jsonschema:"unique, url-safe, e.g. payments-api"`
 	Title        string   `json:"title"`
-	ProjectType  string   `json:"projectType" jsonschema:"PERSONAL or WORK"`
+	ProjectType  string   `json:"projectType" jsonschema:"WORK (built at a job), PERSONAL (side project) or UNIVERSITY (coursework, senior project, thesis)"`
 	ExperienceID *int64   `json:"experienceId,omitempty" jsonschema:"experience id; only allowed when projectType is WORK"`
-	Summary      string   `json:"summary,omitempty"`
-	Content      string   `json:"content,omitempty" jsonschema:"markdown"`
+	EducationID  *int64   `json:"educationId,omitempty" jsonschema:"education id (the degree/school it belongs to); only allowed when projectType is UNIVERSITY"`
+	Summary      string   `json:"summary,omitempty" jsonschema:"short description shown on the project card, plain text, at most 200 characters; an existing longer summary may be re-sent unchanged"`
+	Content      string   `json:"content,omitempty" jsonschema:"full detail shown on the project page, markdown"`
 	RepoURL      *string  `json:"repoUrl,omitempty"`
 	DemoURL      *string  `json:"demoUrl,omitempty"`
 	CoverKey     *string  `json:"coverKey,omitempty" jsonschema:"R2 key from create_upload_url (kind cover)"`

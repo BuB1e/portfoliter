@@ -17,6 +17,10 @@ Upsert tools replace the whole row: send every field you want to keep. Omit id t
 New experiences, projects, education, certifications and sections are created as drafts (not visible on the site);
 call set_published after the owner confirms. Profile, links and skills are always visible.
 Every write is recorded; list_changes shows recent edits.
+Projects have a projectType: WORK (built at a job; may link experienceId), PERSONAL (side project) or
+UNIVERSITY (coursework, senior project, thesis; may link educationId). The site groups them in that order.
+A project's summary is the short description on its card (plain text, at most 200 characters);
+content is the markdown shown on the project's own page (/projects/<slug>).
 list_themes shows every site design and which one is live. set_theme switches the whole design
 and is live immediately; confirm with the owner first.
 Files (avatar, project cover, resume) live in a private R2 bucket:
@@ -118,7 +122,10 @@ func New(store *admin.Store, files *storage.R2, finalizer *uploads.Service, sess
 	addSave(s, "set_theme", "Switch the whole site design to a key from list_themes. Live on the next page load. Confirm with the owner first.", store.SetTheme)
 	addSave(s, "upsert_link", "Create or replace a social/contact link (always visible).", store.UpsertLink)
 	addSave(s, "upsert_experience", "Create (as draft) or replace a work experience.", store.UpsertExperience)
-	addSave(s, "upsert_project", "Create (as draft) or replace a project. WORK projects may link an experienceId.", store.UpsertProject)
+	addSave(s, "upsert_project", "Create (as draft) or replace a project. projectType is WORK, PERSONAL or UNIVERSITY. "+
+		"WORK projects may link an experienceId; UNIVERSITY projects may link an educationId (ids from get_portfolio). "+
+		"summary is the card's short description (plain text, max 200 characters); content is the full markdown detail page.",
+		store.UpsertProject)
 	addSave(s, "upsert_skill", "Create or rename/recategorize a skill (always visible).", store.UpsertSkill)
 	addSave(s, "upsert_education", "Create (as draft) or replace an education entry.", store.UpsertEducation)
 	addSave(s, "upsert_certification", "Create (as draft) or replace a certification.", store.UpsertCertification)
