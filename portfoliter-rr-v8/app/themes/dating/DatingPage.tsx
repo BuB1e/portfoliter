@@ -1,3 +1,5 @@
+import { Link } from "react-router";
+
 import { BragList } from "~/components/dating/BragList";
 import { ExList } from "~/components/dating/ExList";
 import { FeedSection } from "~/components/dating/FeedSection";
@@ -6,21 +8,42 @@ import { ProfileCard } from "~/components/dating/ProfileCard";
 import { ProjectDeck } from "~/components/dating/ProjectDeck";
 import { PromptList } from "~/components/dating/PromptList";
 import { VerifiedList } from "~/components/dating/VerifiedList";
-import { companyById, currentCompany } from "~/lib/experience";
+import { currentCompany } from "~/lib/experience";
 import { firstName } from "~/lib/format";
+import type { ProjectType } from "~/lib/portfolio";
+import { groupProjects, projectGroupId } from "~/lib/projects";
 import { getAwards, getPrompts } from "~/lib/sections";
 import type { ThemePageProps } from "../types";
 
-const FONTS_HREF =
+export const FONTS_HREF =
   "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&display=swap";
 
-function TopBar() {
+// One swipe deck per kind of relationship.
+export const DECKS: Record<ProjectType, { title: string; lede: string; back: string }> = {
+  WORK: {
+    title: "Serious relationships",
+    lede: "Projects I committed to at work. We went to production together.",
+    back: "Back to my serious relationships",
+  },
+  PERSONAL: {
+    title: "Weekend flings",
+    lede: "Side projects. Right if you like it, left if you don't. I won't see the left ones. Probably.",
+    back: "Back to my weekend flings",
+  },
+  UNIVERSITY: {
+    title: "College sweethearts",
+    lede: "Where it all started: coursework and the senior project.",
+    back: "Back to my college sweethearts",
+  },
+};
+
+export function TopBar({ tagline = "Swipe right on me" }: { tagline?: string }) {
   return (
     <header className="mx-auto flex max-w-[1120px] items-center justify-between gap-4 px-4 py-5">
-      <span className="text-[1.6rem] font-extrabold tracking-tighter">
+      <Link to="/" aria-label="portfoliter home" className="text-[1.6rem] font-extrabold tracking-tighter no-underline">
         portfoli<span className="text-flame">ter</span>
-      </span>
-      <p className="hidden text-[0.95rem] opacity-80 sm:block">Swipe right on me</p>
+      </Link>
+      <p className="hidden text-[0.95rem] opacity-80 sm:block">{tagline}</p>
     </header>
   );
 }
@@ -60,11 +83,17 @@ export function DatingPage({ portfolio }: ThemePageProps) {
               <PromptList prompts={prompts} />
             </FeedSection>
           )}
-          {projects.length > 0 && (
-            <FeedSection id="projects-title" title="Swipe through my projects" lede="Right if you like it, left if you don't. I won't see the left ones. Probably.">
-              <ProjectDeck projects={projects} companyById={companyById(experiences)} ownerFirstName={ownerFirstName} email={profile.email} />
+          {groupProjects(projects).map((group) => (
+            <FeedSection key={group.type} id={projectGroupId(group.type)} title={DECKS[group.type].title} lede={DECKS[group.type].lede}>
+              <ProjectDeck
+                projects={group.projects}
+                experiences={experiences}
+                education={education}
+                ownerFirstName={ownerFirstName}
+                email={profile.email}
+              />
             </FeedSection>
-          )}
+          ))}
           {experiences.length > 0 && (
             <FeedSection id="exes-title" title="Experiences" lede="We're still on good terms. Their services are still running.">
               <ExList experiences={experiences} />

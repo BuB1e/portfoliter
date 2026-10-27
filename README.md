@@ -251,6 +251,18 @@ To add a design:
 | `skytrain` | Bangkok BTS line map; jobs are stations, projects are interchanges | `app/themes/skytrain/SkytrainPage.tsx` |
 | `status-page` | Uptime status page; skills are components, past jobs are resolved incidents | `app/themes/status-page/StatusPage.tsx` |
 
+Every design shows projects in three sections (Work, Personal, University; empty ones are hidden),
+and every card links to `/projects/<slug>`, which renders in the same design:
+
+| Key | Project sections | Project page |
+|---|---|---|
+| `dating` | Serious relationships, Weekend flings, College sweethearts (one swipe deck each; tap opens, drag swipes) | The project's dating profile: photo card, pitch, "The long version", interests, where we met |
+| `field-guide` | Domesticated, Wild and Lab specimens | A species account: plate, identification marks, field notes |
+| `parcel` | Packed at work, at home, on campus | A shipping label for the project, its packing slip and a photo of the contents |
+| `spec-sheet` | Work, Personal and University project rows | A spec sheet: one labelled row per fact |
+| `skytrain` | Sukhumvit line (work), Gold line (personal), Blue line (university) | A station in its line's colour: platform information, timetable, connecting line, exits |
+| `status-page` | Production, Side and Campus services | The service's status entry: banner, components, update log |
+
 Ask Claude "list my themes" or "switch the site to parcel". The production compose file on this
 branch binds the backend to `127.0.0.1:8082` and the frontend to `127.0.0.1:3002`.
 Frontend tests: `cd portfoliter-rr-v8 && npm test`.

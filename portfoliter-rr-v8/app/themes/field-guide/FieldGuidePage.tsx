@@ -6,21 +6,38 @@ import { ReportSighting } from "~/components/field-guide/ReportSighting";
 import { SpecimenGrid } from "~/components/field-guide/SpecimenGrid";
 import { SpecimenPlate } from "~/components/field-guide/SpecimenPlate";
 import { Sightings } from "~/components/field-guide/Sightings";
-import { companyById, currentCompany } from "~/lib/experience";
+import { currentCompany } from "~/lib/experience";
+import type { ProjectType } from "~/lib/portfolio";
+import { groupProjects, projectGroupId } from "~/lib/projects";
 import { getAwards } from "~/lib/sections";
 import { groupSkills } from "~/lib/skills";
 import type { ThemePageProps } from "../types";
 
-const FONTS_HREF =
+export const FONTS_HREF =
   "https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..600&family=Work+Sans:wght@400;500;600&display=swap";
 
-function GuideBar() {
+export const SPECIMEN_GROUPS: Record<ProjectType, { title: string; intro: string }> = {
+  WORK: {
+    title: "Domesticated specimens",
+    intro: "Raised at a company and fed on deadlines. Every one of these has lived in production.",
+  },
+  PERSONAL: {
+    title: "Wild specimens",
+    intro: "Found in the evenings and on weekends, well away from any office.",
+  },
+  UNIVERSITY: {
+    title: "Lab specimens",
+    intro: "Bred under supervision at university, measured, graded, then released.",
+  },
+};
+
+export function GuideBar({ plate = "Plate 1 of 1" }: { plate?: string }) {
   return (
     <div className="flex flex-wrap justify-between gap-4 border-b-[1.5px] border-fg-pine pt-4 pb-3 font-fg-serif">
       <span>
         A field guide to the <em>backend engineers</em> of Bangkok
       </span>
-      <span>Plate 1 of 1</span>
+      <span>{plate}</span>
     </div>
   );
 }
@@ -51,15 +68,11 @@ export function FieldGuidePage({ portfolio }: ThemePageProps) {
       <SpecimenPlate profile={profile} currentCompany={currentCompany(experiences)} />
 
       <main>
-        {projects.length > 0 && (
-          <GuideSection
-            id="specimens-title"
-            title="Specimens collected"
-            intro="Every project this engineer has built, pinned and labelled. Domesticated specimens were raised at a company; wild ones were found in the evenings."
-          >
-            <SpecimenGrid projects={projects} companyById={companyById(experiences)} />
+        {groupProjects(projects).map((group) => (
+          <GuideSection key={group.type} id={projectGroupId(group.type)} title={SPECIMEN_GROUPS[group.type].title} intro={SPECIMEN_GROUPS[group.type].intro}>
+            <SpecimenGrid projects={group.projects} experiences={experiences} education={education} />
           </GuideSection>
-        )}
+        ))}
         {experiences.length > 0 && (
           <GuideSection id="migration-title" title="Migration record" intro="Where this engineer has been seen feeding, most recent first.">
             <MigrationRecord experiences={experiences} />

@@ -8,14 +8,20 @@ import { ShippingLabel } from "~/components/parcel/ShippingLabel";
 import { Stickers } from "~/components/parcel/Stickers";
 import { Tape } from "~/components/parcel/Tape";
 import { TrackingHistory } from "~/components/parcel/TrackingHistory";
-import { companyById } from "~/lib/experience";
 import { initials } from "~/lib/format";
-import type { Portfolio } from "~/lib/portfolio";
+import type { Portfolio, ProjectType } from "~/lib/portfolio";
+import { groupProjects, projectGroupId } from "~/lib/projects";
 import { getAwards } from "~/lib/sections";
 import { groupSkills } from "~/lib/skills";
 import type { ThemePageProps } from "../types";
 
-const FONTS_HREF =
+export const PACKING_GROUPS: Record<ProjectType, { title: string; note: string }> = {
+  WORK: { title: "Packed at work", note: "Built on the job. Someone paid for these, so they shipped with tracking." },
+  PERSONAL: { title: "Packed at home", note: "Side projects, boxed after dinner. Nobody paid; they shipped anyway." },
+  UNIVERSITY: { title: "Packed on campus", note: "Coursework and the senior project. Graded, not paid." },
+};
+
+export const FONTS_HREF =
   "https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Big+Shoulders+Stencil+Display:wght@700;900&display=swap";
 
 // GitHub handle (or initials) plus the latest job's start year, e.g. BUB1E-2023-TH.
@@ -60,11 +66,11 @@ export function ParcelPage({ portfolio }: ThemePageProps) {
         >
           <BubbleWrap />
         </ParcelSection>
-        {projects.length > 0 && (
-          <ParcelSection id="packing-title" title="Packing list" note="Everything in this box, sorted by whether someone paid for it.">
-            <PackingList projects={projects} companyById={companyById(experiences)} />
+        {groupProjects(projects).map((group) => (
+          <ParcelSection key={group.type} id={projectGroupId(group.type)} title={PACKING_GROUPS[group.type].title} note={PACKING_GROUPS[group.type].note}>
+            <PackingList projects={group.projects} experiences={experiences} education={education} />
           </ParcelSection>
-        )}
+        ))}
         {experiences.length > 0 && (
           <ParcelSection id="history-title" title="Tracking history" note="Where this package has been. No dents reported.">
             <TrackingHistory experiences={experiences} />

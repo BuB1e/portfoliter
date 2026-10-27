@@ -4,13 +4,21 @@ import { SpecHeader } from "~/components/spec-sheet/SpecHeader";
 import { SpecProjects } from "~/components/spec-sheet/SpecProjects";
 import { SpecRow } from "~/components/spec-sheet/SpecRow";
 import { SpecSkills } from "~/components/spec-sheet/SpecSkills";
-import { careerStartYear, companyById } from "~/lib/experience";
+import { careerStartYear } from "~/lib/experience";
 import { firstName } from "~/lib/format";
+import type { ProjectType } from "~/lib/portfolio";
+import { groupProjects, projectGroupId } from "~/lib/projects";
 import { getAwards } from "~/lib/sections";
 import { groupSkills } from "~/lib/skills";
 import type { ThemePageProps } from "../types";
 
-const FONTS_HREF = "https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400..800&display=swap";
+export const FONTS_HREF = "https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400..800&display=swap";
+
+export const GROUP_LABELS: Record<ProjectType, string> = {
+  WORK: "Work projects",
+  PERSONAL: "Personal projects",
+  UNIVERSITY: "University projects",
+};
 
 export function SpecSheetPage({ portfolio }: ThemePageProps) {
   const fonts = <link rel="stylesheet" href={FONTS_HREF} precedence="default" />;
@@ -44,11 +52,11 @@ export function SpecSheetPage({ portfolio }: ThemePageProps) {
             <SpecExperience experiences={experiences} />
           </SpecRow>
         )}
-        {projects.length > 0 && (
-          <SpecRow id="projects-title" label="Projects">
-            <SpecProjects projects={projects} companyById={companyById(experiences)} />
+        {groupProjects(projects).map((group) => (
+          <SpecRow key={group.type} id={projectGroupId(group.type)} label={GROUP_LABELS[group.type]}>
+            <SpecProjects projects={group.projects} experiences={experiences} education={education} />
           </SpecRow>
-        )}
+        ))}
         {skills.length > 0 && (
           <SpecRow id="skills-title" label="Skills">
             <SpecSkills groups={groupSkills(skills)} />

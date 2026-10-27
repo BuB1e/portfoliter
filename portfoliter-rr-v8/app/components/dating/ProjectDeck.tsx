@@ -1,20 +1,22 @@
 import type { KeyboardEvent } from "react";
 
 import { useSwipeDeck } from "~/hooks/useSwipeDeck";
-import type { Project } from "~/lib/portfolio";
+import type { Education, Experience, Project } from "~/lib/portfolio";
+import { findEducation, findExperience } from "~/lib/projects";
 import { MatchDialog } from "./MatchDialog";
-import { SwipeCard } from "./SwipeCard";
+import { metAt, SwipeCard } from "./SwipeCard";
 
 const VISIBLE_CARDS = 3;
 
 interface ProjectDeckProps {
   projects: Project[];
-  companyById: Record<number, string>;
+  experiences: Experience[];
+  education: Education[];
   ownerFirstName: string;
   email: string | null;
 }
 
-export function ProjectDeck({ projects, companyById, ownerFirstName, email }: ProjectDeckProps) {
+export function ProjectDeck({ projects, experiences, education, ownerFirstName, email }: ProjectDeckProps) {
   const { queue, exiting, match, swipe, restart, closeMatch } = useSwipeDeck(projects);
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -27,7 +29,7 @@ export function ProjectDeck({ projects, companyById, ownerFirstName, email }: Pr
       <div
         tabIndex={0}
         onKeyDown={onKeyDown}
-        aria-label="Project cards. Use the left and right arrow keys to swipe."
+        aria-label="Project cards. Use the left and right arrow keys to swipe, Tab and Enter to open the top card."
         className="relative h-[460px] w-full max-w-[420px] rounded-[26px]"
       >
         {queue.length === 0 ? (
@@ -44,7 +46,7 @@ export function ProjectDeck({ projects, companyById, ownerFirstName, email }: Pr
               <SwipeCard
                 key={project.id}
                 project={project}
-                company={project.experienceId ? companyById[project.experienceId] ?? null : null}
+                origin={metAt(project, findExperience(project, experiences), findEducation(project, education))}
                 depth={depth}
                 exitDirection={exiting?.id === project.id ? exiting.direction : null}
                 onSwipe={swipe}
@@ -74,7 +76,7 @@ export function ProjectDeck({ projects, companyById, ownerFirstName, email }: Pr
           <span aria-hidden="true">♥</span>
         </button>
       </div>
-      <p className="text-sm opacity-70">Drag the card, tap the buttons, or use the arrow keys.</p>
+      <p className="text-center text-sm opacity-70">Drag to swipe, tap a card to see the whole project.</p>
 
       <MatchDialog project={match} ownerFirstName={ownerFirstName} email={email} onClose={closeMatch} />
     </div>

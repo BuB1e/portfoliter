@@ -12,6 +12,7 @@ import type { Route } from "./+types/root";
 import "./app.css";
 import { themeKey } from "./lib/theme";
 import type { loader as homeLoader } from "./routes/home";
+import type { loader as projectLoader } from "./routes/project";
 
 // Each design page loads its own font stylesheet.
 export const links: Route.LinksFunction = () => [
@@ -25,9 +26,12 @@ export const links: Route.LinksFunction = () => [
 
 export function Layout({ children }: { children: React.ReactNode }) {
   // Set on <html> during SSR so the page background matches the design before hydration.
+  // Both the home page and project pages carry the portfolio, so both get the active design.
   const home = useRouteLoaderData<typeof homeLoader>("routes/home");
+  const project = useRouteLoaderData<typeof projectLoader>("routes/project");
+  const theme = home?.portfolio?.theme ?? project?.portfolio?.theme;
   return (
-    <html lang="en" data-theme={themeKey(home?.portfolio?.theme)}>
+    <html lang="en" data-theme={themeKey(theme)}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />

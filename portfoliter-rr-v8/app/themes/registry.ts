@@ -2,12 +2,18 @@ import type { ComponentType } from "react";
 
 import type { ThemeKey } from "~/lib/theme";
 import { DatingPage } from "./dating/DatingPage";
+import { DatingProjectPage } from "./dating/DatingProjectPage";
 import { FieldGuidePage } from "./field-guide/FieldGuidePage";
+import { FieldGuideProjectPage } from "./field-guide/FieldGuideProjectPage";
 import { ParcelPage } from "./parcel/ParcelPage";
+import { ParcelProjectPage } from "./parcel/ParcelProjectPage";
 import { SkytrainPage } from "./skytrain/SkytrainPage";
+import { SkytrainProjectPage } from "./skytrain/SkytrainProjectPage";
 import { SpecSheetPage } from "./spec-sheet/SpecSheetPage";
+import { SpecSheetProjectPage } from "./spec-sheet/SpecSheetProjectPage";
 import { StatusPage } from "./status-page/StatusPage";
-import type { ThemePageProps } from "./types";
+import { StatusProjectPage } from "./status-page/StatusProjectPage";
+import type { ThemePageProps, ThemeProjectPageProps } from "./types";
 
 export const themePages: Record<ThemeKey, ComponentType<ThemePageProps>> = {
   dating: DatingPage,
@@ -16,6 +22,16 @@ export const themePages: Record<ThemeKey, ComponentType<ThemePageProps>> = {
   "spec-sheet": SpecSheetPage,
   skytrain: SkytrainPage,
   "status-page": StatusPage,
+};
+
+// /projects/:slug in each design; the Record type makes a new theme fail typecheck until it has one.
+export const themeProjectPages: Record<ThemeKey, ComponentType<ThemeProjectPageProps>> = {
+  dating: DatingProjectPage,
+  "field-guide": FieldGuideProjectPage,
+  parcel: ParcelProjectPage,
+  "spec-sheet": SpecSheetProjectPage,
+  skytrain: SkytrainProjectPage,
+  "status-page": StatusProjectPage,
 };
 
 export const themeTitles: Record<ThemeKey, (fullName: string) => string> = {

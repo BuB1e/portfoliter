@@ -1,9 +1,5 @@
 import type { Experience } from "./portfolio";
 
-export function companyById(experiences: Experience[]): Record<number, string> {
-  return Object.fromEntries(experiences.map((experience) => [experience.id, experience.company]));
-}
-
 // Year of the earliest job start, e.g. "2021"; null when there are no experiences.
 export function careerStartYear(experiences: Experience[]): string | null {
   const starts = experiences.map((experience) => experience.startDate).sort();

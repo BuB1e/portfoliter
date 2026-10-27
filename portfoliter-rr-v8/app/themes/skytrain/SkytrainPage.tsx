@@ -1,17 +1,18 @@
-import { AfterHoursLine } from "~/components/skytrain/AfterHoursLine";
 import { Announcements } from "~/components/skytrain/Announcements";
 import { LineMap } from "~/components/skytrain/LineMap";
 import { PassCards } from "~/components/skytrain/PassCards";
+import { PROJECT_LINES, ProjectLine } from "~/components/skytrain/ProjectLine";
 import { SkillLines } from "~/components/skytrain/SkillLines";
 import { SkySection } from "~/components/skytrain/SkySection";
 import { StationSign } from "~/components/skytrain/StationSign";
 import { TopUp } from "~/components/skytrain/TopUp";
 import { currentCompany } from "~/lib/experience";
+import { groupProjects, projectGroupId } from "~/lib/projects";
 import { getAwards } from "~/lib/sections";
 import { groupSkills } from "~/lib/skills";
 import type { ThemePageProps } from "../types";
 
-const FONTS_HREF =
+export const FONTS_HREF =
   "https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap";
 
 export function SkytrainPage({ portfolio }: ThemePageProps) {
@@ -28,7 +29,6 @@ export function SkytrainPage({ portfolio }: ThemePageProps) {
   }
 
   const { profile, experiences, projects, skills, education, certifications, sections } = portfolio;
-  const personalProjects = projects.filter((project) => project.projectType === "PERSONAL" || !project.experienceId);
   const awards = getAwards(sections);
 
   return (
@@ -39,19 +39,15 @@ export function SkytrainPage({ portfolio }: ThemePageProps) {
       <main className="mx-auto max-w-[1080px] px-5">
         {profile.bio && <p className="mt-12 max-w-[56ch] text-xl leading-relaxed">{profile.bio}</p>}
         {experiences.length > 0 && (
-          <SkySection
-            id="line-title"
-            title="Career line"
-            note="Every stop so far, newest first. Projects built at a job are interchanges at that station."
-          >
+          <SkySection id="line-title" title="Career line" note="Every stop so far, newest first. Projects built at a job change here for the Sukhumvit line.">
             <LineMap experiences={experiences} projects={projects} />
           </SkySection>
         )}
-        {personalProjects.length > 0 && (
-          <SkySection id="gold-title" title="Gold line: after hours" note="Personal projects. Runs evenings and weekends.">
-            <AfterHoursLine projects={personalProjects} />
+        {groupProjects(projects).map((group) => (
+          <SkySection key={group.type} id={projectGroupId(group.type)} title={PROJECT_LINES[group.type].title} note={PROJECT_LINES[group.type].note}>
+            <ProjectLine projects={group.projects} experiences={experiences} education={education} />
           </SkySection>
-        )}
+        ))}
         {skills.length > 0 && (
           <SkySection id="network-title" title="Network map" note="Every line this engineer can ride without a transfer.">
             <SkillLines groups={groupSkills(skills)} />

@@ -1,5 +1,8 @@
+import { Link } from "react-router";
+
 import { formatRange } from "~/lib/format";
 import type { Experience, Project } from "~/lib/portfolio";
+import { projectPath } from "~/lib/projects";
 
 interface LineMapProps {
   experiences: Experience[];
@@ -34,16 +37,19 @@ export function LineMap({ experiences, projects }: LineMapProps) {
             {experience.description && <p className="mt-2 max-w-[62ch] text-sky-muted">{experience.description}</p>}
 
             {interchanges.length > 0 && (
-              <ul className="mt-5 grid gap-3">
+              <ul className="mt-5 flex flex-wrap gap-3">
                 {interchanges.map((project) => (
-                  <li key={project.id} className="flex gap-3 rounded-2xl bg-white p-4 shadow-[0_1px_0_rgb(22_37_28/0.08)]">
-                    <span aria-hidden="true" className="mt-1 size-5 flex-none rounded-full border-[5px] border-sky-gold bg-white" />
-                    <div>
-                      <p className="text-sm font-semibold text-sky-muted">Change here for</p>
-                      <h4 className="font-sky-sign text-xl leading-tight font-bold">{project.title}</h4>
-                      {project.summary && <p className="mt-1 max-w-[60ch]">{project.summary}</p>}
-                      {project.skills.length > 0 && <p className="mt-1 text-sm text-sky-muted">{project.skills.join(", ")}</p>}
-                    </div>
+                  <li key={project.id}>
+                    <Link
+                      to={projectPath(project.slug)}
+                      className="flex items-center gap-3 rounded-2xl bg-white px-4 py-3 no-underline shadow-[0_1px_0_rgb(22_37_28/0.08)] hover:underline"
+                    >
+                      <span aria-hidden="true" className="size-5 flex-none rounded-full border-[5px] border-sky-sukhumvit bg-white" />
+                      <span>
+                        <span className="block text-sm font-semibold text-sky-muted">Change here for</span>
+                        <span className="block font-sky-sign text-xl leading-tight font-bold">{project.title}</span>
+                      </span>
+                    </Link>
                   </li>
                 ))}
               </ul>

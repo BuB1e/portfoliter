@@ -4,13 +4,21 @@ import { ServiceList } from "~/components/status-page/ServiceList";
 import { SkillComponents } from "~/components/status-page/SkillComponents";
 import { StatusCard } from "~/components/status-page/StatusCard";
 import { StatusHeader } from "~/components/status-page/StatusHeader";
-import { companyById, currentCompany } from "~/lib/experience";
+import { currentCompany } from "~/lib/experience";
 import { capitalize } from "~/lib/format";
+import type { ProjectType } from "~/lib/portfolio";
+import { groupProjects, projectGroupId } from "~/lib/projects";
 import { getAwards } from "~/lib/sections";
 import { groupSkills } from "~/lib/skills";
 import type { ThemePageProps } from "../types";
 
-const FONTS_HREF = "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap";
+export const SERVICE_GROUPS: Record<ProjectType, { title: string; aside: string }> = {
+  WORK: { title: "Production services", aside: "Built at work" },
+  PERSONAL: { title: "Side services", aside: "Personal projects" },
+  UNIVERSITY: { title: "Campus services", aside: "University projects" },
+};
+
+export const FONTS_HREF = "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap";
 
 export function StatusPage({ portfolio }: ThemePageProps) {
   const fonts = <link rel="stylesheet" href={FONTS_HREF} precedence="default" />;
@@ -47,11 +55,11 @@ export function StatusPage({ portfolio }: ThemePageProps) {
             <SkillComponents groups={groupSkills(skills)} />
           </StatusCard>
         )}
-        {projects.length > 0 && (
-          <StatusCard id="services-title" title="Services">
-            <ServiceList projects={projects} companyById={companyById(experiences)} />
+        {groupProjects(projects).map((group) => (
+          <StatusCard key={group.type} id={projectGroupId(group.type)} title={SERVICE_GROUPS[group.type].title} aside={SERVICE_GROUPS[group.type].aside}>
+            <ServiceList projects={group.projects} experiences={experiences} education={education} />
           </StatusCard>
-        )}
+        ))}
         {experiences.length > 0 && (
           <StatusCard id="incidents-title" title="Incident history" aside="Newest first">
             <IncidentHistory experiences={experiences} />

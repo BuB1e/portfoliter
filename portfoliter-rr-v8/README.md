@@ -85,9 +85,15 @@ This branch replaces the placeholder with six designs. `routes/home.tsx` renders
 | `skytrain` | `app/themes/skytrain/SkytrainPage.tsx` | `app/components/skytrain/` |
 | `status-page` | `app/themes/status-page/StatusPage.tsx` | `app/components/status-page/` |
 
+`routes/project.tsx` renders `themeProjectPages[themeKey(portfolio.theme)]` (`app/themes/<key>/*ProjectPage.tsx`)
+for `/projects/:slug`, and `root.tsx` reads the theme from either route, so project pages keep the
+active design. Each design groups projects with `groupProjects()` and links every card to its page.
+
 Each page loads its own Google Fonts with `<link precedence>`; tokens are prefixed per design in
 `app.css` (`fg-*`, `parcel-*`, `ss-*`, `sky-*`, `st-*`). The status page's uptime bars are
-decorative and generated from each skill name, so the server and the browser render the same bars. `npm test` runs the Vitest check for the theme key fallback.
+decorative and generated from each skill name, so the server and the browser render the same bars. `npm test` runs the Vitest checks: theme key fallback, project grouping, the project loader's 404,
+and, for every design, the three sections, card links, the project page and its not-found state
+(`app/themes/themes.test.tsx`).
 
 ## Deploy
 

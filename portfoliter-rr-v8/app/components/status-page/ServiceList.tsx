@@ -1,41 +1,75 @@
-import { formatRange } from "~/lib/format";
-import type { Project } from "~/lib/portfolio";
-import { StatusPill } from "./StatusPill";
+import { useId } from "react";
+import { Link } from "react-router";
 
-interface ServiceListProps {
-  projects: Project[];
-  companyById: Record<number, string>;
-}
+import type { Education, Experience, Project } from "~/lib/portfolio";
+import { findEducation, findExperience, projectDates, projectPath, shortDescription } from "~/lib/projects";
+import { type StatusTone, StatusPill } from "./StatusPill";
 
-function environment(project: Project, companyById: Record<number, string>): string {
+export function environment(project: Project, experience: Experience | null, education: Education | null): string {
   if (project.projectType === "PERSONAL") {
     return "Side project";
   }
-  const company = project.experienceId ? companyById[project.experienceId] : undefined;
-  return company ? `Production at ${company}` : "Production";
+  if (project.projectType === "UNIVERSITY") {
+    return education ? `Campus at ${education.institution}` : "Campus";
+  }
+  return experience ? `Production at ${experience.company}` : "Production";
 }
 
-export function ServiceList({ projects, companyById }: ServiceListProps) {
+// Finished university work is "Completed"; anything else with an end date was retired.
+export function serviceStatus(project: Project): { tone: StatusTone; label: string } {
+  if (!project.endDate) {
+    return { tone: "up", label: "Operational" };
+  }
+  return { tone: "muted", label: project.projectType === "UNIVERSITY" ? "Completed" : "Retired" };
+}
+
+function Service({ project, env }: { project: Project; env: string }) {
+  const titleId = useId();
+  const descriptionId = useId();
+  const status = serviceStatus(project);
+  const dates = projectDates(project);
   return (
-    <ul className="divide-y divide-st-line">
+    <Link
+      to={projectPath(project.slug)}
+      aria-labelledby={titleId}
+      aria-describedby={project.summary ? descriptionId : undefined}
+      className="group block px-5 py-5 no-underline transition-colors hover:bg-st-bg"
+    >
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h3 id={titleId} className="text-lg font-semibold group-hover:text-st-info group-hover:underline">
+          {project.title}
+        </h3>
+        <StatusPill tone={status.tone} label={status.label} />
+      </div>
+      <p className="text-sm text-st-muted">
+        {env}
+        {dates ? `, ${dates}` : ""}
+      </p>
+      {project.summary && (
+        <p id={descriptionId} className="mt-2 max-w-[65ch]">
+          {shortDescription(project.summary)}
+        </p>
+      )}
+      {project.skills.length > 0 && <p className="mt-2 text-sm text-st-muted">Depends on {project.skills.join(", ")}</p>}
+      <span aria-hidden="true" className="mt-2 inline-block text-sm font-medium text-st-info">
+        View status details
+      </span>
+    </Link>
+  );
+}
+
+interface ServiceListProps {
+  projects: Project[];
+  experiences: Experience[];
+  education: Education[];
+}
+
+export function ServiceList({ projects, experiences, education }: ServiceListProps) {
+  return (
+    <ul className="divide-y divide-st-line [&>li:first-child>a]:rounded-t-xl [&>li:last-child>a]:rounded-b-xl">
       {projects.map((project) => (
-        <li key={project.id} className="px-5 py-5">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h3 className="text-lg font-semibold">{project.title}</h3>
-            {project.endDate ? <StatusPill tone="muted" label="Retired" /> : <StatusPill tone="up" label="Operational" />}
-          </div>
-          <p className="text-sm text-st-muted">
-            {environment(project, companyById)}
-            {project.startDate ? `, ${formatRange(project.startDate, project.endDate)}` : ""}
-          </p>
-          {project.summary && <p className="mt-2 max-w-[65ch]">{project.summary}</p>}
-          {project.skills.length > 0 && <p className="mt-2 text-sm text-st-muted">Depends on {project.skills.join(", ")}</p>}
-          {(project.repoUrl || project.demoUrl) && (
-            <p className="mt-2 flex gap-4 text-sm font-medium">
-              {project.demoUrl && <a href={project.demoUrl} className="text-st-info">Open service</a>}
-              {project.repoUrl && <a href={project.repoUrl} className="text-st-info">Source</a>}
-            </p>
-          )}
+        <li key={project.id}>
+          <Service project={project} env={environment(project, findExperience(project, experiences), findEducation(project, education))} />
         </li>
       ))}
     </ul>
