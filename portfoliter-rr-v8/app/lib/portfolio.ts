@@ -1,6 +1,6 @@
 // Mirrors the JSON from the Go API's GET /v1/portfolio. Dates are "YYYY-MM-DD".
 
-export type ProjectType = "PERSONAL" | "WORK";
+export type ProjectType = "WORK" | "PERSONAL" | "UNIVERSITY";
 
 export interface Profile {
   fullName: string;
@@ -29,12 +29,15 @@ export interface Experience {
   skills: string[];
 }
 
+// summary is the card's short description; content is markdown for the project page.
+// experienceId (WORK) and educationId (UNIVERSITY) are null when unset or when the linked row is a draft.
 export interface Project {
   id: number;
   slug: string;
   title: string;
   projectType: ProjectType;
   experienceId: number | null;
+  educationId: number | null;
   summary: string;
   content: string;
   repoUrl: string | null;
@@ -52,12 +55,19 @@ export interface Skill {
 }
 
 export interface Education {
+  id: number;
   institution: string;
   degree: string | null;
   field: string | null;
   startDate: string | null;
   endDate: string | null;
   description: string;
+}
+
+// GET /v1/projects/:slug: one published project with the published rows it links to.
+export interface ProjectDetail extends Project {
+  experience: Experience | null;
+  education: Education | null;
 }
 
 export interface Certification {
