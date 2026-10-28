@@ -18,7 +18,7 @@ const apiKeyHeader = "X-API-Key"
 
 type PortfolioReader interface {
 	GetPublished(ctx context.Context) (portfolio.Portfolio, error)
-	GetPublishedProject(ctx context.Context, slug string) (portfolio.ProjectDetail, error)
+	GetPublishedProject(ctx context.Context, slug string) (portfolio.Project, error)
 }
 
 // maxSlugLength bounds the path value before it reaches the database; longer slugs are a 404.

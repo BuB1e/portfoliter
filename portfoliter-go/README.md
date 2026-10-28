@@ -17,10 +17,20 @@ go test ./...                 # DB tests start postgres:17-alpine via testcontai
 | Method | Path | Auth | Response |
 |---|---|---|---|
 | GET | `/healthz` | none | `{"status":"ok"}` |
-| GET | `/v1/portfolio` | `X-API-Key` header | `theme` + profile + every published section; 404 until the profile row exists |
-| GET | `/v1/projects/{slug}` | `X-API-Key` header | one published project (markdown `content`, cover, dates, links, skills) plus its published `experience` / `education`; 404 for drafts and unknown slugs |
+| GET | `/v1/portfolio` | `X-API-Key` header | the normalized portfolio view; 404 until the profile row exists |
+| GET | `/v1/projects/{slug}` | `X-API-Key` header | one entry of the view's `projects` (same shape, with its embedded `experience` / `education`); 404 for drafts and unknown slugs |
 
 The backend stores only `API_READ_KEY_SHA256`. The frontend sends the raw key; the server hashes it and compares in constant time.
+
+### The portfolio view
+
+Both endpoints serve one documented shape: [docs/portfolio-view.md](../docs/portfolio-view.md).
+`internal/portfolio/view.go` applies its rules (published rows only, `null` for blank optional text,
+projects embed their linked experience or education, `skillGroups` with uncategorized skills under
+key `"other"`, section items read into `entries`, stable order). `internal/portfolio/view_test.go`
+unit-tests the rules; `internal/httpapi/view_test.go` loads a full fictional profile into a
+testcontainers database and compares the response with `internal/httpapi/testdata/portfolio_view.golden.json`
+(`go test ./internal/httpapi -run View -update` rewrites it; review the diff before committing).
 
 ## Data model
 

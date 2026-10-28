@@ -1,0 +1,294 @@
+{
+  "theme": "parcel",
+  "profile": {
+    "fullName": "Mira Castellanos",
+    "headline": "Platform engineer",
+    "bio": "Builds quiet infrastructure.",
+    "avatarUrl": "https://files.example/avatar/mira.jpg",
+    "location": "Porto, Portugal",
+    "email": null,
+    "resumeUrl": "https://files.example/resume/mira.pdf"
+  },
+  "links": [
+    {
+      "platform": "github",
+      "url": "https://github.example/mira"
+    },
+    {
+      "platform": "linkedin",
+      "url": "https://linkedin.example/mira"
+    }
+  ],
+  "experiences": [
+    {
+      "id": 1,
+      "company": "Lumen Freight",
+      "role": "Staff Engineer",
+      "employmentType": "full-time",
+      "location": "Porto, Portugal",
+      "startDate": "2024-03-01",
+      "endDate": null,
+      "description": "Runs the platform team.",
+      "skills": [
+        "Go",
+        "PostgreSQL"
+      ]
+    },
+    {
+      "id": 2,
+      "company": "Kitebird Labs",
+      "role": "Backend Contractor",
+      "employmentType": "contract",
+      "location": null,
+      "startDate": "2023-01-01",
+      "endDate": "2024-02-29",
+      "description": "",
+      "skills": [
+        "TypeScript"
+      ]
+    },
+    {
+      "id": 3,
+      "company": "Orchard Health",
+      "role": "Data Engineer",
+      "employmentType": null,
+      "location": null,
+      "startDate": "2023-01-01",
+      "endDate": "2023-12-31",
+      "description": "Same start as Kitebird.",
+      "skills": []
+    }
+  ],
+  "projects": [
+    {
+      "id": 1,
+      "slug": "freight-router",
+      "title": "Freight Router",
+      "projectType": "WORK",
+      "experienceId": 1,
+      "educationId": null,
+      "summary": "Routes parcels.",
+      "content": "## How it works",
+      "repoUrl": "https://github.example/mira/router",
+      "demoUrl": "https://router.example",
+      "coverUrl": "https://files.example/cover/router.png",
+      "startDate": "2024-05-01",
+      "endDate": null,
+      "isFeatured": true,
+      "skills": [
+        "Go",
+        "PostgreSQL"
+      ],
+      "experience": {
+        "id": 1,
+        "company": "Lumen Freight",
+        "role": "Staff Engineer",
+        "employmentType": "full-time",
+        "location": "Porto, Portugal",
+        "startDate": "2024-03-01",
+        "endDate": null,
+        "description": "Runs the platform team.",
+        "skills": [
+          "Go",
+          "PostgreSQL"
+        ]
+      },
+      "education": null
+    },
+    {
+      "id": 2,
+      "slug": "night-notes",
+      "title": "Night Notes",
+      "projectType": "PERSONAL",
+      "experienceId": null,
+      "educationId": null,
+      "summary": "Notes app.",
+      "content": "",
+      "repoUrl": null,
+      "demoUrl": null,
+      "coverUrl": null,
+      "startDate": null,
+      "endDate": null,
+      "isFeatured": false,
+      "skills": [],
+      "experience": null,
+      "education": null
+    },
+    {
+      "id": 3,
+      "slug": "thesis-viz",
+      "title": "Thesis Viz",
+      "projectType": "UNIVERSITY",
+      "experienceId": null,
+      "educationId": 1,
+      "summary": "Final-year project.",
+      "content": "Charts.",
+      "repoUrl": null,
+      "demoUrl": null,
+      "coverUrl": null,
+      "startDate": "2021-09-01",
+      "endDate": "2022-06-30",
+      "isFeatured": false,
+      "skills": [
+        "TypeScript"
+      ],
+      "experience": null,
+      "education": {
+        "id": 1,
+        "institution": "Porto Polytechnic",
+        "degree": "B.Sc.",
+        "field": "Software Engineering",
+        "startDate": null,
+        "endDate": "2022-07-31",
+        "description": "Final grade 17/20"
+      }
+    },
+    {
+      "id": 4,
+      "slug": "stealth",
+      "title": "Stealth",
+      "projectType": "WORK",
+      "experienceId": null,
+      "educationId": null,
+      "summary": "Linked to a draft job.",
+      "content": "",
+      "repoUrl": null,
+      "demoUrl": null,
+      "coverUrl": null,
+      "startDate": null,
+      "endDate": null,
+      "isFeatured": false,
+      "skills": [],
+      "experience": null,
+      "education": null
+    }
+  ],
+  "skills": [
+    {
+      "name": "Go",
+      "category": "Language"
+    },
+    {
+      "name": "PostgreSQL",
+      "category": "database"
+    },
+    {
+      "name": "Terraform",
+      "category": null
+    },
+    {
+      "name": "TypeScript",
+      "category": "language"
+    },
+    {
+      "name": "Figma",
+      "category": null
+    }
+  ],
+  "skillGroups": [
+    {
+      "key": "language",
+      "category": "Language",
+      "skills": [
+        "Go",
+        "TypeScript"
+      ]
+    },
+    {
+      "key": "database",
+      "category": "database",
+      "skills": [
+        "PostgreSQL"
+      ]
+    },
+    {
+      "key": "other",
+      "category": null,
+      "skills": [
+        "Terraform",
+        "Figma"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "id": 1,
+      "institution": "Porto Polytechnic",
+      "degree": "B.Sc.",
+      "field": "Software Engineering",
+      "startDate": null,
+      "endDate": "2022-07-31",
+      "description": "Final grade 17/20"
+    },
+    {
+      "id": 2,
+      "institution": "Open Night School",
+      "degree": null,
+      "field": null,
+      "startDate": "2019-09-01",
+      "endDate": "2020-06-30",
+      "description": ""
+    }
+  ],
+  "certifications": [
+    {
+      "id": 2,
+      "name": "Cloud Architect",
+      "issuer": "Cloud Co",
+      "issuedDate": "2024-06-15",
+      "credentialUrl": "https://certs.example/mira"
+    },
+    {
+      "id": 1,
+      "name": "Language test",
+      "issuer": "Exam Board",
+      "issuedDate": null,
+      "credentialUrl": null
+    }
+  ],
+  "sections": [
+    {
+      "key": "awards",
+      "title": "Awards",
+      "items": [
+        {
+          "name": "Open-source award",
+          "note": "2023"
+        }
+      ],
+      "entries": [
+        {
+          "title": "Open-source award",
+          "detail": "2023",
+          "url": null
+        }
+      ]
+    },
+    {
+      "key": "talks",
+      "title": "Talks",
+      "items": [
+        {
+          "url": "https://talks.example/1",
+          "role": "Speaker",
+          "event": "PyCon Lisbon"
+        },
+        "Lightning talk",
+        {}
+      ],
+      "entries": [
+        {
+          "title": "PyCon Lisbon",
+          "detail": "Speaker",
+          "url": "https://talks.example/1"
+        },
+        {
+          "title": "Lightning talk",
+          "detail": null,
+          "url": null
+        }
+      ]
+    }
+  ]
+}
+
