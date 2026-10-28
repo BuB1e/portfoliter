@@ -1,42 +1,24 @@
 import type { Route } from "./+types/home";
-import { fetchPortfolio } from "../lib/api.server";
-import { ProjectGroups } from "~/components/ProjectGroups";
+import { fetchPortfolio } from "~/lib/api.server";
+import { themeKey } from "~/lib/theme";
+import { themePages, themeTitles } from "~/themes/registry";
 
 export async function loader({ request }: Route.LoaderArgs) {
   return { portfolio: await fetchPortfolio(request.signal) };
 }
 
 export function meta({ loaderData }: Route.MetaArgs) {
-  const profile = loaderData?.portfolio?.profile;
+  const portfolio = loaderData?.portfolio;
+  const profile = portfolio?.profile;
   return [
-    { title: profile?.fullName ?? "Portfolio" },
+    { title: profile ? themeTitles[themeKey(portfolio.theme)](profile.fullName) : "Portfoliter" },
     { name: "description", content: profile?.headline ?? "" },
   ];
 }
 
+// The active design comes from site_settings.theme, switched through the set_theme MCP tool.
 export default function Home({ loaderData }: Route.ComponentProps) {
   const { portfolio } = loaderData;
-
-  if (!portfolio) {
-    return (
-      <main className="p-8">
-        <p>No portfolio published yet.</p>
-      </main>
-    );
-  }
-
-  const { profile } = portfolio;
-  return (
-    <main className="mx-auto max-w-5xl space-y-10 px-4 py-8 sm:px-8">
-      <header className="space-y-2">
-        <h1 className="text-3xl font-bold">{profile.fullName}</h1>
-        {profile.headline && <p className="text-lg">{profile.headline}</p>}
-      </header>
-      <ProjectGroups projects={portfolio.projects} />
-      <details>
-        <summary className="cursor-pointer text-sm text-gray-500">All portfolio data (JSON)</summary>
-        <pre className="mt-2 overflow-x-auto text-sm">{JSON.stringify(portfolio, null, 2)}</pre>
-      </details>
-    </main>
-  );
+  const Page = themePages[themeKey(portfolio?.theme)];
+  return <Page portfolio={portfolio} />;
 }

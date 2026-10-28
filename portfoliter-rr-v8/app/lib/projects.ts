@@ -28,6 +28,22 @@ export function projectPath(slug: string): string {
   return `/projects/${encodeURIComponent(slug)}`;
 }
 
+// id of a group's heading on the home page, e.g. "university-projects".
+export function projectGroupId(type: ProjectType): string {
+  return `${type.toLowerCase()}-projects`;
+}
+
+// Where a detail page's back link goes: the home page, scrolled to the project's group.
+export function projectGroupHref(type: ProjectType): string {
+  return `/#${projectGroupId(type)}`;
+}
+
+// 1-based position of a project inside its group, for designs that number cards (station codes etc.).
+export function positionInGroup(project: Project, projects: readonly Project[]): number {
+  const group = projects.filter((candidate) => candidate.projectType === project.projectType);
+  return group.findIndex((candidate) => candidate.id === project.id) + 1;
+}
+
 // The backend limits new summaries to this many characters; older ones can be longer.
 export const SUMMARY_MAX_CHARS = 200;
 

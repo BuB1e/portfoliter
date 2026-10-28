@@ -1,7 +1,7 @@
 # portfoliter-rr-v8
 
-The frontend: a React Router v8 app with server-side rendering. On `develop` it is a placeholder that
-loads your portfolio and prints it as JSON, ready for you to replace with your own design.
+The frontend: a React Router v8 app with server-side rendering. It ships eleven designs (a neutral
+`plain` page plus ten themed ones); the owner picks one with the `set_theme` MCP tool.
 Start with the [root README](../README.md) for setup.
 
 ## Run
@@ -32,7 +32,7 @@ npm run dev                     # http://localhost:5173
 | `app/lib/projects.ts` | `groupProjects()` (Work, Personal, University; empty groups dropped), `projectPath()`, `shortDescription()` for cards |
 | `app/components/ProjectCard.tsx`, `ProjectGroups.tsx` | the home page's project groups; each card is one `<Link>` to its project page |
 | `app/components/Markdown.tsx` | safe markdown for project `content` (react-markdown, raw HTML dropped, unsafe URLs stripped) |
-| `app/lib/theme.ts` | `THEME_KEYS`, the designs this frontend can render (empty on `develop`) |
+| `app/lib/theme.ts` | `THEME_KEYS`, the designs this frontend can render; the first (`plain`) is the default |
 | `app/root.tsx` | HTML shell, fonts, error boundary |
 | `app/app.css` | Tailwind CSS v4 entry; put your colors and fonts in `@theme` |
 
@@ -69,6 +69,43 @@ If you build more than one design and want Claude to switch between them with `s
    checking that every key has a page.
 4. Optional: set `<html data-theme={key}>` in `root.tsx` (read the home loader data with
    `useRouteLoaderData("routes/home")`) so each design can style `html` and `body` without a flash.
+
+## Designs
+
+`plain` (`app/themes/plain/`) is the default while no theme is set. The ten themed designs below
+render the same data in their own look. `routes/home.tsx` renders
+`themePages[themeKey(portfolio.theme)]` from `app/themes/registry.ts`, and `root.tsx` sets
+`<html data-theme>` during SSR so each design's page colors in `app.css` apply before hydration.
+
+| Key | Page | Components |
+|---|---|---|
+| `plain` (default) | `app/themes/plain/PlainPage.tsx` | `app/components/DefaultProjectPage.tsx`, `ProjectGroups.tsx` |
+| `dating` | `app/themes/dating/DatingPage.tsx` | `app/components/dating/` |
+| `field-guide` | `app/themes/field-guide/FieldGuidePage.tsx` | `app/components/field-guide/` |
+| `parcel` | `app/themes/parcel/ParcelPage.tsx` | `app/components/parcel/` |
+| `spec-sheet` | `app/themes/spec-sheet/SpecSheetPage.tsx` | `app/components/spec-sheet/` |
+| `skytrain` | `app/themes/skytrain/SkytrainPage.tsx` | `app/components/skytrain/` |
+| `status-page` | `app/themes/status-page/StatusPage.tsx` | `app/components/status-page/` |
+| `receipt` | `app/themes/receipt/ReceiptPage.tsx` | `app/components/receipt/` |
+| `broadsheet` | `app/themes/broadsheet/BroadsheetPage.tsx` | `app/components/broadsheet/` |
+| `quest-log` | `app/themes/quest-log/QuestLogPage.tsx` | `app/components/quest-log/` |
+| `retro-desktop` | `app/themes/retro-desktop/RetroDesktopPage.tsx` | `app/components/retro-desktop/` |
+
+`routes/project.tsx` renders `themeProjectPages[themeKey(portfolio.theme)]` (`app/themes/<key>/*ProjectPage.tsx`)
+for `/projects/:slug`, and `root.tsx` reads the theme from either route, so project pages keep the
+active design. Each design groups projects with `groupProjects()` and links every card to its page.
+
+Each page loads its own Google Fonts with `<link precedence>`; tokens are prefixed per design in
+`app.css` (`fg-*`, `parcel-*`, `ss-*`, `sky-*`, `st-*`, `rc-*`, `bs-*`, `ql-*`, `rd-*`). The retro desktop's windows are page sections styled as windows,
+not draggable; its taskbar buttons jump to them and each project's close box is a link back to its folder. Newer designs list a Thai fallback
+font after their Latin face, so Thai text never drops to a system font. The status page's uptime bars are
+decorative and generated from each skill name, so the server and the browser render the same bars. `npm test` runs the Vitest checks: theme key fallback, project grouping, the project loader's 404,
+and, for every design, the three sections, card links with clamped short descriptions, the project
+page and its not-found state (`app/themes/themes.test.tsx`). `app/themes/fields.test.tsx` renders the
+newer designs with live-shaped data (`app/test-utils/livePortfolio.ts`) and fails if any published
+field is dropped: profile, links, every skill (uncategorized ones under "Other"), custom sections
+(read through `app/lib/sectionItems.ts`), education, experience, certifications, and each project's
+cover, dates, skills, featured marker and linked job or school.
 
 ## Deploy
 

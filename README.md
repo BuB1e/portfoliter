@@ -17,8 +17,8 @@ MCP server. Your own frontend reads the data and renders the site.
  PostgreSQL   Cloudflare R2 (avatar, project covers, resume)
 ```
 
-This branch (`develop`) is a starting point. The backend is complete. The frontend is a placeholder
-page that loads your data and prints it, so you can build your own design on top of it.
+This branch (`develop`) is the template: clone it, fill in your own data through the MCP, and pick one
+of eleven designs with `set_theme`. Your data and your chosen design live in the database, not in code.
 
 ## Contents
 
@@ -39,7 +39,7 @@ page that loads your data and prints it, so you can build your own design on top
 | Path | What it is |
 |---|---|
 | `portfoliter-go/` | Go backend: read API, MCP server, migrations, R2 file storage. [README](portfoliter-go/README.md) |
-| `portfoliter-rr-v8/` | React Router v8 frontend with server-side rendering (placeholder page). [README](portfoliter-rr-v8/README.md) |
+| `portfoliter-rr-v8/` | React Router v8 frontend with server-side rendering and eleven designs. [README](portfoliter-rr-v8/README.md) |
 | `docker-compose.yml` | Local: runs backend on `:8080` and frontend on `:3000` |
 | `docker-compose.prod.yml` | Production: same two services bound to `127.0.0.1`, behind your reverse proxy |
 
@@ -216,9 +216,39 @@ See [the frontend README](portfoliter-rr-v8/README.md) for the full guide.
 
 ## Themes: switch designs from the AI
 
-You can build several designs and let the AI switch between them ("switch my site to the minimal
-design"). `develop` ships with **no designs**: `list_themes` returns `[]` and `set_theme` refuses every
-value until you add one.
+The template ships eleven designs and lets the AI switch between them ("switch my site to parcel").
+`plain` is the default while no theme is set.
+
+| Key | Look | Page |
+|---|---|---|
+| `plain` (default) | Neutral single-column page in the system font, light or dark with the OS | `app/themes/plain/PlainPage.tsx` |
+| `dating` | Dark dating-app profile; projects are a swipeable card deck | `app/themes/dating/DatingPage.tsx` |
+| `field-guide` | Naturalist field guide; projects are pinned specimens | `app/themes/field-guide/FieldGuidePage.tsx` |
+| `parcel` | Kraft shipping box with a label, bubble wrap and stickers | `app/themes/parcel/ParcelPage.tsx` |
+| `spec-sheet` | Serious and minimal: white page, one sans-serif, label-and-content rows | `app/themes/spec-sheet/SpecSheetPage.tsx` |
+| `skytrain` | Bangkok BTS line map; jobs are stations, projects are interchanges | `app/themes/skytrain/SkytrainPage.tsx` |
+| `status-page` | Uptime status page; skills are components, past jobs are resolved incidents | `app/themes/status-page/StatusPage.tsx` |
+| `receipt` | Thermal mini-mart receipt in monospace; jobs are purchases, projects are line items | `app/themes/receipt/ReceiptPage.tsx` |
+| `broadsheet` | Newspaper front page, "The Daily <first name>"; projects are articles, skills are classifieds | `app/themes/broadsheet/BroadsheetPage.tsx` |
+| `quest-log` | RPG character sheet in blue pixel menu windows; skills are stats, jobs are quests | `app/themes/quest-log/QuestLogPage.tsx` |
+| `retro-desktop` | 1990s desktop: teal background, bevelled grey windows, a taskbar; projects are files | `app/themes/retro-desktop/RetroDesktopPage.tsx` |
+
+Every design shows projects in three sections (Work, Personal, University; empty ones are hidden),
+and every card links to `/projects/<slug>`, which renders in the same design:
+
+| Key | Project sections | Project page |
+|---|---|---|
+| `plain` | Work, Personal and University project cards | Title, dates, cover, markdown and a fact list |
+| `dating` | Serious relationships, Weekend flings, College sweethearts (one swipe deck each; tap opens, drag swipes) | The project's dating profile: photo card, pitch, "The long version", interests, where we met |
+| `field-guide` | Domesticated, Wild and Lab specimens | A species account: plate, identification marks, field notes |
+| `parcel` | Packed at work, at home, on campus | A shipping label for the project, its packing slip and a photo of the contents |
+| `spec-sheet` | Work, Personal and University project rows | A spec sheet: one labelled row per fact |
+| `skytrain` | Sukhumvit line (work), Gold line (personal), Blue line (university) | A station in its line's colour: platform information, timetable, connecting line, exits |
+| `status-page` | Production, Side and Campus services | The service's status entry: banner, components, update log |
+| `receipt` | Made at work, Homemade, School supplies (line items with a staff-pick tag) | An item receipt: item lines, "printed on the back" detail, ingredients, barcode; a VOID slip for 404 |
+| `broadsheet` | Business, Weekend and Campus sections (ruled columns of stories, an editor's-pick kicker) | The full article: headline, standfirst, byline, photo, two-column text and a fact box; a correction notice for 404 |
+| `quest-log` | Main, Side and Academy quests (quest cards with giver, status and rewards; "Epic quest" when featured) | A parchment quest scroll: giver, status, map, objectives, rewards, wax seal; a blank-scroll window for 404 |
+| `retro-desktop` | Work, Personal and University project folders (file tiles, "Pinned" when featured), plus desktop shortcuts and a taskbar | The file opened in its own window: toolbar, address field, document, properties and status bar; the close box links back to the folder; a "File not found" error dialog for 404 |
 
 How it works:
 
@@ -232,9 +262,9 @@ How it works:
 
 To add a design:
 
-1. Build the page in the frontend and render it when `portfolio.theme` matches its key (fall back to
-   the first key otherwise).
-2. Add the key to `THEME_KEYS`, e.g. `["minimal"] as const`.
+1. Build its home and project pages under `portfoliter-rr-v8/app/themes/<key>/` and register them in
+   `app/themes/registry.ts`.
+2. Add the key to `THEME_KEYS`.
 3. Add `{Key: "minimal", Name: "Minimal", Description: "..."}` to `themeCatalog`.
 4. Run `cd portfoliter-go && go test ./...`.
 5. Deploy both apps together, then ask Claude to list and switch themes.
@@ -283,7 +313,7 @@ testcontainers, so Docker must be running; they are skipped when it is not. They
 | Frontend error `portfolio api responded 401` | `API_READ_KEY` does not hash to `API_READ_KEY_SHA256`. Recompute the hash. |
 | MCP client gets `401 unauthorized` | Wrong write key in the `Authorization: Bearer` header. |
 | New item not on the site | It is a draft. Ask Claude to publish it. |
-| `set_theme` says "no themes defined" | Expected on `develop`. Add a design (see Themes). |
+| `set_theme` says "unknown theme" | Use a key from `list_themes`; it must also be in `THEME_KEYS` (see Themes). |
 | `TestThemeCatalogMatchesFrontend` fails | The backend and frontend theme lists differ in content or order. |
 | Backend exits on start | Missing env key, unreachable database, or a failed migration. Check `docker compose logs backend`. |
 | Images or resume links stop working | Presigned links expire (`R2_GET_URL_TTL`). Reloading the page creates new ones. |

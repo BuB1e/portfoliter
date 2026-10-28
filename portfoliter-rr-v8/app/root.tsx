@@ -5,11 +5,16 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useRouteLoaderData,
 } from "react-router";
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import { themeKey } from "./lib/theme";
+import type { loader as homeLoader } from "./routes/home";
+import type { loader as projectLoader } from "./routes/project";
 
+// Each design page loads its own font stylesheet.
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
@@ -17,15 +22,16 @@ export const links: Route.LinksFunction = () => [
     href: "https://fonts.gstatic.com",
     crossOrigin: "anonymous",
   },
-  {
-    rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
-  },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  // Set on <html> during SSR so the page background matches the design before hydration.
+  // Both the home page and project pages carry the portfolio, so both get the active design.
+  const home = useRouteLoaderData<typeof homeLoader>("routes/home");
+  const project = useRouteLoaderData<typeof projectLoader>("routes/project");
+  const theme = home?.portfolio?.theme ?? project?.portfolio?.theme;
   return (
-    <html lang="en">
+    <html lang="en" data-theme={themeKey(theme)}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />

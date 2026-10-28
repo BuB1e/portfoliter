@@ -1,0 +1,152 @@
+import type { Portfolio, ProjectDetail } from "~/lib/portfolio";
+
+// Shaped like the owner's live portfolio (from get_portfolio), with every optional field set somewhere,
+// including the awkward cases: skills without a category, a certification with no date or link, an
+// education row with no start date, and a project with no cover and no content.
+export function makeLivePortfolio(overrides: Partial<Portfolio> = {}): Portfolio {
+  return {
+    theme: "",
+    profile: {
+      fullName: "Harit Sombatsiri",
+      headline: "Software engineer who ships full-stack systems end to end, from spec to production.",
+      bio: "Software Engineer at Ngern Turbo, building procurement, internal car management and automation systems.",
+      avatarUrl: "https://files.example/avatar.jpg",
+      location: "Nonthaburi, Thailand",
+      email: "harit@example.com",
+      resumeUrl: "https://files.example/resume.pdf",
+    },
+    links: [
+      { platform: "github", url: "https://github.com/BuB1e" },
+      { platform: "linkedin", url: "https://www.linkedin.com/in/harit" },
+    ],
+    experiences: [
+      {
+        id: 3,
+        company: "Ngern Turbo",
+        role: "Software Engineer",
+        employmentType: "full-time",
+        location: "Bangkok, Thailand",
+        startDate: "2026-04-01",
+        endDate: null,
+        description: "Shipped 30 features to production in five months.",
+        skills: ["Go", "PostgreSQL"],
+      },
+      {
+        id: 1,
+        company: "Yuan Ze University (Taiwan)",
+        role: "Software Engineer Cooperative Intern",
+        employmentType: "internship",
+        location: "Taoyuan, Taiwan",
+        startDate: "2025-10-01",
+        endDate: "2026-02-28",
+        description: "Built an ISO/IEC 27001 compliance assessment system.",
+        skills: ["Elysia", "Prisma"],
+      },
+    ],
+    projects: [
+      {
+        id: 2,
+        slug: "iso27001-compliance",
+        title: "ISO 27001 Compliance Assessment System",
+        projectType: "WORK",
+        experienceId: 1,
+        educationId: null,
+        summary: "Helps organizations record evidence for each ISO/IEC 27001 control, score risk, and get AI suggestions on gaps to close before an audit.",
+        content: "",
+        repoUrl: null,
+        demoUrl: null,
+        coverUrl: "https://files.example/iso.png",
+        startDate: "2025-10-01",
+        endDate: "2026-02-28",
+        isFeatured: true,
+        skills: ["Bun", "Elysia"],
+      },
+      {
+        id: 18,
+        slug: "katark",
+        title: "katark: Server Status Dashboard",
+        projectType: "PERSONAL",
+        experienceId: null,
+        educationId: null,
+        summary: "A read-only dashboard for my Linux server, built as one static Go binary that never changes anything on the host.",
+        content: "",
+        repoUrl: null,
+        demoUrl: null,
+        coverUrl: null,
+        startDate: "2026-10-22",
+        endDate: null,
+        isFeatured: false,
+        skills: ["nginx"],
+      },
+      {
+        id: 3,
+        slug: "growthcheck",
+        title: "GrowthCheck",
+        projectType: "UNIVERSITY",
+        experienceId: null,
+        educationId: 1,
+        summary: "Senior project at Kasetsart University. Community health volunteers record child height and weight.",
+        content: "",
+        repoUrl: null,
+        demoUrl: null,
+        coverUrl: null,
+        startDate: "2025-09-01",
+        endDate: "2026-04-30",
+        isFeatured: false,
+        skills: ["LSTM"],
+      },
+    ],
+    skills: [
+      { name: "TypeScript", category: "language" },
+      { name: "PostgreSQL", category: "database" },
+      { name: "Go", category: null },
+      { name: "MCP", category: null },
+      { name: "nginx", category: null },
+    ],
+    education: [
+      {
+        id: 1,
+        institution: "Kasetsart University",
+        degree: "B.Sc.",
+        field: "Computer Science",
+        startDate: null,
+        endDate: "2026-04-30",
+        description: "GPAX 3.26, Second-Class Honours",
+      },
+    ],
+    certifications: [
+      { name: "Certificate of Internship", issuer: "Ascend Commerce Digital Group", issuedDate: "2025-08-15", credentialUrl: "https://certs.example/intern" },
+      { name: "TOEIC, score 750", issuer: "ETS", issuedDate: null, credentialUrl: null },
+    ],
+    sections: [
+      { key: "awards", title: "Awards", items: [{ name: "Hackathon finalist", note: "Bangkok, 2025" }] },
+      { key: "languages", title: "Spoken languages", items: ["Thai", { label: "English", level: "Professional" }] },
+    ],
+    ...overrides,
+  };
+}
+
+// A WORK project page with everything set: content, links, cover and the linked job.
+export function makeLiveProjectDetail(overrides: Partial<ProjectDetail> = {}): ProjectDetail {
+  const portfolio = makeLivePortfolio();
+  return {
+    id: 16,
+    slug: "ma-dawg",
+    title: "ma-dawg: LaTeX Resume Editor with MCP",
+    projectType: "WORK",
+    experienceId: 3,
+    educationId: null,
+    summary: "A web editor for LaTeX resumes that AI apps can also edit directly through an MCP server.",
+    content: "- **Web editor** with live PDF preview\n- **Sandboxed compiler** with no outbound access",
+    repoUrl: "https://github.com/BuB1e/ma-dawg",
+    demoUrl: "https://madawg.example",
+    coverUrl: "https://files.example/madawg.jpg",
+    startDate: "2026-10-21",
+    endDate: null,
+    isFeatured: true,
+    skills: ["Cloudflare R2", "Playwright"],
+    experience: portfolio.experiences[0],
+    education: null,
+    ...overrides,
+  };
+}

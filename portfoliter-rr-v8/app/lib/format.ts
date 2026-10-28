@@ -20,6 +20,19 @@ export function capitalize(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
+const PLATFORM_NAMES: Record<string, string> = {
+  github: "GitHub",
+  gitlab: "GitLab",
+  linkedin: "LinkedIn",
+  youtube: "YouTube",
+  x: "X",
+};
+
+// "github" -> "GitHub"; unknown platforms are just capitalized.
+export function platformName(platform: string): string {
+  return PLATFORM_NAMES[platform.toLowerCase()] ?? capitalize(platform);
+}
+
 export function firstName(fullName: string): string {
   return fullName.split(" ")[0] ?? fullName;
 }

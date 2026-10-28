@@ -1,7 +1,7 @@
 import { Link } from "react-router";
 
 import type { Portfolio, ProjectDetail } from "~/lib/portfolio";
-import { educationLabel, experienceLabel, PROJECT_GROUP_LABELS, projectDates } from "~/lib/projects";
+import { educationLabel, experienceLabel, PROJECT_GROUP_LABELS, projectDates, projectGroupHref } from "~/lib/projects";
 import { Markdown } from "./Markdown";
 
 // project is null for unknown or draft slugs; portfolio is null until a profile exists.
@@ -32,7 +32,7 @@ export function DefaultProjectPage({ project }: ProjectPageProps) {
   const dates = projectDates(project);
   return (
     <main className="mx-auto max-w-3xl space-y-6 px-4 py-8 sm:px-8">
-      <Link to="/" className={backLinkClass}>
+      <Link to={projectGroupHref(project.projectType)} className={backLinkClass}>
         Back to all projects
       </Link>
       <header className="space-y-2">

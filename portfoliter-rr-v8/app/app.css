@@ -1,15 +1,512 @@
 @import "tailwindcss";
 
+/* Tokens for every design live here; field-guide and parcel are prefixed so names never clash. */
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-sans: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+
+  /* dating */
+  --color-night: #2b0f35;
+  --color-night-raised: #3d1849;
+  --color-card: #fff4ee;
+  --color-flame: #ff4d6d;
+  --color-lilac: #cdb8ff;
+  --color-mint: #6ee7b7;
+  --color-ink: #1a0b20;
+  --color-muted: #6b4a73;
+
+  /* field-guide */
+  --font-fg-serif: "Newsreader", Georgia, serif;
+  --font-fg-sans: "Work Sans", system-ui, sans-serif;
+  --color-fg-sage: #dde5d3;
+  --color-fg-paper: #f7f9f2;
+  --color-fg-pine: #1f3a2e;
+  --color-fg-ochre: #e2a93b;
+  --color-fg-rust: #a4462b;
+  --color-fg-moss: #6f8a5e;
+  --color-fg-header: #e9eee1;
+
+  /* parcel */
+  --font-parcel-stencil: "Big Shoulders Stencil Display", Impact, sans-serif;
+  --font-parcel-body: "Archivo", system-ui, sans-serif;
+  --color-parcel-kraft: #c69c6d;
+  --color-parcel-kraft-dark: #8b6542;
+  --color-parcel-box: #d9b48a;
+  --color-parcel-tape: #d7263d;
+  --color-parcel-label: #fbfbf7;
+  --color-parcel-ink: #1e1b18;
+  --color-parcel-header: #f1ede2;
+  --color-parcel-sticker: #ffd23f;
+  --color-parcel-sticker-alt: #9be0c8;
+
+  /* spec-sheet */
+  --font-ss: "Schibsted Grotesk", system-ui, sans-serif;
+  --color-ss-paper: #ffffff;
+  --color-ss-ink: #1b1f24;
+  --color-ss-muted: #5b6470;
+  --color-ss-rule: #e4e7eb;
+  --color-ss-blue: #1f4fd8;
+
+  /* skytrain */
+  --font-sky: "Barlow", system-ui, sans-serif;
+  --font-sky-sign: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --color-sky-concrete: #eef1ec;
+  --color-sky-ink: #16251c;
+  --color-sky-muted: #56655b;
+  --color-sky-sukhumvit: #5fa83a;
+  --color-sky-silom: #0b6e46;
+  --color-sky-gold: #c9a227;
+  --color-sky-blue: #1e4fa0;
+  --color-sky-pink: #d9468f;
+  --color-sky-yellow: #f2c500;
+
+  /* status-page */
+  --font-st: "IBM Plex Sans", system-ui, sans-serif;
+  --color-st-bg: #f7f8fa;
+  --color-st-card: #ffffff;
+  --color-st-ink: #1c2024;
+  --color-st-muted: #687076;
+  --color-st-line: #e6e8eb;
+  --color-st-up: #30a46c;
+  --color-st-up-soft: #e9f6ef;
+  --color-st-warn: #e5a000;
+  --color-st-info: #0d74ce;
+
+  /* receipt: Thai text falls back to a looped Thai face, as on Thai till receipts */
+  --font-rc: "Martian Mono", "Noto Sans Thai Looped", ui-monospace, monospace;
+  --color-rc-counter: #9aa1a4;
+  --color-rc-paper: #fdfdfb;
+  --color-rc-ink: #232326;
+  --color-rc-faded: #5c5c62;
+  --color-rc-red: #b8211b;
+
+  /* broadsheet: blackletter nameplate, one serif for everything else, Thai serif fallback */
+  --font-bs-nameplate: "UnifrakturMaguntia", "Noto Serif Thai", Georgia, serif;
+  --font-bs: "Source Serif 4", "Noto Serif Thai", Georgia, serif;
+  --color-bs-paper: #e5e4de;
+  --color-bs-ink: #1f1f1e;
+  --color-bs-grey: #4b4b48;
+  --color-bs-rule: #8d8c86;
+  --color-bs-red: #9e1b1f;
+
+  /* quest-log: pixel UI face for menus, a calligraphic serif for the quest scroll, Thai fallbacks */
+  --font-ql: "Pixelify Sans", "Noto Sans Thai", system-ui, sans-serif;
+  --font-ql-scroll: "Alegreya", "Noto Serif Thai", Georgia, serif;
+  --color-ql-night: #191536;
+  --color-ql-window-top: #2b44ad;
+  --color-ql-window-bottom: #0f1966;
+  --color-ql-frame: #eef1ff;
+  --color-ql-edge: #070a2b;
+  --color-ql-soft: #c9d3ff;
+  --color-ql-gold: #ffd866;
+  --color-ql-green: #7ee0a0;
+  --color-ql-parchment: #f0dfb4;
+  --color-ql-ink: #3b2412;
+  --color-ql-ink-soft: #6b4a2e;
+  --color-ql-wax: #9b1c22;
+
+  /* retro-desktop: bitmap-style face for window chrome, a hyperlegible sans for reading, Thai fallback */
+  --font-rd: "Atkinson Hyperlegible Next", "Noto Sans Thai", system-ui, sans-serif;
+  --font-rd-pixel: "DotGothic16", "Noto Sans Thai", ui-monospace, monospace;
+  --color-rd-desktop: #008080;
+  --color-rd-face: #c0c0c0;
+  --color-rd-shadow: #808080;
+  --color-rd-dark: #0a0a0a;
+  --color-rd-title: #0a246a;
+  --color-rd-title-end: #3a6ea5;
+  --color-rd-link: #1a1aa6;
+  --color-rd-muted: #404040;
+  --color-rd-folder: #f2cf4a;
+
+  --animate-match-pop: match-pop 0.5s cubic-bezier(0.2, 1.6, 0.4, 1);
+
+  @keyframes match-pop {
+    from {
+      transform: scale(0.4);
+      opacity: 0;
+    }
+  }
 }
 
-html,
-body {
-  @apply bg-white dark:bg-gray-950;
+/* Page chrome per design; data-theme is set on <html> by root.tsx. */
+[data-theme="plain"] {
+  @apply bg-white text-gray-900;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  color-scheme: light dark;
 
   @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
+    @apply bg-gray-950 text-gray-100;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-blue-600);
+    outline-offset: 2px;
+  }
+}
+
+[data-theme="dating"] {
+  @apply bg-night text-card;
+  color-scheme: dark;
+
+  :focus-visible {
+    outline: 3px solid var(--color-mint);
+    outline-offset: 3px;
+  }
+}
+
+[data-theme="field-guide"] {
+  @apply bg-fg-sage font-fg-sans text-fg-pine;
+  color-scheme: light;
+
+  a {
+    text-decoration-color: var(--color-fg-ochre);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-fg-rust);
+    outline-offset: 3px;
+  }
+}
+
+[data-theme="parcel"] {
+  @apply font-parcel-body text-parcel-ink;
+  color-scheme: light;
+  background-color: var(--color-parcel-kraft);
+  /* paper grain + corrugated lines */
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .24 0 0 0 0 .13 0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(92deg, transparent 0 22px, rgb(139 101 66 / 0.08) 22px 23px);
+
+  :focus-visible {
+    outline: 3px solid var(--color-parcel-tape);
+    outline-offset: 3px;
+  }
+}
+
+[data-theme="spec-sheet"] {
+  @apply bg-ss-paper font-ss text-ss-ink;
+  color-scheme: light;
+
+  a {
+    text-decoration-color: color-mix(in srgb, var(--color-ss-blue) 40%, transparent);
+    text-underline-offset: 3px;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ss-blue);
+    outline-offset: 3px;
+  }
+}
+
+[data-theme="skytrain"] {
+  @apply bg-sky-concrete font-sky text-sky-ink;
+  color-scheme: light;
+
+  :focus-visible {
+    outline: 3px solid var(--color-sky-blue);
+    outline-offset: 3px;
+  }
+}
+
+[data-theme="status-page"] {
+  @apply bg-st-bg font-st text-st-ink;
+  color-scheme: light;
+
+  :focus-visible {
+    outline: 2px solid var(--color-st-info);
+    outline-offset: 2px;
+  }
+}
+
+[data-theme="receipt"] {
+  @apply font-rc text-rc-ink;
+  color-scheme: light;
+  /* speckled laminate shop counter */
+  background-color: var(--color-rc-counter);
+  background-image:
+    radial-gradient(circle at 20% 30%, rgb(255 255 255 / 0.22) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 70% 80%, rgb(0 0 0 / 0.14) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 45% 60%, rgb(255 255 255 / 0.12) 0 1.5px, transparent 2px);
+  background-size: 23px 19px, 31px 29px, 41px 37px;
+
+  :focus-visible {
+    outline: 3px solid var(--color-rc-red);
+    outline-offset: 2px;
+  }
+}
+
+/* receipt paper: zigzag tear along the top and bottom edges */
+@utility rc-tear {
+  --rc-tooth: 14px;
+  -webkit-mask:
+    conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) top / var(--rc-tooth) 51% repeat-x,
+    conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / var(--rc-tooth) 51% repeat-x;
+  mask:
+    conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) top / var(--rc-tooth) 51% repeat-x,
+    conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / var(--rc-tooth) 51% repeat-x;
+}
+
+/* the one moment of motion: the receipt prints line by line on load */
+@utility rc-print {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: rc-print 1.4s steps(36, end) both;
+  }
+}
+
+@keyframes rc-print {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* thermal print of a photo: one ink, no colour */
+@utility rc-thermal {
+  filter: grayscale(1) contrast(1.35) brightness(1.08);
+  mix-blend-mode: multiply;
+}
+
+[data-theme="broadsheet"] {
+  @apply bg-bs-paper font-bs text-bs-ink;
+  color-scheme: light;
+
+  a {
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-bs-red);
+    outline-offset: 3px;
+  }
+}
+
+/* newspaper photo: one ink on newsprint */
+@utility bs-photo {
+  filter: grayscale(1) contrast(1.12);
+  mix-blend-mode: multiply;
+}
+
+/* halftone screen standing in for a photo that was never filed */
+@utility bs-halftone {
+  background-color: rgb(31 31 30 / 0.06);
+  background-image: radial-gradient(circle, rgb(31 31 30 / 0.5) 0 1.1px, transparent 1.5px);
+  background-size: 6px 6px;
+}
+
+/* thin vertical rules between newspaper text columns */
+@utility bs-column-rule {
+  column-rule: 1px solid var(--color-bs-rule);
+}
+
+[data-theme="quest-log"] {
+  @apply bg-ql-night font-ql text-white;
+  color-scheme: dark;
+  /* a sky of single-pixel stars */
+  background-image:
+    radial-gradient(circle at 12% 18%, rgb(255 255 255 / 0.55) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 63% 41%, rgb(255 255 255 / 0.35) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 34% 77%, rgb(255 216 102 / 0.4) 0 1px, transparent 1.5px);
+  background-size: 173px 151px, 211px 197px, 263px 229px;
+
+  :focus-visible {
+    outline: 3px solid var(--color-ql-gold);
+    outline-offset: 3px;
+  }
+
+  /* gold would vanish on parchment; the scroll uses the wax red */
+  .ql-parchment :focus-visible {
+    outline-color: var(--color-ql-wax);
+  }
+}
+
+/* the classic RPG menu window: deep blue gradient inside a white frame with a dark keyline */
+@utility ql-window {
+  background: linear-gradient(180deg, var(--color-ql-window-top), var(--color-ql-window-bottom));
+  border: 3px solid var(--color-ql-frame);
+  border-radius: 8px;
+  box-shadow:
+    0 0 0 3px var(--color-ql-edge),
+    inset 0 0 0 2px var(--color-ql-edge),
+    6px 7px 0 3px rgb(0 0 0 / 0.35);
+}
+
+/* a pixel meter: square segments, filled up to --ql-fill */
+@utility ql-meter {
+  border: 2px solid var(--color-ql-frame);
+  background:
+    repeating-linear-gradient(90deg, transparent 0 9px, var(--color-ql-edge) 9px 11px),
+    linear-gradient(90deg, var(--color-ql-green) var(--ql-fill, 0%), rgb(7 10 43 / 0.7) var(--ql-fill, 0%));
+}
+
+/* the pointing cursor beside the focused or hovered menu entry */
+@utility ql-cursor {
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+  background: var(--color-ql-gold);
+
+  @media (prefers-reduced-motion: no-preference) {
+    animation: ql-bob 0.8s steps(2, jump-none) infinite;
+  }
+}
+
+@keyframes ql-bob {
+  to {
+    transform: translateX(3px);
+  }
+}
+
+/* aged parchment for the quest scroll, darker towards the edges */
+@utility ql-parchment {
+  background-color: var(--color-ql-parchment);
+  background-image:
+    radial-gradient(ellipse at 50% 50%, transparent 55%, rgb(139 94 40 / 0.22)),
+    radial-gradient(circle at 20% 30%, rgb(139 94 40 / 0.08) 0 2px, transparent 3px),
+    radial-gradient(circle at 75% 65%, rgb(139 94 40 / 0.07) 0 2px, transparent 3px);
+  background-size: 100% 100%, 37px 41px, 53px 47px;
+}
+
+[data-theme="retro-desktop"] {
+  @apply bg-rd-desktop font-rd text-rd-dark;
+  color-scheme: light;
+
+  /* the period's dotted focus rectangle, thick enough to see */
+  :focus-visible {
+    outline: 3px dotted var(--color-rd-dark);
+    outline-offset: 2px;
+  }
+
+  .rd-titlebar :focus-visible {
+    outline-color: #fff;
+  }
+}
+
+/* bevels drawn with inset shadows: light top-left, dark bottom-right (raised) or the reverse (sunken) */
+@utility rd-raised {
+  background-color: var(--color-rd-face);
+  box-shadow:
+    inset -1px -1px var(--color-rd-dark),
+    inset 1px 1px #fff,
+    inset -2px -2px var(--color-rd-shadow),
+    inset 2px 2px #dfdfdf;
+}
+
+@utility rd-sunken {
+  box-shadow:
+    inset -1px -1px #fff,
+    inset 1px 1px var(--color-rd-shadow),
+    inset -2px -2px #dfdfdf,
+    inset 2px 2px var(--color-rd-dark);
+}
+
+/* a push button: raised, pressed while held */
+@utility rd-button {
+  background-color: var(--color-rd-face);
+  color: var(--color-rd-dark);
+  box-shadow:
+    inset -1px -1px var(--color-rd-dark),
+    inset 1px 1px #fff,
+    inset -2px -2px var(--color-rd-shadow),
+    inset 2px 2px #dfdfdf;
+  text-decoration: none;
+
+  &:active {
+    box-shadow:
+      inset -1px -1px #fff,
+      inset 1px 1px var(--color-rd-dark),
+      inset -2px -2px #dfdfdf,
+      inset 2px 2px var(--color-rd-shadow);
+  }
+}
+
+@utility rd-titlebar {
+  background: linear-gradient(90deg, var(--color-rd-title), var(--color-rd-title-end));
+  color: #fff;
+}
+
+/* folder icon: a tab on top of a yellow body */
+@utility rd-folder {
+  background:
+    linear-gradient(var(--color-rd-folder), var(--color-rd-folder)) 0 0 / 45% 30% no-repeat,
+    linear-gradient(180deg, #f8e08a, var(--color-rd-folder) 40%, #c9a227) 0 100% / 100% 80% no-repeat;
+  filter: drop-shadow(1px 1px 0 var(--color-rd-dark));
+}
+
+/* document icon: a page with a folded corner and ruled lines */
+@utility rd-doc {
+  clip-path: polygon(0 0, 68% 0, 100% 28%, 100% 100%, 0 100%);
+  background:
+    linear-gradient(225deg, var(--color-rd-shadow) 0 20%, transparent 20%) 100% 0 / 32% 28% no-repeat,
+    repeating-linear-gradient(180deg, transparent 0 6px, #8a8a8a 6px 7px) 22% 55% / 56% 50% no-repeat,
+    #fff;
+  box-shadow: inset 0 0 0 1px var(--color-rd-dark);
+}
+
+/* parcel pieces that are pure CSS drawings */
+@utility parcel-barcode {
+  background: repeating-linear-gradient(
+    90deg,
+    var(--color-parcel-ink) 0 3px,
+    transparent 3px 5px,
+    var(--color-parcel-ink) 5px 6px,
+    transparent 6px 9px,
+    var(--color-parcel-ink) 9px 13px,
+    transparent 13px 15px,
+    var(--color-parcel-ink) 15px 16px,
+    transparent 16px 20px
+  );
+}
+
+@utility parcel-bubble {
+  border: 1px solid rgb(255 255 255 / 0.9);
+  background: radial-gradient(
+    circle at 32% 30%,
+    #fff 0 12%,
+    rgb(255 255 255 / 0.55) 22%,
+    rgb(200 225 240 / 0.35) 60%,
+    rgb(255 255 255 / 0.15)
+  );
+  box-shadow:
+    inset -3px -4px 6px rgb(0 0 0 / 0.08),
+    0 2px 3px rgb(0 0 0 / 0.12);
+}
+
+@utility parcel-bubble-popped {
+  background: rgb(255 255 255 / 0.18);
+  box-shadow: inset 2px 2px 4px rgb(0 0 0 / 0.15);
+}
+
+/* packing tape strip down the middle of a box cover */
+@utility parcel-box-tape {
+  &::after {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    left: 50%;
+    width: 46px;
+    transform: translateX(-50%);
+    background: rgb(240 210 160 / 0.75);
+    border-inline: 1px dashed rgb(139 101 66 / 0.6);
+  }
+}
+
+/* ticked checkbox drawn before each list item */
+@utility parcel-check {
+  position: relative;
+  padding-left: 1.8rem;
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.45rem;
+    width: 1.05rem;
+    height: 1.05rem;
+    border: 2px solid var(--color-parcel-ink);
+    background: var(--color-parcel-label)
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5l3 3 7-8' fill='none' stroke='%23d7263d' stroke-width='2.6'/%3E%3C/svg%3E")
+      center / 90% no-repeat;
   }
 }
