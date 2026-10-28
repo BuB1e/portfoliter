@@ -81,14 +81,14 @@ func TestUpsertUniversityProjectThroughMCP(t *testing.T) {
 	pool := testdb.Migrated(t)
 	store := admin.NewStore(pool)
 	session := connect(t, store)
-	educationID, err := store.UpsertEducation(ctx, admin.EducationInput{Institution: "Kasetsart University"})
+	educationID, err := store.UpsertEducation(ctx, admin.EducationInput{Institution: "Porto Polytechnic"})
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	res := callTool(t, session, "upsert_project", map[string]any{
-		"slug": "growthcheck", "title": "GrowthCheck", "projectType": "UNIVERSITY",
-		"educationId": educationID, "summary": "Senior project.", "content": "## Detail\n\n- LSTM growth risk",
+		"slug": "tidewatch", "title": "Tidewatch", "projectType": "UNIVERSITY",
+		"educationId": educationID, "summary": "Final-year project.", "content": "## Detail\n\n- Tide charts",
 		"skills": []string{"LSTM", "TypeScript"},
 	})
 
@@ -97,7 +97,7 @@ func TestUpsertUniversityProjectThroughMCP(t *testing.T) {
 	}
 	var projectType string
 	var linked int64
-	err = pool.QueryRow(ctx, `SELECT project_type::text, education_id FROM portfoliter.projects WHERE slug = 'growthcheck'`).
+	err = pool.QueryRow(ctx, `SELECT project_type::text, education_id FROM portfoliter.projects WHERE slug = 'tidewatch'`).
 		Scan(&projectType, &linked)
 	if err != nil {
 		t.Fatal(err)

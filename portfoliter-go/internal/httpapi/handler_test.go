@@ -41,12 +41,12 @@ func seed(t *testing.T, pool *pgxpool.Pool) {
 	_, err := pool.Exec(context.Background(), `
 		INSERT INTO portfoliter.profile (full_name) VALUES ('Owner');
 		INSERT INTO portfoliter.education (id, institution, degree, field, end_date, is_published)
-		VALUES (7, 'Kasetsart University', 'B.Sc.', 'Computer Science', '2026-04-30', true);
+		VALUES (7, 'Porto Polytechnic', 'B.Sc.', 'Computer Science', '2026-04-30', true);
 		INSERT INTO portfoliter.experiences (id, company, role, start_date, is_published)
 		VALUES (3, 'Hidden Co', 'Engineer', '2026-04-01', false);
 		INSERT INTO portfoliter.projects (id, slug, title, project_type, education_id, summary, content,
 			cover_key, repo_url, start_date, end_date, is_published)
-		VALUES (1, 'growthcheck', 'GrowthCheck', 'UNIVERSITY', 7, 'Senior project.', '## Detail',
+		VALUES (1, 'tidewatch', 'Tidewatch', 'UNIVERSITY', 7, 'Senior project.', '## Detail',
 			'cover/a.jpg', 'https://github.com/x/y', '2025-09-01', '2026-04-30', true);
 		INSERT INTO portfoliter.projects (id, slug, title, project_type, experience_id, is_published)
 		VALUES (2, 'work-thing', 'Work thing', 'WORK', 3, true);
@@ -93,13 +93,13 @@ func TestGetPublishedProjectBySlug(t *testing.T) {
 	srv := newServer(t)
 	var got map[string]any
 
-	status := get(t, srv, "/v1/projects/growthcheck", readKey, &got)
+	status := get(t, srv, "/v1/projects/tidewatch", readKey, &got)
 
 	if status != http.StatusOK {
 		t.Fatalf("status = %d, want 200", status)
 	}
 	checks := map[string]any{
-		"slug": "growthcheck", "projectType": "UNIVERSITY", "summary": "Senior project.", "content": "## Detail",
+		"slug": "tidewatch", "projectType": "UNIVERSITY", "summary": "Senior project.", "content": "## Detail",
 		"coverUrl": "https://files.example/cover/a.jpg", "repoUrl": "https://github.com/x/y",
 		"startDate": "2025-09-01", "endDate": "2026-04-30", "educationId": float64(7), "experience": nil,
 	}
@@ -109,8 +109,8 @@ func TestGetPublishedProjectBySlug(t *testing.T) {
 		}
 	}
 	education, _ := got["education"].(map[string]any)
-	if education["institution"] != "Kasetsart University" || education["degree"] != "B.Sc." {
-		t.Errorf("education = %v, want the linked Kasetsart University row", got["education"])
+	if education["institution"] != "Porto Polytechnic" || education["degree"] != "B.Sc." {
+		t.Errorf("education = %v, want the linked Porto Polytechnic row", got["education"])
 	}
 	if skills, _ := got["skills"].([]any); len(skills) != 1 || skills[0] != "LSTM" {
 		t.Errorf("skills = %v, want [LSTM]", got["skills"])
@@ -136,7 +136,7 @@ func TestGetProjectHidesDraftLinks(t *testing.T) {
 
 func TestGetProjectNotFound(t *testing.T) {
 	srv := newServer(t)
-	for _, path := range []string{"/v1/projects/draft-thesis", "/v1/projects/no-such-project", "/v1/projects/GrowthCheck"} {
+	for _, path := range []string{"/v1/projects/draft-thesis", "/v1/projects/no-such-project", "/v1/projects/Tidewatch"} {
 		t.Run(path, func(t *testing.T) {
 			if status := get(t, srv, path, readKey, nil); status != http.StatusNotFound {
 				t.Fatalf("status = %d, want 404", status)
@@ -148,7 +148,7 @@ func TestGetProjectNotFound(t *testing.T) {
 func TestGetProjectRequiresReadKey(t *testing.T) {
 	srv := newServer(t)
 
-	if status := get(t, srv, "/v1/projects/growthcheck", "wrong", nil); status != http.StatusUnauthorized {
+	if status := get(t, srv, "/v1/projects/tidewatch", "wrong", nil); status != http.StatusUnauthorized {
 		t.Fatalf("status = %d, want 401", status)
 	}
 }
@@ -169,9 +169,9 @@ func TestPortfolioListsUniversityProjects(t *testing.T) {
 	for _, p := range got.Projects {
 		byslug[p.Slug] = p
 	}
-	uni := byslug["growthcheck"]
+	uni := byslug["tidewatch"]
 	if uni.ProjectType != "UNIVERSITY" || uni.EducationID == nil || *uni.EducationID != 7 || uni.Summary != "Senior project." {
-		t.Errorf("growthcheck = %+v, want UNIVERSITY linked to education 7", uni)
+		t.Errorf("tidewatch = %+v, want UNIVERSITY linked to education 7", uni)
 	}
 	if byslug["work-thing"].ExperienceID != nil {
 		t.Errorf("work-thing experienceId = %v, want null for a draft experience", *byslug["work-thing"].ExperienceID)

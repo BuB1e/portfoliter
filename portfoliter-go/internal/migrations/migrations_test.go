@@ -46,7 +46,7 @@ func TestUniversityMigrationUpAndDown(t *testing.T) {
 	}
 	mustExec(t, pool, `
 		INSERT INTO portfoliter.experiences (id, company, role, start_date) VALUES (1, 'Acme', 'Engineer', '2024-01-01');
-		INSERT INTO portfoliter.education (id, institution) VALUES (1, 'Kasetsart University');
+		INSERT INTO portfoliter.education (id, institution) VALUES (1, 'Porto Polytechnic');
 		INSERT INTO portfoliter.projects (slug, title, project_type, experience_id) VALUES ('work-one', 'Work', 'WORK', 1);
 		INSERT INTO portfoliter.projects (slug, title, project_type) VALUES ('side-one', 'Side', 'PERSONAL')`)
 
