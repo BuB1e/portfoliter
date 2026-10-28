@@ -11,6 +11,7 @@ const FEATURED_LABELS: Partial<Record<ThemeKey, string>> = {
   receipt: "Staff pick",
   broadsheet: "Editor's pick",
   "quest-log": "Epic quest",
+  "retro-desktop": "Pinned",
 };
 
 function render(node: React.ReactNode): string {

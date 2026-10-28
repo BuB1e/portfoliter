@@ -104,6 +104,19 @@
   --color-ql-ink-soft: #6b4a2e;
   --color-ql-wax: #9b1c22;
 
+  /* retro-desktop: bitmap-style face for window chrome, a hyperlegible sans for reading, Thai fallback */
+  --font-rd: "Atkinson Hyperlegible Next", "Noto Sans Thai", system-ui, sans-serif;
+  --font-rd-pixel: "DotGothic16", "Noto Sans Thai", ui-monospace, monospace;
+  --color-rd-desktop: #008080;
+  --color-rd-face: #c0c0c0;
+  --color-rd-shadow: #808080;
+  --color-rd-dark: #0a0a0a;
+  --color-rd-title: #0a246a;
+  --color-rd-title-end: #3a6ea5;
+  --color-rd-link: #1a1aa6;
+  --color-rd-muted: #404040;
+  --color-rd-folder: #f2cf4a;
+
   --animate-match-pop: match-pop 0.5s cubic-bezier(0.2, 1.6, 0.4, 1);
 
   @keyframes match-pop {
@@ -338,6 +351,82 @@
     radial-gradient(circle at 20% 30%, rgb(139 94 40 / 0.08) 0 2px, transparent 3px),
     radial-gradient(circle at 75% 65%, rgb(139 94 40 / 0.07) 0 2px, transparent 3px);
   background-size: 100% 100%, 37px 41px, 53px 47px;
+}
+
+[data-theme="retro-desktop"] {
+  @apply bg-rd-desktop font-rd text-rd-dark;
+  color-scheme: light;
+
+  /* the period's dotted focus rectangle, thick enough to see */
+  :focus-visible {
+    outline: 3px dotted var(--color-rd-dark);
+    outline-offset: 2px;
+  }
+
+  .rd-titlebar :focus-visible {
+    outline-color: #fff;
+  }
+}
+
+/* bevels drawn with inset shadows: light top-left, dark bottom-right (raised) or the reverse (sunken) */
+@utility rd-raised {
+  background-color: var(--color-rd-face);
+  box-shadow:
+    inset -1px -1px var(--color-rd-dark),
+    inset 1px 1px #fff,
+    inset -2px -2px var(--color-rd-shadow),
+    inset 2px 2px #dfdfdf;
+}
+
+@utility rd-sunken {
+  box-shadow:
+    inset -1px -1px #fff,
+    inset 1px 1px var(--color-rd-shadow),
+    inset -2px -2px #dfdfdf,
+    inset 2px 2px var(--color-rd-dark);
+}
+
+/* a push button: raised, pressed while held */
+@utility rd-button {
+  background-color: var(--color-rd-face);
+  color: var(--color-rd-dark);
+  box-shadow:
+    inset -1px -1px var(--color-rd-dark),
+    inset 1px 1px #fff,
+    inset -2px -2px var(--color-rd-shadow),
+    inset 2px 2px #dfdfdf;
+  text-decoration: none;
+
+  &:active {
+    box-shadow:
+      inset -1px -1px #fff,
+      inset 1px 1px var(--color-rd-dark),
+      inset -2px -2px #dfdfdf,
+      inset 2px 2px var(--color-rd-shadow);
+  }
+}
+
+@utility rd-titlebar {
+  background: linear-gradient(90deg, var(--color-rd-title), var(--color-rd-title-end));
+  color: #fff;
+}
+
+/* folder icon: a tab on top of a yellow body */
+@utility rd-folder {
+  background:
+    linear-gradient(var(--color-rd-folder), var(--color-rd-folder)) 0 0 / 45% 30% no-repeat,
+    linear-gradient(180deg, #f8e08a, var(--color-rd-folder) 40%, #c9a227) 0 100% / 100% 80% no-repeat;
+  filter: drop-shadow(1px 1px 0 var(--color-rd-dark));
+}
+
+/* document icon: a page with a folded corner and ruled lines */
+@utility rd-doc {
+  clip-path: polygon(0 0, 68% 0, 100% 28%, 100% 100%, 0 100%);
+  background:
+    linear-gradient(225deg, var(--color-rd-shadow) 0 20%, transparent 20%) 100% 0 / 32% 28% no-repeat,
+    repeating-linear-gradient(180deg, transparent 0 6px, #8a8a8a 6px 7px) 22% 55% / 56% 50% no-repeat,
+    #fff;
+  box-shadow: inset 0 0 0 1px var(--color-rd-dark);
 }
 
 /* parcel pieces that are pure CSS drawings */

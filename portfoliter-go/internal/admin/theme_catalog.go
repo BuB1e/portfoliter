@@ -13,4 +13,5 @@ var themeCatalog = []Theme{
 	{Key: "receipt", Name: "Receipt", Description: "Thermal mini-mart receipt in monospace; jobs are purchases, projects are line items, ends with a barcode."},
 	{Key: "broadsheet", Name: "Broadsheet", Description: "Newspaper front page with a blackletter masthead; projects are articles, jobs are appointments, skills are classifieds."},
 	{Key: "quest-log", Name: "Quest log", Description: "RPG character sheet in blue pixel menu windows; skills are stats, jobs are quests, projects open as quest scrolls."},
+	{Key: "retro-desktop", Name: "Retro desktop", Description: "1990s desktop on teal with bevelled grey windows and a taskbar; projects are files that open in their own window."},
 }
