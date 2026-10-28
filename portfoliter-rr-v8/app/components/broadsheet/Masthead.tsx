@@ -39,7 +39,8 @@ export function Masthead({ fullName, location, sinceYear, issue, sections }: Mas
       </div>
 
       <nav aria-label="Sections" className="border-y-[3px] border-double border-bs-ink">
-        <ul className="flex gap-x-6 overflow-x-auto px-1 py-2 text-[0.95rem] whitespace-nowrap lg:justify-center">
+        {/* padded so the first and last links' focus outlines are not clipped by the scroll box */}
+        <ul className="flex gap-x-6 overflow-x-auto px-2 py-2 text-[0.95rem] whitespace-nowrap lg:justify-center">
           {sections.map((section) => (
             <li key={section.href}>
               <a href={section.href} className="no-underline hover:underline">
