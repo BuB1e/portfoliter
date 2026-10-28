@@ -1,4 +1,5 @@
-import { initials, platformName } from "~/lib/format";
+import { Avatar } from "~/components/shared/Avatar";
+import { platformName } from "~/lib/format";
 import type { Link, Profile } from "~/lib/portfolio";
 
 interface LeadStoryProps {
@@ -24,13 +25,12 @@ export function LeadStory({ profile, links, index }: LeadStoryProps) {
 
         <div className="mt-5 grid gap-6 md:grid-cols-[minmax(0,15rem)_1fr]">
           <figure>
-            {profile.avatarUrl ? (
-              <img src={profile.avatarUrl} alt={`Portrait of ${profile.fullName}`} className="bs-photo aspect-[4/5] w-full object-cover" />
-            ) : (
-              <div aria-hidden="true" className="bs-halftone grid aspect-[4/5] w-full place-items-center font-bs-nameplate text-6xl">
-                {initials(profile.fullName)}
-              </div>
-            )}
+            <Avatar
+              url={profile.avatarUrl}
+              name={profile.fullName}
+              className="bs-photo aspect-[4/5] w-full object-cover"
+              fallbackClassName="bs-halftone grid aspect-[4/5] w-full place-items-center font-bs-nameplate text-6xl"
+            />
             <figcaption className="mt-2 border-b border-bs-rule pb-2 text-[0.85rem] text-bs-grey italic">
               {profile.fullName}
               {profile.location ? ` in ${profile.location}` : ""}.

@@ -1,44 +1,50 @@
-import type { Portfolio, Project, ProjectDetail } from "~/lib/portfolio";
+import type { Education, PortfolioView, Project } from "~/lib/portfolio";
+
+// Small fixtures for focused tests. All content is fictional. For a complete profile with every field
+// set, use makeSampleView() in ./sampleView.ts.
+
+export function makeEducation(overrides: Partial<Education> = {}): Education {
+  return {
+    id: 1,
+    institution: "Porto Polytechnic",
+    degree: "B.Sc.",
+    field: "Software Engineering",
+    startDate: null,
+    endDate: "2022-07-31",
+    description: "",
+    ...overrides,
+  };
+}
 
 export function makeProject(overrides: Partial<Project> = {}): Project {
   return {
     id: 1,
-    slug: "growthcheck",
-    title: "GrowthCheck",
+    slug: "tidewatch",
+    title: "Tidewatch",
     projectType: "UNIVERSITY",
     experienceId: null,
     educationId: 1,
-    summary: "Senior project: growth charts and LSTM risk predictions.",
-    content: "- **Charts** for volunteers",
+    summary: "Final-year project: tide charts and flood warnings for harbour crews.",
+    content: "- **Charts** for harbour crews",
     repoUrl: null,
     demoUrl: null,
     coverUrl: null,
-    startDate: "2025-09-01",
-    endDate: "2026-04-30",
+    startDate: "2021-09-01",
+    endDate: "2022-06-30",
     isFeatured: true,
-    skills: ["LSTM"],
-    ...overrides,
-  };
-}
-
-export function makeProjectDetail(overrides: Partial<ProjectDetail> = {}): ProjectDetail {
-  return {
-    ...makeProject(),
+    skills: ["Python"],
     experience: null,
-    education: {
-      id: 1,
-      institution: "Kasetsart University",
-      degree: "B.Sc.",
-      field: "Computer Science",
-      startDate: null,
-      endDate: "2026-04-30",
-      description: "",
-    },
+    education: null,
     ...overrides,
   };
 }
 
-export function makePortfolio(overrides: Partial<Portfolio> = {}): Portfolio {
+// A project as GET /v1/projects/:slug returns it: the same shape, with its school embedded.
+export function makeProjectDetail(overrides: Partial<Project> = {}): Project {
+  return makeProject({ education: makeEducation(), ...overrides });
+}
+
+export function makePortfolio(overrides: Partial<PortfolioView> = {}): PortfolioView {
   return {
     theme: "",
     profile: {
@@ -54,6 +60,7 @@ export function makePortfolio(overrides: Partial<Portfolio> = {}): Portfolio {
     experiences: [],
     projects: [makeProject()],
     skills: [],
+    skillGroups: [],
     education: [],
     certifications: [],
     sections: [],

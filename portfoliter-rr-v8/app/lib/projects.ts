@@ -1,5 +1,8 @@
 import { formatRange } from "./format";
-import type { Education, Experience, Project, ProjectType } from "./portfolio";
+import type { Project, ProjectType } from "./portfolio";
+
+// A project's linked job or school is embedded by the backend (project.experience / project.education);
+// read it through linkedLine() in lib/fields.ts.
 
 // Home page order of the project groups. Each design words the headings its own way.
 export const PROJECT_GROUP_ORDER = ["WORK", "PERSONAL", "UNIVERSITY"] as const satisfies readonly ProjectType[];
@@ -62,23 +65,4 @@ export function shortDescription(summary: string): string {
 // "Sep 2025 to Apr 2026", "Sep 2025 to now", or "" when the project has no dates.
 export function projectDates(project: Pick<Project, "startDate" | "endDate">): string {
   return formatRange(project.startDate, project.endDate);
-}
-
-export function findExperience(project: Project, experiences: readonly Experience[]): Experience | null {
-  return experiences.find((experience) => experience.id === project.experienceId) ?? null;
-}
-
-export function findEducation(project: Project, education: readonly Education[]): Education | null {
-  return education.find((entry) => entry.id === project.educationId) ?? null;
-}
-
-// "B.Sc. Computer Science, Kasetsart University"
-export function educationLabel(education: Education): string {
-  const degree = [education.degree, education.field].filter(Boolean).join(" ");
-  return degree ? `${degree}, ${education.institution}` : education.institution;
-}
-
-// "Software Engineer at Acme"
-export function experienceLabel(experience: Experience): string {
-  return `${experience.role} at ${experience.company}`;
 }

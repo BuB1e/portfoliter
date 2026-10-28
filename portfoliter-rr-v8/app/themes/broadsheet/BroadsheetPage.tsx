@@ -6,9 +6,8 @@ import { SectionFlag } from "~/components/broadsheet/SectionFlag";
 import { careerStartYear } from "~/lib/experience";
 import { platformName } from "~/lib/format";
 import type { ProjectType } from "~/lib/portfolio";
+import { customSections } from "~/lib/fields";
 import { groupProjects, projectGroupId } from "~/lib/projects";
-import { customSections } from "~/lib/sectionItems";
-import { groupSkills } from "~/lib/skills";
 import type { ThemePageProps } from "../types";
 
 export const FONTS_HREF =
@@ -34,7 +33,7 @@ export function BroadsheetPage({ portfolio }: ThemePageProps) {
     );
   }
 
-  const { profile, links, experiences, projects, skills, education, certifications, sections } = portfolio;
+  const { profile, links, experiences, projects, skills, skillGroups, education, certifications, sections } = portfolio;
   const groups = groupProjects(projects);
   const extras = customSections(sections);
   const hasNotices = education.length + certifications.length + extras.length > 0;
@@ -62,7 +61,7 @@ export function BroadsheetPage({ portfolio }: ThemePageProps) {
 
         {groups.map((group) => (
           <SectionFlag key={group.type} id={projectGroupId(group.type)} title={DESKS[group.type].title} note={DESKS[group.type].note}>
-            <Articles projects={group.projects} experiences={experiences} education={education} />
+            <Articles projects={group.projects} />
           </SectionFlag>
         ))}
         {experiences.length > 0 && (
@@ -70,9 +69,9 @@ export function BroadsheetPage({ portfolio }: ThemePageProps) {
             <Appointments experiences={experiences} />
           </SectionFlag>
         )}
-        {skills.length > 0 && (
+        {skillGroups.length > 0 && (
           <SectionFlag id="classifieds-title" title="Classifieds" note="Skills, listed by trade.">
-            <Classifieds groups={groupSkills(skills)} />
+            <Classifieds groups={skillGroups} />
           </SectionFlag>
         )}
         {hasNotices && (

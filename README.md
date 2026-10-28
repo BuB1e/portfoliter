@@ -17,30 +17,59 @@ MCP server. Your own frontend reads the data and renders the site.
  PostgreSQL   Cloudflare R2 (avatar, project covers, resume)
 ```
 
-This branch (`feature/harit-som`) is the owner's own site: it adds ten designs on top of `develop`. If you are cloning to build your own portfolio, start
-from `develop`, where the frontend is a placeholder page that loads your data and prints it.
-Sections below describe `develop`; [Designs on this branch](#designs-on-this-branch) covers the rest.
+This branch (`feature/harit-som`) is the owner's deployment of the template. It differs from `develop`
+only in the production host ports in `docker-compose.prod.yml` (backend `127.0.0.1:8082`, frontend
+`127.0.0.1:3002`); the owner's data and live design are in the database. To build your own portfolio,
+clone `develop`: it is the template, with every design, and everything below applies to it.
 
 ## Contents
 
-1. [Repository layout](#repository-layout)
-2. [What you need](#what-you-need)
-3. [Setup](#setup)
-4. [Run it](#run-it)
-5. [Connect the MCP to Claude](#connect-the-mcp-to-claude)
-6. [Add your content](#add-your-content)
-7. [Build your own frontend](#build-your-own-frontend)
-8. [Themes: switch designs from the AI](#themes-switch-designs-from-the-ai)
-9. [Deploy to production](#deploy-to-production)
-10. [Tests](#tests)
-11. [Troubleshooting](#troubleshooting)
+1. [Use it for your own profile](#use-it-for-your-own-profile)
+2. [Repository layout](#repository-layout)
+3. [What you need](#what-you-need)
+4. [Setup](#setup)
+5. [Run it](#run-it)
+6. [Connect the MCP to Claude](#connect-the-mcp-to-claude)
+7. [Add your content](#add-your-content)
+8. [The data every design renders](#the-data-every-design-renders)
+9. [Themes: switch designs from the AI](#themes-switch-designs-from-the-ai)
+10. [Deploy to production](#deploy-to-production)
+11. [Tests](#tests)
+12. [Troubleshooting](#troubleshooting)
+
+## Use it for your own profile
+
+Nothing in the code is about one person: your profile, projects and chosen design are rows in your
+own database. Every design shows every field you publish, so you can switch designs at any time
+without losing anything.
+
+1. **Clone** the template branch:
+   `git clone -b develop <repo url> portfoliter && cd portfoliter`
+2. **Env**: create a read key and a write key and fill in `portfoliter-go/.env.local` and
+   `portfoliter-rr-v8/.env.local` from the `.env.example` files ([Setup](#setup)). You need a
+   PostgreSQL database and a private Cloudflare R2 bucket.
+3. **Migrate and run**: `docker compose up --build`. The backend creates the `portfoliter` schema and
+   applies every migration before it serves; if a migration fails it does not start. The site at
+   <http://localhost:3000> says "No portfolio published yet" until you add a profile.
+4. **Connect the MCP** to Claude with the write key ([Connect the MCP](#connect-the-mcp-to-claude)).
+5. **Write your data through the MCP**, in plain language ([Add your content](#add-your-content)):
+   profile, links, skills (with categories), jobs (with employment type, location and skills),
+   education, certifications, projects (WORK linked to a job, UNIVERSITY linked to a school, PERSONAL)
+   and any free-form sections (awards, talks, languages, anything). Ask Claude to publish the drafts.
+6. **Pick a design**: ask "list my themes", then "switch my site to receipt". `set_theme` accepts any
+   catalog key: `plain` (the default), `dating`, `field-guide`, `parcel`, `spec-sheet`, `skytrain`,
+   `status-page`, `receipt`, `broadsheet`, `quest-log`, `retro-desktop`. The change is live on the next
+   page load.
+7. **Deploy** with `docker-compose.prod.yml` behind a TLS proxy ([Deploy](#deploy-to-production)).
+
+To make a design of your own, follow "Adding a design" in [the frontend README](portfoliter-rr-v8/README.md#adding-a-design).
 
 ## Repository layout
 
 | Path | What it is |
 |---|---|
 | `portfoliter-go/` | Go backend: read API, MCP server, migrations, R2 file storage. [README](portfoliter-go/README.md) |
-| `portfoliter-rr-v8/` | React Router v8 frontend with server-side rendering (placeholder page). [README](portfoliter-rr-v8/README.md) |
+| `portfoliter-rr-v8/` | React Router v8 frontend with server-side rendering and eleven designs. [README](portfoliter-rr-v8/README.md) |
 | `docker-compose.yml` | Local: runs backend on `:8080` and frontend on `:3000` |
 | `docker-compose.prod.yml` | Production: same two services bound to `127.0.0.1`, behind your reverse proxy |
 
@@ -143,7 +172,7 @@ Talk to Claude in plain language. Examples:
 - "Add a link to my GitHub, https://github.com/janedoe."
 - "Add my job at Acme as Software Engineer from March 2023, still there. Skills Go, PostgreSQL."
 - "Add a personal project called Mango Index with this summary: ... Then publish it."
-- "Add my senior project GrowthCheck as a university project under my Kasetsart degree."
+- "Add my final-year project Tidewatch as a university project under my Porto Polytechnic degree."
 - "Upload ~/Pictures/me.jpg as my avatar."
 - "What did you change today?"
 
@@ -177,74 +206,30 @@ All MCP tools:
 
 You can also insert rows with SQL; see [the backend README](portfoliter-go/README.md#add-data-manually).
 
-## Build your own frontend
+## The data every design renders
 
-The placeholder in `portfoliter-rr-v8/app/routes/home.tsx` already does the hard part:
+The backend serves one normalized view, documented in [docs/portfolio-view.md](docs/portfolio-view.md):
 
-1. Its `loader` runs on the server and calls `fetchPortfolio()` (`app/lib/api.server.ts`), which sends
-   the read key. The key never reaches the browser.
-2. The data is typed in `app/lib/portfolio.ts`, which mirrors `GET /v1/portfolio` exactly.
-3. The page prints the data. Replace that with your design.
+- `GET /v1/portfolio` (read key): only published rows; optional fields are `null` when unset; each
+  project embeds the published job or school it belongs to; skills come both as a flat list and as
+  `skillGroups` (uncategorized ones last under key `"other"`); every free-form section carries
+  `entries`, its items read into `{title, detail, url}`; every list has a stable order.
+- `GET /v1/projects/<slug>` (read key): one entry of that `projects` list, same shape; `404` for drafts
+  and unknown slugs.
 
-What the API returns (only published items; dates are `YYYY-MM-DD`; file URLs are short-lived links):
-
-```jsonc
-{
-  "theme": "",                       // active design key, "" until one is set
-  "profile": { "fullName": "...", "headline": "...", "bio": "...", "location": "...",
-               "email": "...", "avatarUrl": "https://...", "resumeUrl": "https://..." },
-  "links":          [{ "platform": "github", "url": "..." }],
-  "experiences":    [{ "id": 1, "company": "...", "role": "...", "startDate": "2023-03-01",
-                       "endDate": null, "description": "...", "skills": ["Go"] }],
-  "projects":       [{ "id": 1, "slug": "...", "title": "...", "projectType": "WORK", // or PERSONAL, UNIVERSITY
-                       "experienceId": 1, "educationId": null, "summary": "...", "content": "markdown",
-                       "coverUrl": null, "isFeatured": true, "repoUrl": null, "demoUrl": null,
-                       "startDate": null, "endDate": null, "skills": ["Go"] }],
-  "skills":         [{ "name": "Go", "category": "language" }],
-  "education":      [{ "id": 1, "institution": "...", "degree": "...", "field": "..." }],
-  "certifications": [{ "name": "...", "issuer": "...", "issuedDate": "2024-04-12" }],
-  "sections":       [{ "key": "awards", "title": "Awards", "items": [ /* any JSON */ ] }]
-}
-```
-
-The API returns `404` until a profile exists; `fetchPortfolio()` turns that into `null`.
-`experienceId` and `educationId` are `null` when the linked row is still a draft.
-
-`GET /v1/projects/<slug>` (same read key) returns one published project with the fields above plus
-`experience` and `education`, the full published rows it links to (or `null`). Drafts and unknown
-slugs are `404`; `fetchProject()` turns that into `null` and the `/projects/:slug` page shows "not found".
-See [the frontend README](portfoliter-rr-v8/README.md) for the full guide.
+The frontend fetches both in route loaders on the server (`app/lib/api.server.ts`), so the read key
+never reaches the browser, types them as `PortfolioView` (`app/lib/portfolio.ts`), and every design
+reads them through one shared field layer. See [the frontend README](portfoliter-rr-v8/README.md).
 
 ## Themes: switch designs from the AI
 
-You can build several designs and let the AI switch between them ("switch my site to the minimal
-design"). `develop` ships with **no designs**: `list_themes` returns `[]` and `set_theme` refuses every
-value until you add one.
-
-How it works:
-
-- The active design is stored in the `portfoliter.site_settings` table and returned as `theme`.
-- The list of designs exists in two places that must match, in the same order:
-  - backend: `themeCatalog` in `portfoliter-go/internal/admin/theme_catalog.go` (key, name, description)
-  - frontend: `THEME_KEYS` in `portfoliter-rr-v8/app/lib/theme.ts`
-- The Go test `TestThemeCatalogMatchesFrontend` reads the frontend file and fails if the lists differ,
-  so `set_theme` can never pick a design the frontend cannot render.
-- The **first** key is the default, used while `theme` is `""` or unknown.
-
-To add a design:
-
-1. Build the page in the frontend and render it when `portfolio.theme` matches its key (fall back to
-   the first key otherwise).
-2. Add the key to `THEME_KEYS`, e.g. `["minimal"] as const`.
-3. Add `{Key: "minimal", Name: "Minimal", Description: "..."}` to `themeCatalog`.
-4. Run `cd portfoliter-go && go test ./...`.
-5. Deploy both apps together, then ask Claude to list and switch themes.
-
-### Designs on this branch
+The template ships eleven designs and lets the AI switch between them ("switch my site to parcel").
+`plain` is the default while no theme is set.
 
 | Key | Look | Page |
 |---|---|---|
-| `dating` (default) | Dark dating-app profile; projects are a swipeable card deck | `app/themes/dating/DatingPage.tsx` |
+| `plain` (default) | Neutral single-column page in the system font, light or dark with the OS | `app/themes/plain/PlainPage.tsx` |
+| `dating` | Dark dating-app profile; projects are a swipeable card deck | `app/themes/dating/DatingPage.tsx` |
 | `field-guide` | Naturalist field guide; projects are pinned specimens | `app/themes/field-guide/FieldGuidePage.tsx` |
 | `parcel` | Kraft shipping box with a label, bubble wrap and stickers | `app/themes/parcel/ParcelPage.tsx` |
 | `spec-sheet` | Serious and minimal: white page, one sans-serif, label-and-content rows | `app/themes/spec-sheet/SpecSheetPage.tsx` |
@@ -260,6 +245,7 @@ and every card links to `/projects/<slug>`, which renders in the same design:
 
 | Key | Project sections | Project page |
 |---|---|---|
+| `plain` | Work, Personal and University project cards | Title, dates, cover, markdown and a fact list |
 | `dating` | Serious relationships, Weekend flings, College sweethearts (one swipe deck each; tap opens, drag swipes) | The project's dating profile: photo card, pitch, "The long version", interests, where we met |
 | `field-guide` | Domesticated, Wild and Lab specimens | A species account: plate, identification marks, field notes |
 | `parcel` | Packed at work, at home, on campus | A shipping label for the project, its packing slip and a photo of the contents |
@@ -271,9 +257,26 @@ and every card links to `/projects/<slug>`, which renders in the same design:
 | `quest-log` | Main, Side and Academy quests (quest cards with giver, status and rewards; "Epic quest" when featured) | A parchment quest scroll: giver, status, map, objectives, rewards, wax seal; a blank-scroll window for 404 |
 | `retro-desktop` | Work, Personal and University project folders (file tiles, "Pinned" when featured), plus desktop shortcuts and a taskbar | The file opened in its own window: toolbar, address field, document, properties and status bar; the close box links back to the folder; a "File not found" error dialog for 404 |
 
-Ask Claude "list my themes" or "switch the site to parcel". The production compose file on this
-branch binds the backend to `127.0.0.1:8082` and the frontend to `127.0.0.1:3002`.
-Frontend tests: `cd portfoliter-rr-v8 && npm test`.
+How it works:
+
+- The active design is stored in the `portfoliter.site_settings` table and returned as `theme`.
+- The list of designs exists in two places that must match, in the same order:
+  - backend: `themeCatalog` in `portfoliter-go/internal/admin/theme_catalog.go` (key, name, description)
+  - frontend: `THEME_KEYS` in `portfoliter-rr-v8/app/lib/theme.ts`
+- The Go test `TestThemeCatalogMatchesFrontend` reads the frontend file and fails if the lists differ,
+  so `set_theme` can never pick a design the frontend cannot render.
+- The **first** key is the default, used while `theme` is `""` or unknown.
+
+To add a design:
+
+1. Build its home and project pages under `portfoliter-rr-v8/app/themes/<key>/` on the shared field
+   layer and register them in `app/themes/registry.ts` (checklist: "Adding a design" in the
+   [frontend README](portfoliter-rr-v8/README.md#adding-a-design)).
+2. Add the key to `THEME_KEYS`.
+3. Add `{Key: "minimal", Name: "Minimal", Description: "..."}` to `themeCatalog`.
+4. Run `cd portfoliter-go && go test ./...` and `cd portfoliter-rr-v8 && npm test`; the coverage
+   contract (`app/themes/fields.test.tsx`) fails until the design shows every published field.
+5. Deploy both apps together, then ask Claude to list and switch themes.
 
 ## Deploy to production
 
@@ -283,7 +286,8 @@ Frontend tests: `cd portfoliter-rr-v8 && npm test`.
    ```sh
    docker compose -f docker-compose.prod.yml up -d --build
    ```
-   Both services bind to `127.0.0.1` only (`:3000` frontend, `:8080` backend).
+   Both services bind to `127.0.0.1` only (`:3000` frontend, `:8080` backend; on this branch
+   `:3002` and `:8082`).
 3. Put a TLS reverse proxy in front. Example Caddyfile:
    ```
    portfolio.example.com {
@@ -309,7 +313,10 @@ cd portfoliter-rr-v8 && npm run typecheck && npm test && npm run build
 
 Database tests (migrations, the API and MCP writes) start a throwaway `postgres:17-alpine` with
 testcontainers, so Docker must be running; they are skipped when it is not. They never read the
-`DB_*` env vars, so they cannot touch your real database.
+`DB_*` env vars, so they cannot touch your real database. The API's full response is pinned by a
+golden file built from a fictional profile (`portfoliter-go/internal/httpapi/testdata/`). The frontend's
+coverage contract renders every design with a complete fictional profile and fails if any published
+field is missing.
 
 ## Troubleshooting
 
@@ -319,7 +326,7 @@ testcontainers, so Docker must be running; they are skipped when it is not. They
 | Frontend error `portfolio api responded 401` | `API_READ_KEY` does not hash to `API_READ_KEY_SHA256`. Recompute the hash. |
 | MCP client gets `401 unauthorized` | Wrong write key in the `Authorization: Bearer` header. |
 | New item not on the site | It is a draft. Ask Claude to publish it. |
-| `set_theme` says "no themes defined" | Expected on `develop`. Add a design (see Themes). |
+| `set_theme` says "unknown theme" | Use a key from `list_themes`; it must also be in `THEME_KEYS` (see Themes). |
 | `TestThemeCatalogMatchesFrontend` fails | The backend and frontend theme lists differ in content or order. |
 | Backend exits on start | Missing env key, unreachable database, or a failed migration. Check `docker compose logs backend`. |
 | Images or resume links stop working | Presigned links expire (`R2_GET_URL_TTL`). Reloading the page creates new ones. |

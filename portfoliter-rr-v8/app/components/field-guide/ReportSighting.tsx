@@ -1,4 +1,4 @@
-import { capitalize, firstName } from "~/lib/format";
+import { firstName, platformName } from "~/lib/format";
 import type { Link, Profile } from "~/lib/portfolio";
 
 interface ReportSightingProps {
@@ -23,7 +23,7 @@ export function ReportSighting({ profile, links }: ReportSightingProps) {
         )}
         {links.map((link) => (
           <a key={link.url} href={link.url} className={SECONDARY}>
-            {capitalize(link.platform)}
+            {platformName(link.platform)}
           </a>
         ))}
         {profile.resumeUrl && (

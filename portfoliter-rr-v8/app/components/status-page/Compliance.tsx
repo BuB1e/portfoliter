@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { formatMonth, formatRange } from "~/lib/format";
+import { certificationLine, educationLine } from "~/lib/fields";
 import type { Certification, Education } from "~/lib/portfolio";
 import { StatusPill } from "./StatusPill";
 
@@ -9,14 +9,23 @@ interface ComplianceProps {
   certifications: Certification[];
 }
 
-function Row({ title, detail, label }: { title: ReactNode; detail: string; label: string }) {
+interface RowProps {
+  title: ReactNode;
+  detail: string;
+  note: string | null;
+  // No pill when there is nothing to vouch for (a certification with no credential link).
+  label: string | null;
+}
+
+function Row({ title, detail, note, label }: RowProps) {
   return (
     <li className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
       <div>
         <h3 className="font-semibold">{title}</h3>
-        <p className="text-sm text-st-muted">{detail}</p>
+        {detail && <p className="text-sm text-st-muted">{detail}</p>}
+        {note && <p className="mt-1 max-w-[65ch]">{note}</p>}
       </div>
-      <StatusPill tone="up" label={label} />
+      {label && <StatusPill tone="up" label={label} />}
     </li>
   );
 }
@@ -24,22 +33,38 @@ function Row({ title, detail, label }: { title: ReactNode; detail: string; label
 export function Compliance({ education, certifications }: ComplianceProps) {
   return (
     <ul className="divide-y divide-st-line">
-      {education.map((item) => (
-        <Row
-          key={item.institution}
-          title={[item.degree, item.field].filter(Boolean).join(", ") || item.institution}
-          detail={[item.institution, formatRange(item.startDate, item.endDate)].filter(Boolean).join(", ")}
-          label="Completed"
-        />
-      ))}
-      {certifications.map((cert) => (
-        <Row
-          key={cert.name}
-          title={cert.credentialUrl ? <a href={cert.credentialUrl} className="text-st-info">{cert.name}</a> : cert.name}
-          detail={cert.issuedDate ? `${cert.issuer}, ${formatMonth(cert.issuedDate)}` : cert.issuer}
-          label="Verified"
-        />
-      ))}
+      {education.map((entry) => {
+        const line = educationLine(entry);
+        return (
+          <Row
+            key={`edu-${entry.id}`}
+            title={line.title}
+            detail={line.qualification ? line.meta : (line.dates ?? "")}
+            note={line.description}
+            label={entry.endDate ? "Completed" : "In progress"}
+          />
+        );
+      })}
+      {certifications.map((cert) => {
+        const line = certificationLine(cert);
+        return (
+          <Row
+            key={`cert-${cert.id}`}
+            title={
+              line.credentialUrl ? (
+                <a href={line.credentialUrl} className="text-st-info">
+                  {line.name}
+                </a>
+              ) : (
+                line.name
+              )
+            }
+            detail={line.meta}
+            note={null}
+            label={line.credentialUrl ? "Verified" : null}
+          />
+        );
+      })}
     </ul>
   );
 }

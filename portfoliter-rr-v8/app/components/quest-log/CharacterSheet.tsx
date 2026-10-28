@@ -1,4 +1,4 @@
-import { initials } from "~/lib/format";
+import { Avatar } from "~/components/shared/Avatar";
 import type { Profile } from "~/lib/portfolio";
 import { Cursor, Meter } from "./QuestWindow";
 
@@ -15,13 +15,12 @@ export function CharacterSheet({ profile, cleared, total }: CharacterSheetProps)
     <header className="ql-window px-4 py-5 sm:px-6">
       <div className="grid gap-5 sm:grid-cols-[8.5rem_1fr]">
         <div className="size-34 border-[3px] border-ql-frame bg-ql-edge p-1 shadow-[0_0_0_3px_var(--color-ql-edge)]">
-          {profile.avatarUrl ? (
-            <img src={profile.avatarUrl} alt={`Portrait of ${profile.fullName}`} className="size-full object-cover" />
-          ) : (
-            <div aria-hidden="true" className="grid size-full place-items-center bg-ql-window-top text-5xl font-bold text-ql-gold">
-              {initials(profile.fullName)}
-            </div>
-          )}
+          <Avatar
+            url={profile.avatarUrl}
+            name={profile.fullName}
+            className="size-full object-cover"
+            fallbackClassName="grid size-full place-items-center bg-ql-window-top text-5xl font-bold text-ql-gold"
+          />
         </div>
         <div className="min-w-0">
           <h1 className="text-[clamp(2.1rem,6vw,3.4rem)] leading-[0.95] font-bold break-words">{profile.fullName}</h1>

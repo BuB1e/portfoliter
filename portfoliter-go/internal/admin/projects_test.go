@@ -46,13 +46,13 @@ func TestUpsertUniversityProjectWithEducation(t *testing.T) {
 	ctx := context.Background()
 	pool := testdb.Migrated(t)
 	store := admin.NewStore(pool)
-	educationID, err := store.UpsertEducation(ctx, admin.EducationInput{Institution: "Kasetsart University"})
+	educationID, err := store.UpsertEducation(ctx, admin.EducationInput{Institution: "Porto Polytechnic"})
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	id, err := store.UpsertProject(ctx, admin.ProjectInput{
-		Slug: "growthcheck", Title: "GrowthCheck", ProjectType: "UNIVERSITY",
+		Slug: "tidewatch", Title: "Tidewatch", ProjectType: "UNIVERSITY",
 		EducationID: &educationID, Summary: strings.Repeat("é", admin.SummaryMaxChars), Skills: []string{"LSTM"},
 	})
 

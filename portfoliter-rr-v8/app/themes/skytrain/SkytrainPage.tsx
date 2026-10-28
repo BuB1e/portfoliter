@@ -7,9 +7,9 @@ import { SkySection } from "~/components/skytrain/SkySection";
 import { StationSign } from "~/components/skytrain/StationSign";
 import { TopUp } from "~/components/skytrain/TopUp";
 import { currentCompany } from "~/lib/experience";
+import { customSections } from "~/lib/fields";
 import { groupProjects, projectGroupId } from "~/lib/projects";
-import { getAwards } from "~/lib/sections";
-import { groupSkills } from "~/lib/skills";
+import { AWARDS_KEY, getAwards } from "~/lib/sections";
 import type { ThemePageProps } from "../types";
 
 export const FONTS_HREF =
@@ -28,8 +28,10 @@ export function SkytrainPage({ portfolio }: ThemePageProps) {
     );
   }
 
-  const { profile, experiences, projects, skills, education, certifications, sections } = portfolio;
+  const { profile, experiences, projects, skillGroups, education, certifications, sections } = portfolio;
   const awards = getAwards(sections);
+  // Awards keep their platform-display wording; every other section gets its own board.
+  const boards = customSections(sections, [AWARDS_KEY]);
 
   return (
     <>
@@ -45,12 +47,12 @@ export function SkytrainPage({ portfolio }: ThemePageProps) {
         )}
         {groupProjects(projects).map((group) => (
           <SkySection key={group.type} id={projectGroupId(group.type)} title={PROJECT_LINES[group.type].title} note={PROJECT_LINES[group.type].note}>
-            <ProjectLine projects={group.projects} experiences={experiences} education={education} />
+            <ProjectLine projects={group.projects} />
           </SkySection>
         ))}
-        {skills.length > 0 && (
+        {skillGroups.length > 0 && (
           <SkySection id="network-title" title="Network map" note="Every line this engineer can ride without a transfer.">
-            <SkillLines groups={groupSkills(skills)} />
+            <SkillLines groups={skillGroups} />
           </SkySection>
         )}
         {education.length + certifications.length > 0 && (
@@ -58,11 +60,16 @@ export function SkytrainPage({ portfolio }: ThemePageProps) {
             <PassCards education={education} certifications={certifications} />
           </SkySection>
         )}
-        {awards && awards.awards.length > 0 && (
+        {awards && (
           <SkySection id="board-title" title="Announcements" note={`${awards.title}, as shown on the platform display.`}>
-            <Announcements awards={awards.awards} />
+            <Announcements entries={awards.awards} />
           </SkySection>
         )}
+        {boards.map((section) => (
+          <SkySection key={section.key} id={`board-${section.key}`} title={section.title} note="As shown on the platform display.">
+            <Announcements entries={section.entries} />
+          </SkySection>
+        ))}
       </main>
 
       <TopUp profile={profile} links={portfolio.links} />

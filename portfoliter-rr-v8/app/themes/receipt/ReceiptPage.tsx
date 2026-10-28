@@ -5,10 +5,9 @@ import { ShelfItems } from "~/components/receipt/ShelfItems";
 import { StoreHeader } from "~/components/receipt/StoreHeader";
 import { careerStartYear } from "~/lib/experience";
 import { initials, platformName } from "~/lib/format";
-import type { Portfolio, ProjectType } from "~/lib/portfolio";
+import type { PortfolioView, ProjectType } from "~/lib/portfolio";
+import { customSections } from "~/lib/fields";
 import { groupProjects, projectGroupId } from "~/lib/projects";
-import { customSections } from "~/lib/sectionItems";
-import { groupSkills } from "~/lib/skills";
 import type { ThemePageProps } from "../types";
 
 export const FONTS_HREF =
@@ -21,9 +20,9 @@ export const DEPARTMENTS: Record<ProjectType, { title: string; note: string }> =
   UNIVERSITY: { title: "School supplies", note: "Coursework and the senior project." },
 };
 
-// GitHub handle (or initials) and the first job's year, e.g. BUB1E-2025. Built from data, not today's
+// GitHub handle (or initials) and the first job's year, e.g. JANEDOE-2025. Built from data, not today's
 // date, so the server and the browser print the same number.
-export function receiptNumber({ profile, links, experiences }: Portfolio): string {
+export function receiptNumber({ profile, links, experiences }: PortfolioView): string {
   const github = links.find((link) => link.platform.toLowerCase() === "github");
   const handle = github?.url.split("/").filter(Boolean).at(-1) ?? initials(profile.fullName);
   return [handle.toUpperCase(), careerStartYear(experiences)].filter(Boolean).join("-");
@@ -55,7 +54,7 @@ export function ReceiptPage({ portfolio }: ThemePageProps) {
     );
   }
 
-  const { profile, links, experiences, projects, skills, education, certifications, sections } = portfolio;
+  const { profile, links, experiences, projects, skills, skillGroups, education, certifications, sections } = portfolio;
   const groups = groupProjects(projects);
   const extras = customSections(sections);
 
@@ -79,12 +78,12 @@ export function ReceiptPage({ portfolio }: ThemePageProps) {
           )}
           {groups.map((group) => (
             <Dept key={group.type} id={projectGroupId(group.type)} title={DEPARTMENTS[group.type].title} note={DEPARTMENTS[group.type].note}>
-              <ShelfItems projects={group.projects} experiences={experiences} education={education} />
+              <ShelfItems projects={group.projects} />
             </Dept>
           ))}
-          {skills.length > 0 && (
+          {skillGroups.length > 0 && (
             <Dept id="bag-title" title="In the bag">
-              <InTheBag groups={groupSkills(skills)} />
+              <InTheBag groups={skillGroups} />
             </Dept>
           )}
           {education.length > 0 && (
@@ -99,7 +98,7 @@ export function ReceiptPage({ portfolio }: ThemePageProps) {
           )}
           {extras.map((section) => (
             <Dept key={section.key} id={`extra-${section.key}`} title={section.title}>
-              <ExtraLines items={section.items} />
+              <ExtraLines entries={section.entries} />
             </Dept>
           ))}
         </main>

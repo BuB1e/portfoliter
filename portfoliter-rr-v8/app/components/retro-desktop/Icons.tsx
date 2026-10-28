@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { Cover } from "~/components/shared/Cover";
 import type { Project } from "~/lib/portfolio";
 
 export function FolderIcon({ size = "large" }: { size?: "small" | "large" }) {
@@ -24,17 +25,17 @@ export function AppIcon({ letter, size = "large" }: { letter: string; size?: "sm
 
 // A project file's icon: its cover as a thumbnail, or a blank document when it has none.
 export function ProjectIcon({ project }: { project: Project }) {
-  if (project.coverUrl) {
-    return (
-      <span className="rd-sunken block size-16 shrink-0 bg-white p-[3px]">
-        <img src={project.coverUrl} alt={`Cover of ${project.title}`} className="size-full object-cover" loading="lazy" />
-      </span>
-    );
-  }
   return (
-    <span className="grid size-16 shrink-0 place-items-center">
-      <DocIcon />
-    </span>
+    <Cover
+      url={project.coverUrl}
+      title={project.title}
+      className="rd-sunken block size-16 shrink-0 bg-white object-cover p-[3px]"
+      fallback={
+        <span className="grid size-16 shrink-0 place-items-center">
+          <DocIcon />
+        </span>
+      }
+    />
   );
 }
 

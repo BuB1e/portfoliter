@@ -24,9 +24,9 @@ describe("project loader", () => {
     const project = makeProjectDetail();
     api.fetchProject.mockResolvedValue(project);
 
-    const result = await loader(loaderArgs("growthcheck"));
+    const result = await loader(loaderArgs("tidewatch"));
 
-    expect(api.fetchProject).toHaveBeenCalledWith("growthcheck", expect.any(AbortSignal));
+    expect(api.fetchProject).toHaveBeenCalledWith("tidewatch", expect.any(AbortSignal));
     expect(result).toEqual({ portfolio: makePortfolio(), project });
   });
 
@@ -42,7 +42,7 @@ describe("project loader", () => {
     api.fetchPortfolio.mockResolvedValue(null);
     api.fetchProject.mockResolvedValue(makeProjectDetail());
 
-    const result = await loader(loaderArgs("growthcheck"));
+    const result = await loader(loaderArgs("tidewatch"));
 
     expect(result).toMatchObject({ init: { status: 404 }, data: { project: null } });
   });

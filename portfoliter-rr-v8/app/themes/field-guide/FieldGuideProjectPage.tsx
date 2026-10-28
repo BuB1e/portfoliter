@@ -1,8 +1,10 @@
 import { Link } from "react-router";
 
-import { habitat, LabelRow, specimenCover, specimenNumber } from "~/components/field-guide/SpecimenGrid";
+import { habitat, LabelRow, RARE_FIND, specimenCover, specimenNumber } from "~/components/field-guide/SpecimenGrid";
 import { Markdown, markdownBase } from "~/components/Markdown";
-import { educationLabel, experienceLabel, projectDates, projectGroupHref } from "~/lib/projects";
+import { Cover } from "~/components/shared/Cover";
+import { linkedLine } from "~/lib/fields";
+import { projectDates, projectGroupHref } from "~/lib/projects";
 import type { ThemeProjectPageProps } from "../types";
 import { FONTS_HREF, GuideBar, SPECIMEN_GROUPS } from "./FieldGuidePage";
 
@@ -34,11 +36,12 @@ export function FieldGuideProjectPage({ portfolio, project }: ThemeProjectPagePr
 
   const dates = projectDates(project);
   const group = SPECIMEN_GROUPS[project.projectType];
+  const linked = linkedLine(project);
 
   return (
     <div className="mx-auto max-w-[1120px] px-5 pb-16">
       {fonts}
-      <GuideBar plate={`Specimen ${specimenNumber(project)}`} />
+      <GuideBar plate={`Specimen ${specimenNumber(project)}`} location={portfolio?.profile.location} />
 
       <nav aria-label="Breadcrumb" className="mt-6 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
         <Link to={projectGroupHref(project.projectType)} className={backLinkClass}>
@@ -54,18 +57,20 @@ export function FieldGuideProjectPage({ portfolio, project }: ThemeProjectPagePr
       <main>
         <header className="grid items-start gap-10 pt-8 pb-12 md:grid-cols-[1.05fr_1fr] md:gap-12 md:pt-12">
           <div className="min-w-0">
-            <p className="text-[0.95rem] font-semibold text-fg-moss">Specimen {specimenNumber(project)}</p>
+            <p className="flex flex-wrap items-center gap-3 text-[0.95rem] font-semibold text-fg-moss">
+              Specimen {specimenNumber(project)}
+              {project.isFeatured && <span className="bg-fg-ochre px-2.5 py-0.5 text-[0.8rem] text-fg-pine">{RARE_FIND}</span>}
+            </p>
             <h1 className="mt-1 font-fg-serif text-[clamp(2.6rem,6.5vw,4.8rem)] leading-[0.98] font-semibold tracking-[-0.02em] break-words">
               {project.title}
             </h1>
             <p className="mt-3 font-fg-serif text-[clamp(1.2rem,2.2vw,1.6rem)] leading-snug text-fg-moss italic">
-              {habitat(project, project.experience, project.education)}
+              {habitat(project)}
             </p>
             {project.summary && <p className="mt-6 max-w-[44ch] font-fg-serif text-xl leading-normal">{project.summary}</p>}
             <div className="mt-8 grid gap-2">
               {dates && <LabelRow term="Collected">{dates}</LabelRow>}
-              {project.experience && <LabelRow term="Keeper">{experienceLabel(project.experience)}</LabelRow>}
-              {project.education && <LabelRow term="Institute">{educationLabel(project.education)}</LabelRow>}
+              {linked && <LabelRow term={linked.kind === "experience" ? "Keeper" : "Institute"}>{linked.label}</LabelRow>}
               {project.skills.length > 0 && <LabelRow term="Made of">{project.skills.join(", ")}</LabelRow>}
               {(project.repoUrl || project.demoUrl) && (
                 <LabelRow term="Observe">
@@ -78,11 +83,13 @@ export function FieldGuideProjectPage({ portfolio, project }: ThemeProjectPagePr
           </div>
           <figure className="border-[1.5px] border-fg-pine bg-fg-paper p-4">
             <div className="relative">
-              {project.coverUrl ? (
-                <img src={project.coverUrl} alt={`Cover image of ${project.title}`} className="block w-full" />
-              ) : (
-                <div aria-hidden="true" className="aspect-[4/3]" style={{ background: specimenCover(project) }} />
-              )}
+              <Cover
+                url={project.coverUrl}
+                title={project.title}
+                className="block w-full"
+                isLazy={false}
+                fallback={<div aria-hidden="true" className="aspect-[4/3]" style={{ background: specimenCover(project) }} />}
+              />
               <span aria-hidden="true" className="absolute top-3.5 left-1/2 size-4 -translate-x-1/2 rounded-full bg-fg-rust shadow-[0_2px_0_rgb(0_0_0/0.25)]" />
             </div>
             <figcaption className="mt-2.5 text-center font-fg-serif text-[0.95rem] leading-snug italic">

@@ -1,4 +1,4 @@
-import { capitalize, firstName } from "~/lib/format";
+import { firstName, platformName } from "~/lib/format";
 import type { Link, Profile } from "~/lib/portfolio";
 
 interface ReturnToSenderProps {
@@ -24,7 +24,7 @@ export function ReturnToSender({ profile, links }: ReturnToSenderProps) {
           )}
           {links.map((link) => (
             <a key={link.url} href={link.url} className={LINK}>
-              {capitalize(link.platform)}
+              {platformName(link.platform)}
             </a>
           ))}
           {profile.resumeUrl && (

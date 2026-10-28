@@ -2,8 +2,9 @@ import { Link } from "react-router";
 
 import { Markdown, markdownBase } from "~/components/Markdown";
 import { SpecRow } from "~/components/spec-sheet/SpecRow";
-import { specContext } from "~/components/spec-sheet/SpecProjects";
-import { educationLabel, experienceLabel, projectDates, projectGroupHref } from "~/lib/projects";
+import { FEATURED_LABEL, specContext } from "~/components/spec-sheet/SpecProjects";
+import { linkedLine } from "~/lib/fields";
+import { projectDates, projectGroupHref } from "~/lib/projects";
 import type { ThemeProjectPageProps } from "../types";
 import { FONTS_HREF, GROUP_LABELS } from "./SpecSheetPage";
 
@@ -45,6 +46,7 @@ export function SpecSheetProjectPage({ portfolio, project }: ThemeProjectPagePro
   }
 
   const dates = projectDates(project);
+  const linked = linkedLine(project);
   const hasLinks = Boolean(project.repoUrl || project.demoUrl);
 
   return (
@@ -53,7 +55,10 @@ export function SpecSheetProjectPage({ portfolio, project }: ThemeProjectPagePro
       <TopBar ownerName={ownerName} backHref={projectGroupHref(project.projectType)} backLabel={`All ${GROUP_LABELS[project.projectType].toLowerCase()}`} />
 
       <header className="pt-12 pb-12 md:pt-16 md:pb-16">
-        <p className="text-[0.95rem] text-ss-muted">{specContext(project, project.experience, project.education)}</p>
+        <p className="flex flex-wrap items-baseline gap-x-3 text-[0.95rem] text-ss-muted">
+          {specContext(project)}
+          {project.isFeatured && <span className="font-medium text-ss-blue">{FEATURED_LABEL}</span>}
+        </p>
         <h1 className="mt-3 max-w-[18ch] text-[clamp(2.6rem,7vw,5rem)] leading-[0.95] font-bold tracking-[-0.035em] break-words">
           {project.title}
         </h1>
@@ -78,16 +83,13 @@ export function SpecSheetProjectPage({ portfolio, project }: ThemeProjectPagePro
             <p className="text-lg tabular-nums">{dates}</p>
           </SpecRow>
         )}
-        {project.experience && (
-          <SpecRow id="built-at-title" label="Built at">
-            <p className="text-lg font-semibold">{experienceLabel(project.experience)}</p>
-            {project.experience.description && <p className="mt-1 max-w-[65ch] text-ss-muted">{project.experience.description}</p>}
-          </SpecRow>
-        )}
-        {project.education && (
-          <SpecRow id="part-of-title" label="Part of">
-            <p className="text-lg font-semibold">{educationLabel(project.education)}</p>
-            {project.education.description && <p className="mt-1 text-ss-muted">{project.education.description}</p>}
+        {linked && (
+          <SpecRow id="linked-title" label={linked.kind === "experience" ? "Built at" : "Part of"}>
+            <p className="text-lg font-semibold">{linked.title}</p>
+            {linked.dates && <p className="text-[0.95rem] text-ss-muted tabular-nums">{linked.dates}</p>}
+            {(project.experience?.description || project.education?.description) && (
+              <p className="mt-1 max-w-[65ch] text-ss-muted">{project.experience?.description || project.education?.description}</p>
+            )}
           </SpecRow>
         )}
         {project.skills.length > 0 && (

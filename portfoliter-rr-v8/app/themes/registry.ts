@@ -10,6 +10,8 @@ import { FieldGuidePage } from "./field-guide/FieldGuidePage";
 import { FieldGuideProjectPage } from "./field-guide/FieldGuideProjectPage";
 import { ParcelPage } from "./parcel/ParcelPage";
 import { ParcelProjectPage } from "./parcel/ParcelProjectPage";
+import { PlainPage } from "./plain/PlainPage";
+import { PlainProjectPage } from "./plain/PlainProjectPage";
 import { QuestLogPage } from "./quest-log/QuestLogPage";
 import { QuestLogProjectPage } from "./quest-log/QuestLogProjectPage";
 import { ReceiptPage } from "./receipt/ReceiptPage";
@@ -25,6 +27,7 @@ import { StatusProjectPage } from "./status-page/StatusProjectPage";
 import type { ThemePageProps, ThemeProjectPageProps } from "./types";
 
 export const themePages: Record<ThemeKey, ComponentType<ThemePageProps>> = {
+  plain: PlainPage,
   dating: DatingPage,
   "field-guide": FieldGuidePage,
   parcel: ParcelPage,
@@ -39,6 +42,7 @@ export const themePages: Record<ThemeKey, ComponentType<ThemePageProps>> = {
 
 // /projects/:slug in each design; the Record type makes a new theme fail typecheck until it has one.
 export const themeProjectPages: Record<ThemeKey, ComponentType<ThemeProjectPageProps>> = {
+  plain: PlainProjectPage,
   dating: DatingProjectPage,
   "field-guide": FieldGuideProjectPage,
   parcel: ParcelProjectPage,
@@ -52,10 +56,11 @@ export const themeProjectPages: Record<ThemeKey, ComponentType<ThemeProjectPageP
 };
 
 export const themeTitles: Record<ThemeKey, (fullName: string) => string> = {
+  plain: (fullName) => fullName,
   dating: (fullName) => `${fullName} on the port`,
   "field-guide": (fullName) => `Field Guide: ${fullName}`,
   parcel: (fullName) => `Fragile: ${fullName}`,
-  "spec-sheet": (fullName) => `${fullName}, software engineer`,
+  "spec-sheet": (fullName) => `${fullName}: spec sheet`,
   skytrain: (fullName) => `Next station: ${fullName}`,
   "status-page": (fullName) => `${fullName} status`,
   receipt: (fullName) => `Receipt: ${fullName}`,

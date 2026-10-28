@@ -1,9 +1,14 @@
 import { useId } from "react";
 import { Link } from "react-router";
 
-import type { Education, Experience, Project } from "~/lib/portfolio";
-import { findEducation, findExperience, projectDates, projectPath, shortDescription } from "~/lib/projects";
+import { Cover } from "~/components/shared/Cover";
+import { linkedName } from "~/lib/fields";
+import type { Project } from "~/lib/portfolio";
+import { projectDates, projectPath, shortDescription } from "~/lib/projects";
 import { ContentsTags } from "./ContentsTags";
+
+// The parcel's word for a featured project, on its box and on its own label.
+export const FEATURED_LABEL = "Priority";
 
 const COVERS = [
   "repeating-linear-gradient(45deg, #e9d3b3 0 14px, #dcbf97 14px 28px)",
@@ -12,27 +17,24 @@ const COVERS = [
   "conic-gradient(from 45deg, #e9d3b3, #c69c6d, #e9d3b3)",
 ];
 
-export function boxCover(project: Project): string {
-  return project.coverUrl ? `url(${project.coverUrl}) center/cover` : COVERS[project.id % COVERS.length];
+// Cardboard pattern for a box with no cover photo.
+export function boxPattern(project: Project): string {
+  return COVERS[project.id % COVERS.length];
 }
 
-// Where the box was packed: the company, home, or the university.
-export function parcelOrigin(project: Project, experience: Experience | null, education: Education | null): string {
+// Where the box was packed: the company, home, or the university (from the embedded job or school).
+export function parcelOrigin(project: Project): string {
+  const linked = linkedName(project);
   if (project.projectType === "WORK") {
-    return `Made at ${experience?.company ?? "work"}`;
+    return `Made at ${linked ?? "work"}`;
   }
   if (project.projectType === "UNIVERSITY") {
-    return `Made at ${education?.institution ?? "university"}`;
+    return `Made at ${linked ?? "university"}`;
   }
   return "Made at home, after dinner";
 }
 
-interface BoxProps {
-  project: Project;
-  origin: string;
-}
-
-function Box({ project, origin }: BoxProps) {
+function Box({ project }: { project: Project }) {
   const titleId = useId();
   const descriptionId = useId();
   const dates = projectDates(project);
@@ -45,15 +47,17 @@ function Box({ project, origin }: BoxProps) {
     >
       {project.isFeatured && (
         <span className="absolute -top-3.5 -right-2.5 z-10 rotate-6 bg-parcel-tape px-3 py-2 font-parcel-stencil text-[1.1rem] leading-none font-black text-parcel-label">
-          Priority
+          {FEATURED_LABEL}
         </span>
       )}
-      <div aria-hidden="true" className="parcel-box-tape relative h-[150px] border-b-2 border-parcel-kraft-dark" style={{ background: boxCover(project) }} />
+      <div className="parcel-box-tape relative h-[150px] overflow-hidden border-b-2 border-parcel-kraft-dark" style={{ background: boxPattern(project) }}>
+        <Cover url={project.coverUrl} title={project.title} className="absolute inset-0 size-full object-cover" />
+      </div>
       <h3 id={titleId} className="mx-5 mt-4 mb-1 font-parcel-stencil text-[2rem] leading-none font-black break-words">
         {project.title}
       </h3>
       <p className="mx-5 mb-2.5 text-[0.9rem] font-semibold font-stretch-80%">
-        {origin}
+        {parcelOrigin(project)}
         {dates ? `, ${dates}` : ""}
       </p>
       {project.summary && (
@@ -69,21 +73,12 @@ function Box({ project, origin }: BoxProps) {
   );
 }
 
-interface PackingListProps {
-  projects: Project[];
-  experiences: Experience[];
-  education: Education[];
-}
-
-export function PackingList({ projects, experiences, education }: PackingListProps) {
+export function PackingList({ projects }: { projects: Project[] }) {
   return (
     <ul className="grid grid-cols-[repeat(auto-fill,minmax(230px,1fr))] gap-x-6 gap-y-8">
       {projects.map((project) => (
         <li key={project.id} className="odd:-rotate-[0.6deg] even:rotate-[0.8deg]">
-          <Box
-            project={project}
-            origin={parcelOrigin(project, findExperience(project, experiences), findEducation(project, education))}
-          />
+          <Box project={project} />
         </li>
       ))}
     </ul>

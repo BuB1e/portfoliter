@@ -1,3 +1,4 @@
+import { SectionEntries } from "~/components/shared/SectionEntries";
 import { SpecCredentials } from "~/components/spec-sheet/SpecCredentials";
 import { SpecExperience } from "~/components/spec-sheet/SpecExperience";
 import { SpecHeader } from "~/components/spec-sheet/SpecHeader";
@@ -5,11 +6,10 @@ import { SpecProjects } from "~/components/spec-sheet/SpecProjects";
 import { SpecRow } from "~/components/spec-sheet/SpecRow";
 import { SpecSkills } from "~/components/spec-sheet/SpecSkills";
 import { careerStartYear } from "~/lib/experience";
+import { customSections } from "~/lib/fields";
 import { firstName } from "~/lib/format";
 import type { ProjectType } from "~/lib/portfolio";
 import { groupProjects, projectGroupId } from "~/lib/projects";
-import { getAwards } from "~/lib/sections";
-import { groupSkills } from "~/lib/skills";
 import type { ThemePageProps } from "../types";
 
 export const FONTS_HREF = "https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400..800&display=swap";
@@ -33,8 +33,7 @@ export function SpecSheetPage({ portfolio }: ThemePageProps) {
     );
   }
 
-  const { profile, experiences, projects, skills, education, certifications, sections } = portfolio;
-  const awards = getAwards(sections);
+  const { profile, experiences, projects, skillGroups, education, certifications, sections } = portfolio;
 
   return (
     <div className="mx-auto max-w-[1040px] px-5">
@@ -54,12 +53,12 @@ export function SpecSheetPage({ portfolio }: ThemePageProps) {
         )}
         {groupProjects(projects).map((group) => (
           <SpecRow key={group.type} id={projectGroupId(group.type)} label={GROUP_LABELS[group.type]}>
-            <SpecProjects projects={group.projects} experiences={experiences} education={education} />
+            <SpecProjects projects={group.projects} />
           </SpecRow>
         ))}
-        {skills.length > 0 && (
+        {skillGroups.length > 0 && (
           <SpecRow id="skills-title" label="Skills">
-            <SpecSkills groups={groupSkills(skills)} />
+            <SpecSkills groups={skillGroups} />
           </SpecRow>
         )}
         {education.length + certifications.length > 0 && (
@@ -67,22 +66,19 @@ export function SpecSheetPage({ portfolio }: ThemePageProps) {
             <SpecCredentials education={education} certifications={certifications} />
           </SpecRow>
         )}
-        {awards && awards.awards.length > 0 && (
-          <SpecRow id="awards-title" label={awards.title}>
-            <ul className="grid gap-3">
-              {awards.awards.map((award) => (
-                <li key={award.name}>
-                  <span className="font-semibold">{award.name}</span>
-                  {award.note && <span className="text-ss-muted">, {award.note}</span>}
-                </li>
-              ))}
-            </ul>
+        {/* Every free-form section, prompts and awards included, as one more labelled row. */}
+        {customSections(sections).map((section) => (
+          <SpecRow key={section.key} id={`section-${section.key}`} label={section.title}>
+            <SectionEntries
+              entries={section.entries}
+              classNames={{ list: "grid gap-3", item: "max-w-[65ch]", title: "font-semibold", detail: "text-ss-muted", link: "text-ss-blue" }}
+            />
           </SpecRow>
-        )}
+        ))}
       </main>
 
       <footer className="mt-6 border-t border-ss-ink py-14">
-        <p className="text-ss-muted">Open to backend roles and interesting problems.</p>
+        <p className="text-ss-muted">Questions about anything on this sheet are welcome.</p>
         {profile.email && (
           <a
             href={`mailto:${profile.email}`}

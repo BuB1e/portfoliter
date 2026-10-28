@@ -15,10 +15,10 @@ describe("ProjectCard", () => {
     );
 
     expect(html.match(/<a /g)).toHaveLength(1);
-    expect(html).toMatch(/^<a [^>]*href="\/projects\/growthcheck"/);
-    expect(html).toContain("Senior project: growth charts and LSTM risk predictions.");
-    expect(html).toContain('alt="Cover of GrowthCheck"');
-    expect(html).toContain("Sep 2025 to Apr 2026");
+    expect(html).toMatch(/^<a [^>]*href="\/projects\/tidewatch"/);
+    expect(html).toContain("Final-year project: tide charts and flood warnings for harbour crews.");
+    expect(html).toContain('alt="Cover of Tidewatch"');
+    expect(html).toContain("Sep 2021 to Jun 2022");
   });
 });
 

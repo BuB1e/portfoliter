@@ -3,8 +3,11 @@ import { Link } from "react-router";
 import { FeedSection } from "~/components/dating/FeedSection";
 import { datingCover, metAt, TYPE_CHIPS } from "~/components/dating/SwipeCard";
 import { Markdown, markdownBase } from "~/components/Markdown";
+import { Cover } from "~/components/shared/Cover";
+import { linkedLine } from "~/lib/fields";
 import { firstName } from "~/lib/format";
-import { educationLabel, experienceLabel, projectDates, projectGroupHref } from "~/lib/projects";
+import { LABELS } from "~/lib/labels";
+import { projectDates, projectGroupHref } from "~/lib/projects";
 import type { ThemeProjectPageProps } from "../types";
 import { DECKS, FONTS_HREF, TopBar } from "./DatingPage";
 
@@ -36,6 +39,8 @@ export function DatingProjectPage({ portfolio, project }: ThemeProjectPageProps)
   const dates = projectDates(project);
   const email = portfolio?.profile.email ?? null;
   const owner = portfolio ? firstName(portfolio.profile.fullName) : null;
+  const linked = linkedLine(project);
+  const linkedDescription = project.experience?.description || project.education?.description;
 
   return (
     <>
@@ -44,9 +49,7 @@ export function DatingProjectPage({ portfolio, project }: ThemeProjectPageProps)
       <div className="mx-auto grid max-w-[1120px] items-start gap-10 px-4 pt-4 pb-20 md:grid-cols-[minmax(300px,420px)_1fr]">
         <aside className="overflow-hidden rounded-[28px] bg-card text-ink md:sticky md:top-5">
           <div className="relative aspect-[4/5]" style={{ background: datingCover(project) }}>
-            {project.coverUrl && (
-              <img src={project.coverUrl} alt={`Cover image of ${project.title}`} className="absolute inset-0 size-full object-cover" />
-            )}
+            <Cover url={project.coverUrl} title={project.title} className="absolute inset-0 size-full object-cover" isLazy={false} />
             <span className="absolute bottom-4 left-4 flex items-center gap-2 rounded-full bg-ink py-1.5 pr-3 pl-2.5 text-sm text-card">
               <span aria-hidden="true" className={`size-2.5 rounded-full ${project.endDate ? "bg-lilac" : "bg-mint"}`} />
               {project.endDate ? "Taking a break" : "Active now"}
@@ -55,12 +58,12 @@ export function DatingProjectPage({ portfolio, project }: ThemeProjectPageProps)
           <div className="px-6 pt-5 pb-6">
             <h1 className="text-[clamp(2.1rem,5vw,2.8rem)] leading-none font-extrabold tracking-tight break-words">{project.title}</h1>
             <p className="mt-1.5 mb-4 text-[0.95rem] text-muted">
-              {metAt(project, project.experience, project.education)}
+              {metAt(project)}
               {dates ? `, ${dates}` : ""}
             </p>
             <ul aria-label="Looking for" className="mb-6 flex flex-wrap gap-2">
               <li className="rounded-full border-[1.5px] border-ink px-3 py-0.5 text-sm">{TYPE_CHIPS[project.projectType]}</li>
-              {project.isFeatured && <li className="rounded-full border-[1.5px] border-ink px-3 py-0.5 text-sm">Featured</li>}
+              {project.isFeatured && <li className="rounded-full border-[1.5px] border-ink px-3 py-0.5 text-sm">{LABELS.featured}</li>}
             </ul>
             <div className="flex flex-wrap gap-2.5">
               {email && (
@@ -112,15 +115,12 @@ export function DatingProjectPage({ portfolio, project }: ThemeProjectPageProps)
               </ul>
             </FeedSection>
           )}
-          {(project.experience || project.education) && (
+          {linked && (
             <FeedSection id="met-title" title="Where we met" lede="Every good story has a setting.">
               <div className="rounded-[22px] bg-night-raised px-6 pt-5 pb-6">
-                <p className="text-xl font-semibold">
-                  {project.experience ? experienceLabel(project.experience) : project.education ? educationLabel(project.education) : ""}
-                </p>
-                {(project.experience?.description || project.education?.description) && (
-                  <p className="mt-1 opacity-80">{project.experience?.description || project.education?.description}</p>
-                )}
+                <p className="text-xl font-semibold">{linked.title}</p>
+                {linked.dates && <p className="mt-0.5 text-[0.95rem] opacity-75">{linked.dates}</p>}
+                {linkedDescription && <p className="mt-2 opacity-80">{linkedDescription}</p>}
               </div>
             </FeedSection>
           )}

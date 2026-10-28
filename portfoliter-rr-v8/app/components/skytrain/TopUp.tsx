@@ -15,7 +15,7 @@ export function TopUp({ profile, links }: TopUpProps) {
       <div className="mx-auto flex max-w-[1080px] flex-wrap items-end justify-between gap-8 px-5 py-14">
         <div>
           <h2 className="font-sky-sign text-[clamp(2.4rem,6vw,3.6rem)] leading-none font-bold">End of the line</h2>
-          <p className="mt-2 max-w-[42ch] text-white/80">This train terminates here. Passengers looking for a backend engineer, please alight.</p>
+          <p className="mt-2 max-w-[42ch] text-white/80">This train terminates here. Passengers looking for an engineer, please alight.</p>
         </div>
         <nav aria-label="Contact" className="flex flex-wrap gap-3">
           {profile.email && (

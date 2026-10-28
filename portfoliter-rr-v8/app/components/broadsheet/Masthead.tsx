@@ -2,7 +2,7 @@ import { Link } from "react-router";
 
 import { firstName } from "~/lib/format";
 
-// "The Daily Harit": the paper is named after the owner's first name.
+// "The Daily Jane": the paper is named after the owner's first name.
 export function paperName(fullName: string): string {
   return `The Daily ${firstName(fullName)}`;
 }

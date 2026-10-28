@@ -2,7 +2,7 @@
 export function EngineerFigure() {
   return (
     <svg viewBox="0 0 520 420" role="img" aria-labelledby="fig-title" className="block h-auto w-full">
-      <title id="fig-title">Illustration of a backend engineer at a desk, with labelled field marks</title>
+      <title id="fig-title">Illustration of an engineer at a desk, with labelled field marks</title>
       <g fill="none" stroke="#1f3a2e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M150 300c0-62 30-104 80-104s80 42 80 104" fill="#6f8a5e" />
         <path d="M205 196l25 30 25-30" fill="#dde5d3" />

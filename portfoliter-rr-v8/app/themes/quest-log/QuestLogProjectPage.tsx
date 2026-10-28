@@ -3,8 +3,10 @@ import { Link } from "react-router";
 
 import { Markdown, markdownBase } from "~/components/Markdown";
 import { questGiver } from "~/components/quest-log/QuestBoard";
+import { Cover } from "~/components/shared/Cover";
+import { linkedLine } from "~/lib/fields";
 import { formatMonth } from "~/lib/format";
-import { educationLabel, experienceLabel, projectDates, projectGroupHref } from "~/lib/projects";
+import { projectDates, projectGroupHref } from "~/lib/projects";
 import type { ThemeProjectPageProps } from "../types";
 import { FONTS_HREF, QUEST_TYPES } from "./QuestLogPage";
 
@@ -61,6 +63,8 @@ export function QuestLogProjectPage({ portfolio, project }: ThemeProjectPageProp
 
   const type = QUEST_TYPES[project.projectType];
   const dates = projectDates(project);
+  const giver = linkedLine(project);
+  const giverDescription = project.experience?.description || project.education?.description;
 
   return (
     <div className="mx-auto max-w-[52rem] px-4 py-8 sm:px-6 sm:py-12">
@@ -89,7 +93,7 @@ export function QuestLogProjectPage({ portfolio, project }: ThemeProjectPageProp
           </header>
 
           <dl className="mx-auto mt-8 grid max-w-[36rem] grid-cols-[auto_1fr] gap-x-5 gap-y-2 border-y-2 border-ql-ink/30 py-4 text-[1.1rem]">
-            <Detail label="Giver">{questGiver(project.experience, project.education)}</Detail>
+            <Detail label="Giver">{questGiver(project)}</Detail>
             <Detail label="Status">
               {project.endDate ? `Cleared, ${formatMonth(project.endDate)}` : "In progress"}
             </Detail>
@@ -97,17 +101,17 @@ export function QuestLogProjectPage({ portfolio, project }: ThemeProjectPageProp
           </dl>
 
           <figure className="mt-8">
-            {project.coverUrl ? (
-              <img
-                src={project.coverUrl}
-                alt={`Map of ${project.title}`}
-                className="w-full border-4 border-ql-ink/70 shadow-[4px_5px_0_rgb(59_36_18/0.35)] sepia-[.35]"
-              />
-            ) : (
-              <div aria-hidden="true" className="grid aspect-[16/7] place-items-center border-2 border-dashed border-ql-ink/50 font-ql text-ql-ink-soft">
-                No map for this quest
-              </div>
-            )}
+            <Cover
+              url={project.coverUrl}
+              title={project.title}
+              isLazy={false}
+              className="w-full border-4 border-ql-ink/70 shadow-[4px_5px_0_rgb(59_36_18/0.35)] sepia-[.35]"
+              fallback={
+                <div aria-hidden="true" className="grid aspect-[16/7] place-items-center border-2 border-dashed border-ql-ink/50 font-ql text-ql-ink-soft">
+                  No map for this quest
+                </div>
+              }
+            />
             <figcaption className={project.coverUrl ? "mt-2 text-center italic text-ql-ink-soft" : "sr-only"}>
               {project.coverUrl ? `The map of ${project.title}` : `No map was drawn for ${project.title}`}
             </figcaption>
@@ -143,23 +147,14 @@ export function QuestLogProjectPage({ portfolio, project }: ThemeProjectPageProp
             </section>
           )}
 
-          {(project.experience || project.education) && (
+          {giver && (
             <section aria-labelledby="giver-title" className="mt-10">
               <h2 id="giver-title" className="font-ql text-[1.6rem] font-bold">
                 About the giver
               </h2>
-              {project.experience && (
-                <>
-                  <p className="mt-2 text-[1.15rem] font-bold">{experienceLabel(project.experience)}</p>
-                  {project.experience.description && <p className="mt-1 text-[1.1rem] leading-relaxed">{project.experience.description}</p>}
-                </>
-              )}
-              {project.education && (
-                <>
-                  <p className="mt-2 text-[1.15rem] font-bold">{educationLabel(project.education)}</p>
-                  {project.education.description && <p className="mt-1 text-[1.1rem]">{project.education.description}</p>}
-                </>
-              )}
+              <p className="mt-2 text-[1.15rem] font-bold">{giver.title}</p>
+              {giver.dates && <p className="text-[1.05rem] text-ql-ink-soft">{giver.dates}</p>}
+              {giverDescription && <p className="mt-1 text-[1.1rem] leading-relaxed">{giverDescription}</p>}
             </section>
           )}
 

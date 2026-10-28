@@ -2,8 +2,11 @@ import { useId, useRef, useState } from "react";
 import type { MouseEvent, PointerEvent } from "react";
 import { Link } from "react-router";
 
+import { Cover } from "~/components/shared/Cover";
 import type { SwipeDirection } from "~/hooks/useSwipeDeck";
-import type { Education, Experience, Project, ProjectType } from "~/lib/portfolio";
+import { linkedName } from "~/lib/fields";
+import { LABELS } from "~/lib/labels";
+import type { Project, ProjectType } from "~/lib/portfolio";
 import { projectDates, projectPath, shortDescription } from "~/lib/projects";
 
 const SWIPE_THRESHOLD_PX = 110;
@@ -23,24 +26,25 @@ export const TYPE_CHIPS: Record<ProjectType, string> = {
   UNIVERSITY: "University",
 };
 
+// The pattern behind a project's photo; it is all that shows when the project has no cover.
 export function datingCover(project: Project): string {
-  return project.coverUrl ? `url(${project.coverUrl}) center/cover` : COVERS[project.id % COVERS.length];
+  return COVERS[project.id % COVERS.length];
 }
 
-// Where we met, in the deck's voice.
-export function metAt(project: Project, experience: Experience | null, education: Education | null): string {
+// Where we met, in the deck's voice: the job or school the backend linked, if any.
+export function metAt(project: Project): string {
+  const place = linkedName(project);
+  if (place) {
+    return `At ${place}`;
+  }
   if (project.projectType === "WORK") {
-    return `At ${experience?.company ?? "work"}`;
+    return "At work";
   }
-  if (project.projectType === "UNIVERSITY") {
-    return `At ${education?.institution ?? "uni"}`;
-  }
-  return "A weekend thing";
+  return project.projectType === "UNIVERSITY" ? "At uni" : "A weekend thing";
 }
 
 interface SwipeCardProps {
   project: Project;
-  origin: string;
   depth: number;
   exitDirection: SwipeDirection | null;
   onSwipe: (direction: SwipeDirection) => void;
@@ -58,7 +62,7 @@ function cardTransform(depth: number, dragX: number, exitDirection: SwipeDirecti
 
 // The whole card is a link to the project page. A tap opens it; a horizontal drag swipes instead,
 // and the click that ends a drag is swallowed so swiping never navigates.
-export function SwipeCard({ project, origin, depth, exitDirection, onSwipe }: SwipeCardProps) {
+export function SwipeCard({ project, depth, exitDirection, onSwipe }: SwipeCardProps) {
   const [dragX, setDragX] = useState(0);
   const [dragging, setDragging] = useState(false);
   const startX = useRef<number | null>(null);
@@ -127,24 +131,34 @@ export function SwipeCard({ project, origin, depth, exitDirection, onSwipe }: Sw
         aria-describedby={project.summary ? descriptionId : undefined}
         className="group flex h-full flex-col rounded-[26px] no-underline"
       >
-        <div className="relative h-[170px] shrink-0 rounded-t-[26px]" style={{ background: datingCover(project) }}>
+        <div className="relative h-[150px] shrink-0 overflow-hidden rounded-t-[26px] [&_img]:pointer-events-none" style={{ background: datingCover(project) }}>
+          <Cover url={project.coverUrl} title={project.title} className="absolute inset-0 size-full object-cover" />
           <span className="absolute top-4 left-4 rounded-full bg-card px-3 py-1 text-sm font-bold">
             {TYPE_CHIPS[project.projectType]}
-            {project.isFeatured ? ", featured" : ""}
+            {project.isFeatured ? `, ${LABELS.featured.toLowerCase()}` : ""}
           </span>
         </div>
-        <div className="flex min-h-0 flex-1 flex-col px-6 py-5">
-          <h3 id={titleId} className="text-[1.8rem] leading-[1.05] font-extrabold tracking-tight group-hover:underline">
+        <div className="flex min-h-0 flex-1 flex-col px-6 py-4">
+          <h3 id={titleId} className="text-[1.7rem] leading-[1.05] font-extrabold tracking-tight group-hover:underline">
             {project.title}
           </h3>
-          <p className="mt-1 mb-3 text-sm text-muted">
-            {origin}
+          <p className="mt-1 mb-2 text-sm text-muted">
+            {metAt(project)}
             {dates ? `, ${dates}` : ""}
           </p>
           {project.summary && (
-            <p id={descriptionId} className="mb-3 line-clamp-4">
+            <p id={descriptionId} className="mb-2 line-clamp-3">
               {shortDescription(project.summary)}
             </p>
+          )}
+          {project.skills.length > 0 && (
+            <ul aria-label="Interests" className="mb-3 flex flex-wrap gap-1.5">
+              {project.skills.map((skill) => (
+                <li key={skill} className="rounded-full border-[1.5px] border-ink px-2.5 text-[0.8rem] font-semibold">
+                  {skill}
+                </li>
+              ))}
+            </ul>
           )}
           <span aria-hidden="true" className="mt-auto self-start rounded-full bg-ink px-4 py-1.5 text-sm font-bold text-card">
             View full profile

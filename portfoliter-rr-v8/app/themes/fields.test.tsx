@@ -2,12 +2,29 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router";
 import { describe, expect, it } from "vitest";
 
-import type { ThemeKey } from "~/lib/theme";
-import { makeLivePortfolio, makeLiveProjectDetail } from "~/test-utils/livePortfolio";
+import { certificationLine, educationLine, experienceLine, linkedName } from "~/lib/fields";
+import { formatMonth } from "~/lib/format";
+import { skillGroupLabel } from "~/lib/labels";
+import { shortDescription } from "~/lib/projects";
+import { THEME_KEYS, type ThemeKey } from "~/lib/theme";
+import { makeSampleProject, makeSampleView } from "~/test-utils/sampleView";
 import { themePages, themeProjectPages } from "./registry";
 
-// Designs that render every published field. Each one names its own featured-project marker.
-const FEATURED_LABELS: Partial<Record<ThemeKey, string>> = {
+// The coverage contract: every design, on the home page and the project page, shows every published
+// field of a complete fictional profile (test-utils/sampleView.ts). A design that drops a field, or
+// prints a placeholder for an empty one, fails here. Text is matched case-insensitively, so designs
+// may set their own case.
+//
+// Adding a design: add its featured-project marker below; the Record type makes typecheck fail until
+// you do. Then make every test in this file pass.
+const FEATURED_LABELS: Record<ThemeKey, string> = {
+  plain: "Featured",
+  dating: "Featured",
+  "field-guide": "Rare find",
+  parcel: "Priority",
+  "spec-sheet": "Selected work",
+  skytrain: "Express service",
+  "status-page": "Key service",
   receipt: "Staff pick",
   broadsheet: "Editor's pick",
   "quest-log": "Epic quest",
@@ -23,88 +40,149 @@ function escaped(text: string): string {
   return text.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("'", "&#x27;").replaceAll("<", "&lt;");
 }
 
-function expectAll(html: string, texts: string[]) {
+function expectText(html: string, texts: (string | null | undefined)[]) {
+  const lower = html.toLowerCase();
   for (const text of texts) {
-    expect(html, `missing "${text}"`).toContain(escaped(text));
+    if (text) {
+      expect(lower, `missing "${text}"`).toContain(escaped(text).toLowerCase());
+    }
   }
 }
 
-describe.each(Object.entries(FEATURED_LABELS))("%s design shows every published field", (key, featuredLabel) => {
-  const portfolio = makeLivePortfolio();
-  const Page = themePages[key as ThemeKey];
-  const ProjectPage = themeProjectPages[key as ThemeKey];
+function expectHref(html: string, url: string | null) {
+  if (url) {
+    expect(html, `missing link to ${url}`).toContain(`href="${escaped(url)}"`);
+  }
+}
 
-  it("home: profile, links and resume", () => {
-    const html = render(<Page portfolio={portfolio} />);
-    const { profile } = portfolio;
+// Empty values must render as nothing, never as a placeholder from a bad lookup.
+function expectNoBrokenValues(html: string) {
+  const text = html.replace(/<[^>]*>/g, " ");
+  for (const bad of ["undefined", "NaN", "Invalid Date", "[object Object]"]) {
+    expect(text, `renders "${bad}"`).not.toContain(bad);
+  }
+  expect(text).not.toMatch(/(^|\s)null(\s|$)/);
+  expect(html).not.toContain('src=""');
+  expect(html).not.toContain('src="null"');
+  expect(html).not.toContain('href=""');
+}
 
-    expectAll(html, [profile.fullName, profile.headline, profile.bio, profile.location ?? "", profile.email ?? ""]);
-    expect(html).toContain(`src="${profile.avatarUrl}"`);
-    expect(html).toContain(`href="${profile.resumeUrl}"`);
-    for (const link of portfolio.links) {
-      expect(html).toContain(`href="${link.url}"`);
+describe.each(THEME_KEYS)("%s design shows every published field", (key) => {
+  const view = makeSampleView();
+  const Page = themePages[key];
+  const ProjectPage = themeProjectPages[key];
+  const home = render(<Page portfolio={view} />);
+
+  it("home: profile, avatar, links, email and resume", () => {
+    const { profile } = view;
+
+    expectText(home, [profile.fullName, profile.headline, profile.bio, profile.location]);
+    expect(home).toContain(`src="${profile.avatarUrl}"`);
+    expectHref(home, `mailto:${profile.email}`);
+    expectHref(home, profile.resumeUrl);
+    for (const link of view.links) {
+      expectHref(home, link.url);
     }
   });
 
-  it("home: hides the resume when there is none", () => {
-    const html = render(<Page portfolio={{ ...portfolio, profile: { ...portfolio.profile, resumeUrl: null } }} />);
+  it("home: no avatar, email, location or resume renders a fallback, not a broken value", () => {
+    const html = render(
+      <Page portfolio={{ ...view, profile: { ...view.profile, avatarUrl: null, email: null, location: null, resumeUrl: null } }} />,
+    );
 
-    expect(html).not.toContain("resume.pdf");
+    expectText(html, [view.profile.fullName]);
+    expect(html).not.toContain("resume/mira.pdf");
+    expect(html).not.toContain("mailto:");
+    expectNoBrokenValues(html);
   });
 
-  it("home: every skill, uncategorized ones under Other", () => {
-    const html = render(<Page portfolio={portfolio} />);
-
-    expectAll(html, [...portfolio.skills.map((skill) => skill.name), "Other"]);
+  it("home: every skill under its group label, uncategorized ones under Other", () => {
+    for (const group of view.skillGroups) {
+      expectText(home, [skillGroupLabel(group), ...group.skills]);
+    }
+    expectText(home, ["Other"]);
   });
 
-  it("home: experience, education, certifications and custom sections", () => {
-    const html = render(<Page portfolio={portfolio} />);
+  it("home: every job with employment type, location, dates, description and skills", () => {
+    for (const job of view.experiences) {
+      const line = experienceLine(job);
+      expectText(home, [line.role, line.company, line.employmentType, line.location, line.description, ...line.skills]);
+      expectText(home, [formatMonth(job.startDate), job.endDate && formatMonth(job.endDate)]);
+    }
+  });
 
-    for (const job of portfolio.experiences) {
-      expectAll(html, [job.role, job.company, job.location ?? "", job.description, ...job.skills]);
+  it("home: education with description and dates", () => {
+    for (const school of view.education) {
+      const line = educationLine(school);
+      expectText(home, [line.institution, school.degree, school.field, line.description, line.dates]);
     }
-    expect(html.toLowerCase()).toContain("internship");
-    expect(html.toLowerCase()).toContain("full-time");
-    expectAll(html, ["Oct 2025", "Feb 2026"]);
-    const [school] = portfolio.education;
-    expectAll(html, [school.institution, school.degree ?? "", school.field ?? "", school.description, "Apr 2026"]);
-    for (const cert of portfolio.certifications) {
-      expectAll(html, [cert.name, cert.issuer]);
+  });
+
+  it("home: certifications with issuer, and date and link only when set", () => {
+    for (const cert of view.certifications) {
+      const line = certificationLine(cert);
+      expectText(home, [line.name, line.issuer, line.date]);
+      expectHref(home, line.credentialUrl);
     }
-    expectAll(html, ["Aug 2025"]);
-    expect(html).toContain('href="https://certs.example/intern"');
-    expectAll(html, ["Awards", "Hackathon finalist", "Bangkok, 2025", "Spoken languages", "Thai", "English", "Professional"]);
+  });
+
+  it("home: every custom section, including keys no design knows", () => {
+    for (const section of view.sections) {
+      expectText(home, [section.title]);
+      for (const entry of section.entries) {
+        expectText(home, [entry.title, entry.detail]);
+        expectHref(home, entry.url);
+      }
+    }
   });
 
   it("home: project cards carry cover, dates, skills, featured marker and their job or school", () => {
-    const html = render(<Page portfolio={portfolio} />);
-
-    for (const project of portfolio.projects) {
-      expectAll(html, [project.title, project.summary, ...project.skills]);
+    for (const project of view.projects) {
+      expectText(home, [project.title, shortDescription(project.summary), ...project.skills, linkedName(project)]);
+      expectText(home, [project.startDate && formatMonth(project.startDate)]);
+      if (project.coverUrl) {
+        expect(home, `missing cover of ${project.title}`).toContain(`src="${project.coverUrl}"`);
+      }
     }
-    expect(html).toContain('src="https://files.example/iso.png"');
-    expectAll(html, ["Sep 2025", featuredLabel]);
-    expectAll(html, ["Yuan Ze University (Taiwan)", "Kasetsart University"]);
+    expectText(home, [FEATURED_LABELS[key]]);
   });
 
-  it("project page: content, links, cover, dates, skills and the linked job", () => {
-    const project = makeLiveProjectDetail();
+  it("home: renders no broken values", () => {
+    expectNoBrokenValues(home);
+  });
 
-    const html = render(<ProjectPage portfolio={portfolio} project={project} />);
+  it("project page: content, links, cover, dates, skills, featured marker and the linked job with its dates", () => {
+    const project = makeSampleProject("freight-router");
+    const job = experienceLine(project.experience!);
 
-    expectAll(html, [project.title, project.summary, "Oct 2026", "Software Engineer", "Ngern Turbo", ...project.skills]);
-    expect(html).toContain("<strong>Web editor</strong>");
-    expect(html).toContain(`href="${project.repoUrl}"`);
-    expect(html).toContain(`href="${project.demoUrl}"`);
+    const html = render(<ProjectPage portfolio={view} project={project} />);
+
+    expectText(html, [project.title, project.summary, "May 2024", ...project.skills, FEATURED_LABELS[key]]);
+    expectText(html, [job.role, job.company, formatMonth(project.experience!.startDate)]);
+    expect(html).toContain("<strong>Live re-planning</strong>");
+    expectHref(html, project.repoUrl);
+    expectHref(html, project.demoUrl);
     expect(html).toContain(`src="${project.coverUrl}"`);
+    expectNoBrokenValues(html);
   });
 
-  it("project page: empty content still shows the short description, skills and dates", () => {
-    const project = makeLiveProjectDetail({ content: "", coverUrl: null, repoUrl: null, demoUrl: null, experience: null, experienceId: null });
+  it("project page: a university project shows its school with qualification and dates", () => {
+    const project = makeSampleProject("tidewatch");
+    const school = educationLine(project.education!);
 
-    const html = render(<ProjectPage portfolio={portfolio} project={project} />);
+    const html = render(<ProjectPage portfolio={view} project={project} />);
 
-    expectAll(html, [project.summary, ...project.skills, "Oct 2026"]);
+    expectText(html, [project.title, school.institution, project.education!.degree, project.education!.field, school.dates]);
+    expectText(html, ["Sep 2021", "Jun 2022", ...project.skills]);
+    expectNoBrokenValues(html);
+  });
+
+  it("project page: no content, cover, links, dates or job still shows the short description and skills", () => {
+    const project = makeSampleProject("night-notes", { skills: ["Rust"] });
+
+    const html = render(<ProjectPage portfolio={view} project={project} />);
+
+    expectText(html, [project.title, project.summary, "Rust"]);
+    expectNoBrokenValues(html);
   });
 });

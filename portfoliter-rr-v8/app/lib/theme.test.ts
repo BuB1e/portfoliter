@@ -7,7 +7,7 @@ describe("themeKey", () => {
     expect(themeKey(key)).toBe(key);
   });
 
-  it.each([undefined, null, "", "Dating", "neon"])("falls back to dating for %s", (value) => {
-    expect(themeKey(value)).toBe("dating");
+  it.each([undefined, null, "", "Dating", "neon"])("falls back to plain for %s", (value) => {
+    expect(themeKey(value)).toBe("plain");
   });
 });

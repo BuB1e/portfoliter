@@ -6,7 +6,9 @@ import { fileOrigin } from "~/components/retro-desktop/FileTiles";
 import { DocIcon, FolderIcon } from "~/components/retro-desktop/Icons";
 import { Pane } from "~/components/retro-desktop/Panes";
 import { CloseGlyph, StatusBar, TitleBar } from "~/components/retro-desktop/Window";
-import { educationLabel, experienceLabel, projectDates, projectGroupHref, projectPath } from "~/lib/projects";
+import { Cover } from "~/components/shared/Cover";
+import { linkedLine } from "~/lib/fields";
+import { projectDates, projectGroupHref, projectPath } from "~/lib/projects";
 import type { ThemeProjectPageProps } from "../types";
 import { FONTS_HREF, FOLDERS } from "./RetroDesktopPage";
 
@@ -87,7 +89,9 @@ export function RetroDesktopProjectPage({ portfolio, project }: ThemeProjectPage
 
   const folder = FOLDERS[project.projectType];
   const dates = projectDates(project);
-  const origin = fileOrigin(project.experience, project.education);
+  const origin = fileOrigin(project);
+  const linked = linkedLine(project);
+  const linkedDescription = project.experience?.description || project.education?.description;
 
   return (
     <div className="mx-auto max-w-[1100px] px-3 py-5 sm:px-6 sm:py-8">
@@ -147,18 +151,20 @@ export function RetroDesktopProjectPage({ portfolio, project }: ThemeProjectPage
 
           <aside className="grid content-start gap-3">
             <GroupBox title="Preview">
-              {project.coverUrl ? (
-                <span className="rd-sunken block bg-white p-[3px]">
-                  <img src={project.coverUrl} alt={`Cover of ${project.title}`} className="block w-full" />
-                </span>
-              ) : (
-                <div className="rd-sunken grid aspect-[4/3] place-items-center bg-white text-center">
-                  <span className="grid justify-items-center gap-2">
-                    <DocIcon />
-                    <span className="font-rd-pixel text-[0.85rem] text-rd-muted">No preview available</span>
-                  </span>
-                </div>
-              )}
+              <Cover
+                url={project.coverUrl}
+                title={project.title}
+                isLazy={false}
+                className="rd-sunken block w-full bg-white p-[3px]"
+                fallback={
+                  <div className="rd-sunken grid aspect-[4/3] place-items-center bg-white text-center">
+                    <span className="grid justify-items-center gap-2">
+                      <DocIcon />
+                      <span className="font-rd-pixel text-[0.85rem] text-rd-muted">No preview available</span>
+                    </span>
+                  </div>
+                }
+              />
             </GroupBox>
             <GroupBox title="Properties">
               <dl className="grid gap-1">
@@ -178,20 +184,11 @@ export function RetroDesktopProjectPage({ portfolio, project }: ThemeProjectPage
                 </ul>
               </GroupBox>
             )}
-            {(project.experience || project.education) && (
-              <GroupBox title={project.experience ? "About the job" : "About the course"}>
-                {project.experience && (
-                  <>
-                    <p className="font-bold">{experienceLabel(project.experience)}</p>
-                    {project.experience.description && <p className="mt-1 text-[0.95rem] leading-snug">{project.experience.description}</p>}
-                  </>
-                )}
-                {project.education && (
-                  <>
-                    <p className="font-bold">{educationLabel(project.education)}</p>
-                    {project.education.description && <p className="mt-1 text-[0.95rem]">{project.education.description}</p>}
-                  </>
-                )}
+            {linked && (
+              <GroupBox title={linked.kind === "experience" ? "About the job" : "About the course"}>
+                <p className="font-bold">{linked.title}</p>
+                {linked.dates && <p className="font-rd-pixel text-[0.85rem] text-rd-muted">{linked.dates}</p>}
+                {linkedDescription && <p className="mt-1 text-[0.95rem] leading-snug">{linkedDescription}</p>}
               </GroupBox>
             )}
           </aside>

@@ -1,8 +1,8 @@
 # portfoliter-rr-v8
 
-The frontend: a React Router v8 app with server-side rendering. On `develop` it is a placeholder that
-loads your portfolio and prints it as JSON, ready for you to replace with your own design.
-Start with the [root README](../README.md) for setup.
+The frontend: a React Router v8 app with server-side rendering. It ships eleven designs (a neutral
+`plain` page plus ten themed ones) that all render the same data; the owner picks one with the
+`set_theme` MCP tool. Start with the [root README](../README.md) for setup.
 
 ## Run
 
@@ -25,16 +25,14 @@ npm run dev                     # http://localhost:5173
 
 | File | Role |
 |---|---|
-| `app/routes/home.tsx` | `loader` fetches the portfolio on the server; the component renders it |
-| `app/lib/api.server.ts` | `fetchPortfolio()` calls `GET /v1/portfolio` with the read key; returns `null` on 404 (no profile yet) |
-| `app/lib/portfolio.ts` | TypeScript types that mirror the API response |
-| `app/routes/project.tsx` | `/projects/:slug`: `loader` fetches the portfolio and `fetchProject()` (`GET /v1/projects/:slug`) in parallel; unknown or draft slugs render "Project not found" with status 404 |
-| `app/lib/projects.ts` | `groupProjects()` (Work, Personal, University; empty groups dropped), `projectPath()`, `shortDescription()` for cards |
-| `app/components/ProjectCard.tsx`, `ProjectGroups.tsx` | the home page's project groups; each card is one `<Link>` to its project page |
-| `app/components/Markdown.tsx` | safe markdown for project `content` (react-markdown, raw HTML dropped, unsafe URLs stripped) |
-| `app/lib/theme.ts` | `THEME_KEYS`, the designs this frontend can render (empty on `develop`) |
-| `app/root.tsx` | HTML shell, fonts, error boundary |
-| `app/app.css` | Tailwind CSS v4 entry; put your colors and fonts in `@theme` |
+| `app/routes/home.tsx` | `loader` fetches the portfolio on the server; renders the active design's page |
+| `app/routes/project.tsx` | `/projects/:slug`: `loader` fetches the portfolio and the project in parallel; unknown or draft slugs render the design's not-found page with status 404 |
+| `app/lib/api.server.ts` | `fetchPortfolio()` (`GET /v1/portfolio`) and `fetchProject()` (`GET /v1/projects/:slug`) with the read key; `null` on 404 |
+| `app/lib/portfolio.ts` | `PortfolioView` and its row types, mirroring the backend view ([docs/portfolio-view.md](../docs/portfolio-view.md)) |
+| `app/lib/theme.ts` | `THEME_KEYS`, the designs this frontend can render; the first (`plain`) is the default |
+| `app/themes/registry.ts` | each key's home page, project page and page title |
+| `app/root.tsx` | HTML shell, `<html data-theme>` during SSR, error boundary |
+| `app/app.css` | Tailwind CSS v4 entry; tokens per design, prefixed (`fg-*`, `parcel-*`, `ss-*`, `sky-*`, `st-*`, `rc-*`, `bs-*`, `ql-*`, `rd-*`) |
 
 Rules that keep it working:
 
@@ -43,67 +41,85 @@ Rules that keep it working:
 - Only published items are returned. Drafts never reach the frontend.
 - File URLs (`avatarUrl`, `coverUrl`, `resumeUrl`) are presigned and expire; do not cache pages longer
   than `R2_GET_URL_TTL` on the backend.
-- Format dates from the `YYYY-MM-DD` string yourself instead of `toLocaleDateString`, so the server and
-  the browser render the same text and hydration does not fail.
-- `sections[].items` is free-form JSON. Check each item's shape before rendering it.
+- Format dates through `app/lib/format.ts`, never `toLocaleDateString`, so the server and the browser
+  render the same text and hydration does not fail.
 
-## Build your design
+## The shared field layer
 
-1. Replace the JSON dump in `app/routes/home.tsx` with your layout. Split it into components under
-   `app/components/`.
-2. Update `meta()` for the page title and description.
-3. Add your fonts in `links` in `app/root.tsx` and your tokens in `app/app.css`.
-4. Handle the empty state: `portfolio` is `null` until a profile exists.
+The backend decides grouping, linking and empty values once; designs are thin renderers. Every design
+reads data through these helpers, so a field added here reaches every design and none can silently
+drop one:
 
-## Several designs switchable from the AI
+| File | What it gives a design |
+|---|---|
+| `app/lib/fields.ts` | `experienceLine()` (role, company, employment type, location, dates, description, skills, plus a ready `meta` line), `educationLine()` (qualification, institution, dates, description), `certificationLine()` (date and link are `null` when unset: render nothing), `linkedLine()` / `linkedName()` (a project's job or school with its dates, from the embedded row), `customSections()` (every free-form section with entries, minus the keys a design renders itself) |
+| `app/lib/labels.ts` | the one source of shared wording: `LABELS.otherSkills` ("Other"), `LABELS.featured`, `LABELS.present`, `employmentTypeLabel()`, `skillGroupLabel()` |
+| `app/lib/projects.ts` | `groupProjects()` (Work, Personal, University; empty groups dropped), `projectPath()`, `projectGroupId()`, `projectGroupHref()`, `shortDescription()` for cards |
+| `app/lib/sections.ts` | `getPrompts()` and `getAwards()` for designs that give those two keys a look of their own |
+| `app/lib/format.ts` | `formatMonth()`, `formatRange()`, `platformName()`, `firstName()`, `initials()` |
+| `app/components/shared/Avatar.tsx` | the profile photo, or initials when there is none |
+| `app/components/shared/Cover.tsx` | a project cover with alt text, or the design's fallback |
+| `app/components/shared/SectionEntries.tsx` | the generic renderer for any section's entries, styled through `classNames` |
+| `app/components/Markdown.tsx` | safe markdown for project `content` (raw HTML dropped, unsafe URLs stripped) |
 
-If you build more than one design and want Claude to switch between them with `set_theme`:
+Designs still own their look and their own wording (headings, jokes, the featured marker's name).
 
-1. Add each design's key to `THEME_KEYS` in `app/lib/theme.ts`, e.g. `["minimal", "bold"] as const`.
-   The first key is the default.
-2. Add the same keys, in the same order, to `themeCatalog` in
-   `portfoliter-go/internal/admin/theme_catalog.go`. `go test ./...` in `portfoliter-go` fails if the
-   two lists differ.
-3. In `home.tsx`, pick the page from `portfolio.theme`; use the first key when it is `""` or unknown.
-   A map such as `Record<ThemeKey, ComponentType<{ portfolio: Portfolio | null }>>` keeps TypeScript
-   checking that every key has a page.
-4. Optional: set `<html data-theme={key}>` in `root.tsx` (read the home loader data with
-   `useRouteLoaderData("routes/home")`) so each design can style `html` and `body` without a flash.
+## Designs
 
-## Designs on this branch (`feature/harit-som`)
+`routes/home.tsx` renders `themePages[themeKey(portfolio.theme)]` and `routes/project.tsx` renders
+`themeProjectPages[...]`, both from `app/themes/registry.ts`; `root.tsx` sets `<html data-theme>` during
+SSR so each design's page colours apply before hydration.
 
-This branch replaces the placeholder with ten designs. `routes/home.tsx` renders
-`themePages[themeKey(portfolio.theme)]` from `app/themes/registry.ts`, and `root.tsx` sets
-`<html data-theme>` during SSR so each design's page colors in `app.css` apply before hydration.
+| Key | Pages | Components | Featured marker |
+|---|---|---|---|
+| `plain` (default) | `app/themes/plain/` | `app/components/ProjectCard.tsx`, `ProjectGroups.tsx` | Featured |
+| `dating` | `app/themes/dating/` | `app/components/dating/` | Featured |
+| `field-guide` | `app/themes/field-guide/` | `app/components/field-guide/` | Rare find |
+| `parcel` | `app/themes/parcel/` | `app/components/parcel/` | Priority |
+| `spec-sheet` | `app/themes/spec-sheet/` | `app/components/spec-sheet/` | Selected work |
+| `skytrain` | `app/themes/skytrain/` | `app/components/skytrain/` | Express service |
+| `status-page` | `app/themes/status-page/` | `app/components/status-page/` | Key service |
+| `receipt` | `app/themes/receipt/` | `app/components/receipt/` | Staff pick |
+| `broadsheet` | `app/themes/broadsheet/` | `app/components/broadsheet/` | Editor's pick |
+| `quest-log` | `app/themes/quest-log/` | `app/components/quest-log/` | Epic quest |
+| `retro-desktop` | `app/themes/retro-desktop/` | `app/components/retro-desktop/` | Pinned |
 
-| Key | Page | Components |
-|---|---|---|
-| `dating` (default) | `app/themes/dating/DatingPage.tsx` | `app/components/dating/` |
-| `field-guide` | `app/themes/field-guide/FieldGuidePage.tsx` | `app/components/field-guide/` |
-| `parcel` | `app/themes/parcel/ParcelPage.tsx` | `app/components/parcel/` |
-| `spec-sheet` | `app/themes/spec-sheet/SpecSheetPage.tsx` | `app/components/spec-sheet/` |
-| `skytrain` | `app/themes/skytrain/SkytrainPage.tsx` | `app/components/skytrain/` |
-| `status-page` | `app/themes/status-page/StatusPage.tsx` | `app/components/status-page/` |
-| `receipt` | `app/themes/receipt/ReceiptPage.tsx` | `app/components/receipt/` |
-| `broadsheet` | `app/themes/broadsheet/BroadsheetPage.tsx` | `app/components/broadsheet/` |
-| `quest-log` | `app/themes/quest-log/QuestLogPage.tsx` | `app/components/quest-log/` |
-| `retro-desktop` | `app/themes/retro-desktop/RetroDesktopPage.tsx` | `app/components/retro-desktop/` |
+Each page loads its own Google Fonts with `<link precedence>`. Newer designs list a Thai fallback font
+after their Latin face, so Thai text never drops to a system font. The retro desktop's windows are page
+sections styled as windows, not draggable. The status page's uptime bars are decorative and generated
+from each skill name, so the server and the browser render the same bars.
 
-`routes/project.tsx` renders `themeProjectPages[themeKey(portfolio.theme)]` (`app/themes/<key>/*ProjectPage.tsx`)
-for `/projects/:slug`, and `root.tsx` reads the theme from either route, so project pages keep the
-active design. Each design groups projects with `groupProjects()` and links every card to its page.
+## Tests
 
-Each page loads its own Google Fonts with `<link precedence>`; tokens are prefixed per design in
-`app.css` (`fg-*`, `parcel-*`, `ss-*`, `sky-*`, `st-*`, `rc-*`, `bs-*`, `ql-*`, `rd-*`). The retro desktop's windows are page sections styled as windows,
-not draggable; its taskbar buttons jump to them and each project's close box is a link back to its folder. Newer designs list a Thai fallback
-font after their Latin face, so Thai text never drops to a system font. The status page's uptime bars are
-decorative and generated from each skill name, so the server and the browser render the same bars. `npm test` runs the Vitest checks: theme key fallback, project grouping, the project loader's 404,
-and, for every design, the three sections, card links with clamped short descriptions, the project
-page and its not-found state (`app/themes/themes.test.tsx`). `app/themes/fields.test.tsx` renders the
-newer designs with live-shaped data (`app/test-utils/livePortfolio.ts`) and fails if any published
-field is dropped: profile, links, every skill (uncategorized ones under "Other"), custom sections
-(read through `app/lib/sectionItems.ts`), education, experience, certifications, and each project's
-cover, dates, skills, featured marker and linked job or school.
+`npm test` runs Vitest:
+
+- `app/themes/fields.test.tsx` is the **coverage contract**. It renders every design's home and project
+  page with a complete fictional profile (`app/test-utils/sampleView.ts`: every employment type,
+  uncategorized skills, a certification with no date, education with no start date, projects with no
+  cover or content, custom sections with unknown keys) and fails if any published field is missing, or
+  if an empty value renders as `undefined`, `null`, `NaN` or a broken image or link.
+- `app/themes/themes.test.tsx`: every design's three project sections, card links, clamped short
+  descriptions, project page and not-found page.
+- `app/lib/*.test.ts`: the field layer, labels, project grouping and theme fallback;
+  `app/routes/project.test.ts`: the project loader's 404.
+
+## Adding a design
+
+1. Pick a key and build `app/themes/<key>/<Name>Page.tsx` and `<Name>ProjectPage.tsx`
+   (`ThemePageProps` / `ThemeProjectPageProps` from `app/themes/types.ts`), with components under
+   `app/components/<key>/`. `app/themes/plain/` is the smallest complete example.
+2. Render only from `PortfolioView`, through the shared field layer above: `experienceLine()` for jobs,
+   `educationLine()`, `certificationLine()`, `linkedLine()` for a project's job or school,
+   `portfolio.skillGroups` with `skillGroupLabel()`, and `customSections()` for every free-form
+   section. Do not look rows up by id or regroup data yourself.
+3. Handle the empty states: `portfolio` is `null` until a profile exists; `project` is `null` on the
+   project page for unknown or draft slugs.
+4. Register the pages and a page title in `app/themes/registry.ts`, add the key to `THEME_KEYS` in
+   `app/lib/theme.ts` and to `themeCatalog` in `portfoliter-go/internal/admin/theme_catalog.go`, in the
+   same order (`go test ./...` checks they match).
+5. Add the design's featured marker to `FEATURED_LABELS` in `app/themes/fields.test.tsx` (typecheck
+   fails until you do), then run `npm test`. The design is done when the coverage contract passes.
+6. Add page colours under `[data-theme="<key>"]` in `app/app.css`, with prefixed tokens.
 
 ## Deploy
 

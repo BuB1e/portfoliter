@@ -1,4 +1,5 @@
-import type { SkillGroup } from "~/lib/skills";
+import { skillGroupLabel } from "~/lib/labels";
+import type { SkillGroup } from "~/lib/portfolio";
 import { StatusPill } from "./StatusPill";
 import { UPTIME_DAYS, uptimeDays, uptimePercent } from "./uptime";
 
@@ -45,13 +46,13 @@ export function SkillComponents({ groups }: SkillComponentsProps) {
   return (
     <div className="divide-y divide-st-line">
       {groups.map((group) => (
-        <div key={group.category}>
+        <div key={group.key}>
           <div className="flex items-center justify-between gap-3 bg-st-bg/60 px-5 py-3">
-            <h3 className="font-semibold">{group.category}</h3>
+            <h3 className="font-semibold">{skillGroupLabel(group)}</h3>
             <StatusPill tone="up" label="Operational" />
           </div>
           <ul className="divide-y divide-st-line">
-            {group.names.map((name) => (
+            {group.skills.map((name) => (
               <UptimeRow key={name} name={name} />
             ))}
           </ul>

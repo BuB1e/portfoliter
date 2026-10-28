@@ -52,7 +52,7 @@ describe("shortDescription", () => {
 
 describe("projectPath", () => {
   it("builds the detail URL and escapes the slug", () => {
-    expect(projectPath("growthcheck")).toBe("/projects/growthcheck");
+    expect(projectPath("tidewatch")).toBe("/projects/tidewatch");
     expect(projectPath("a b/c")).toBe("/projects/a%20b%2Fc");
   });
 });

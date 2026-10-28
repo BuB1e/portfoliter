@@ -32,7 +32,7 @@ const (
 		SELECT id, company, role, employment_type, location, start_date, end_date, description
 		FROM portfoliter.experiences
 		WHERE is_published
-		ORDER BY sort_order, start_date DESC`
+		ORDER BY sort_order, start_date DESC, id`
 
 	// Links to a draft experience or education row are returned as null, so drafts never leak.
 	publishedProjectsFrom = `
@@ -96,13 +96,13 @@ const (
 		SELECT id, institution, degree, field, start_date, end_date, description
 		FROM portfoliter.education
 		WHERE is_published
-		ORDER BY sort_order, start_date DESC`
+		ORDER BY sort_order, COALESCE(start_date, end_date) DESC NULLS LAST, id`
 
 	certificationsQuery = `
-		SELECT name, issuer, issued_date, credential_url
+		SELECT id, name, issuer, issued_date, credential_url
 		FROM portfoliter.certifications
 		WHERE is_published
-		ORDER BY sort_order, issued_date DESC`
+		ORDER BY sort_order, issued_date DESC NULLS LAST, id`
 
 	sectionsQuery = `
 		SELECT key, title, items
@@ -178,47 +178,54 @@ func (s *Store) GetPublished(ctx context.Context) (Portfolio, error) {
 	if err := s.signFiles(ctx, &p); err != nil {
 		return Portfolio{}, err
 	}
+	normalize(&p)
 	return p, nil
 }
 
-// GetPublishedProject loads one published project by slug with its skills and the published
-// experience or education it links to. Drafts and unknown slugs return ErrProjectNotFound.
-func (s *Store) GetPublishedProject(ctx context.Context, slug string) (ProjectDetail, error) {
+// GetPublishedProject loads one published project by slug in the same shape as an entry of
+// Portfolio.Projects: skills plus the embedded published experience or education it links to.
+// Drafts and unknown slugs return ErrProjectNotFound.
+func (s *Store) GetPublishedProject(ctx context.Context, slug string) (Project, error) {
 	rows, err := s.pool.Query(ctx, projectBySlugQuery, slug)
 	if err != nil {
-		return ProjectDetail{}, fmt.Errorf("load project %q: %w", slug, err)
+		return Project{}, fmt.Errorf("load project %q: %w", slug, err)
 	}
 	project, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[Project])
 	if errors.Is(err, pgx.ErrNoRows) {
-		return ProjectDetail{}, ErrProjectNotFound
+		return Project{}, ErrProjectNotFound
 	}
 	if err != nil {
-		return ProjectDetail{}, fmt.Errorf("load project %q: %w", slug, err)
+		return Project{}, fmt.Errorf("load project %q: %w", slug, err)
 	}
 
-	d := ProjectDetail{Project: project}
 	var experienceSkills []string
 	batch := &pgx.Batch{}
-	queueNames(batch, skillsOfProjectQuery, project.ID, &d.Skills)
+	queueNames(batch, skillsOfProjectQuery, project.ID, &project.Skills)
 	if project.ExperienceID != nil {
-		queueOptional(batch, experienceByIDQuery, *project.ExperienceID, &d.Experience)
+		queueOptional(batch, experienceByIDQuery, *project.ExperienceID, &project.Experience)
 		queueNames(batch, skillsOfExperienceQuery, *project.ExperienceID, &experienceSkills)
 	}
 	if project.EducationID != nil {
-		queueOptional(batch, educationByIDQuery, *project.EducationID, &d.Education)
+		queueOptional(batch, educationByIDQuery, *project.EducationID, &project.Education)
 	}
 	if err := s.pool.SendBatch(ctx, batch).Close(); err != nil {
-		return ProjectDetail{}, fmt.Errorf("load project %q links: %w", slug, err)
+		return Project{}, fmt.Errorf("load project %q links: %w", slug, err)
 	}
-	d.Skills = namesOrEmpty(d.Skills)
-	if d.Experience != nil {
-		d.Experience.Skills = namesOrEmpty(experienceSkills)
+	// The id and the embedded row always agree, even if the row was unpublished between the queries.
+	if project.Experience == nil {
+		project.ExperienceID = nil
+	} else {
+		project.Experience.Skills = namesOrEmpty(experienceSkills)
+	}
+	if project.Education == nil {
+		project.EducationID = nil
 	}
 
-	if d.CoverURL, err = s.sign(ctx, d.CoverKey); err != nil {
-		return ProjectDetail{}, err
+	if project.CoverURL, err = s.sign(ctx, project.CoverKey); err != nil {
+		return Project{}, err
 	}
-	return d, nil
+	normalizeProject(&project)
+	return project, nil
 }
 
 // signFiles fills every *URL field from its *Key. Signing is local; no call to R2.

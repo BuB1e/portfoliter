@@ -1,27 +1,23 @@
 import type { ReactNode } from "react";
 
-import { capitalize, formatMonth, formatRange } from "~/lib/format";
-import type { Certification, Education, Experience } from "~/lib/portfolio";
-import type { SectionItem } from "~/lib/sectionItems";
-import type { SkillGroup } from "~/lib/skills";
+import { certificationLine, educationLine, experienceLine } from "~/lib/fields";
+import { skillGroupLabel } from "~/lib/labels";
+import type { Certification, Education, Experience, Section, SkillGroup } from "~/lib/portfolio";
 
 // Jobs as the "people on the move" column: short appointment notices, newest first as the API sends them.
 export function Appointments({ experiences }: { experiences: Experience[] }) {
   return (
     <ol className="bs-column-rule gap-10 md:columns-2 xl:columns-3">
       {experiences.map((experience) => {
-        const meta = [experience.employmentType && capitalize(experience.employmentType), experience.location].filter(Boolean).join(", ");
+        const line = experienceLine(experience);
         return (
           <li key={experience.id} className="mb-8 break-inside-avoid">
             <h3 className="text-[1.3rem] leading-tight font-bold">
-              {experience.role}, {experience.company}
+              {line.role}, {line.company}
             </h3>
-            <p className="mt-1 text-[0.92rem] text-bs-grey italic">
-              {formatRange(experience.startDate, experience.endDate)}
-              {meta && `. ${meta}`}
-            </p>
-            {experience.description && <p className="mt-2 leading-[1.55]">{experience.description}</p>}
-            {experience.skills.length > 0 && <p className="mt-2 text-[0.9rem] text-bs-grey">Skills on the job: {experience.skills.join(", ")}</p>}
+            <p className="mt-1 text-[0.92rem] text-bs-grey italic">{line.meta}</p>
+            {line.description && <p className="mt-2 leading-[1.55]">{line.description}</p>}
+            {line.skills.length > 0 && <p className="mt-2 text-[0.9rem] text-bs-grey">Skills on the job: {line.skills.join(", ")}</p>}
           </li>
         );
       })}
@@ -34,12 +30,12 @@ export function Classifieds({ groups }: { groups: SkillGroup[] }) {
   return (
     <ul className="columns-[15rem] gap-4">
       {groups.map((group) => (
-        <li key={group.category} className="mb-4 break-inside-avoid border border-bs-ink p-3">
+        <li key={group.key} className="mb-4 break-inside-avoid border border-bs-ink p-3">
           <h3 className="border-b border-bs-ink pb-1 text-lg font-bold">
-            {group.category}
-            <span className="font-normal text-bs-grey">, {group.names.length} listed</span>
+            {skillGroupLabel(group)}
+            <span className="font-normal text-bs-grey">, {group.skills.length} listed</span>
           </h3>
-          <p className="mt-2 text-[0.95rem] leading-snug">{group.names.join(", ")}.</p>
+          <p className="mt-2 text-[0.95rem] leading-snug">{group.skills.join(", ")}.</p>
         </li>
       ))}
     </ul>
@@ -49,7 +45,7 @@ export function Classifieds({ groups }: { groups: SkillGroup[] }) {
 interface NoticesProps {
   education: Education[];
   certifications: Certification[];
-  extras: { key: string; title: string; items: SectionItem[] }[];
+  extras: Section[];
 }
 
 function Notice({ title, children }: { title: string; children: ReactNode }) {
@@ -68,14 +64,13 @@ export function Notices({ education, certifications, extras }: NoticesProps) {
       {education.length > 0 && (
         <Notice title="Degrees conferred">
           {education.map((entry) => {
-            const degree = [entry.degree, entry.field].filter(Boolean).join(" in ");
-            const dates = formatRange(entry.startDate, entry.endDate);
+            const line = educationLine(entry);
             return (
               <p key={entry.id} className="leading-[1.55]">
-                <span className="font-semibold">{entry.institution}</span>
-                {degree && `, ${degree}`}
-                {dates && <span className="text-bs-grey">, {dates}</span>}.
-                {entry.description && ` ${entry.description.replace(/\.$/, "")}.`}
+                <span className="font-semibold">{line.institution}</span>
+                {line.qualification && `, ${line.qualification}`}
+                {line.dates && <span className="text-bs-grey">, {line.dates}</span>}.
+                {line.description && ` ${line.description.replace(/\.$/, "")}.`}
               </p>
             );
           })}
@@ -83,20 +78,24 @@ export function Notices({ education, certifications, extras }: NoticesProps) {
       )}
       {certifications.length > 0 && (
         <Notice title="Certificates">
-          {certifications.map((cert) => (
-            <p key={cert.name} className="leading-[1.55]">
-              <span className="font-semibold">{cert.credentialUrl ? <a href={cert.credentialUrl}>{cert.name}</a> : cert.name}</span>, issued by {cert.issuer}
-              {cert.issuedDate && <span className="text-bs-grey">, {formatMonth(cert.issuedDate)}</span>}.
-            </p>
-          ))}
+          {certifications.map((cert) => {
+            const line = certificationLine(cert);
+            return (
+              <p key={cert.id} className="leading-[1.55]">
+                <span className="font-semibold">{line.credentialUrl ? <a href={line.credentialUrl}>{line.name}</a> : line.name}</span>, issued by{" "}
+                {line.issuer}
+                {line.date && <span className="text-bs-grey">, {line.date}</span>}.
+              </p>
+            );
+          })}
         </Notice>
       )}
       {extras.map((section) => (
         <Notice key={section.key} title={section.title}>
-          {section.items.map((item, index) => (
-            <p key={`${item.title}-${index}`} className="leading-[1.55]">
-              <span className="font-semibold">{item.url ? <a href={item.url}>{item.title}</a> : item.title}</span>
-              {item.detail && `, ${item.detail}`}
+          {section.entries.map((entry, index) => (
+            <p key={`${entry.title}-${index}`} className="leading-[1.55]">
+              <span className="font-semibold">{entry.url ? <a href={entry.url}>{entry.title}</a> : entry.title}</span>
+              {entry.detail && `, ${entry.detail}`}
             </p>
           ))}
         </Notice>

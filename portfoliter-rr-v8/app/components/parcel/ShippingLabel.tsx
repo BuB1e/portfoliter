@@ -1,3 +1,4 @@
+import { Avatar } from "~/components/shared/Avatar";
 import type { Profile } from "~/lib/portfolio";
 
 interface ShippingLabelProps {
@@ -23,13 +24,22 @@ export function ShippingLabel({ profile, trackingNumber }: ShippingLabelProps) {
     >
       <Field name="Ship to" value="You, the person hiring" isLeft />
       <Field name="From" value={profile.location ?? "Somewhere with good coffee"} />
-      <div className="border-b-2 border-parcel-ink px-6 pt-6 pb-5 sm:col-span-2">
-        <h1 className="font-parcel-stencil text-[clamp(3.4rem,11vw,7.5rem)] leading-[0.85] font-black tracking-[-0.01em]">
-          {profile.fullName}
-        </h1>
-        <p className="mt-3.5 max-w-[46ch] text-xl font-stretch-95%">{profile.headline}</p>
+      <div className="flex flex-col gap-5 border-b-2 border-parcel-ink px-6 pt-6 pb-5 sm:col-span-2 sm:flex-row sm:items-start">
+        {/* The sender's photo, clipped to the label like an ID card; initials stamped on kraft when there is none. */}
+        <Avatar
+          url={profile.avatarUrl}
+          name={profile.fullName}
+          className="size-28 flex-none rotate-[-3deg] border-2 border-parcel-ink object-cover shadow-[3px_3px_0_var(--color-parcel-kraft-dark)] sm:size-32"
+          fallbackClassName="grid size-28 flex-none rotate-[-3deg] place-items-center border-2 border-parcel-ink bg-parcel-box font-parcel-stencil text-5xl font-black shadow-[3px_3px_0_var(--color-parcel-kraft-dark)] sm:size-32"
+        />
+        <div className="min-w-0">
+          <h1 className="font-parcel-stencil text-[clamp(3.4rem,11vw,7.5rem)] leading-[0.85] font-black tracking-[-0.01em]">
+            {profile.fullName}
+          </h1>
+          <p className="mt-3.5 max-w-[46ch] text-xl font-stretch-95%">{profile.headline}</p>
+        </div>
       </div>
-      <Field name="Contents" value="1 backend engineer, fully assembled" isLeft />
+      <Field name="Contents" value="1 engineer, fully assembled" isLeft />
       <Field name="Weight" value="Mostly coffee" />
       <div className="flex items-center gap-6 px-6 py-5 sm:col-span-2">
         <div aria-hidden="true" className="parcel-barcode h-16 flex-1" />
@@ -40,7 +50,7 @@ export function ShippingLabel({ profile, trackingNumber }: ShippingLabelProps) {
         className="pointer-events-none mx-6 mb-5 -rotate-3 justify-self-start border-4 border-parcel-tape px-3.5 pt-1.5 pb-2 text-center font-parcel-stencil text-[1.9rem] leading-none font-black text-parcel-tape opacity-90 mix-blend-multiply sm:absolute sm:top-[38%] sm:right-[4%] sm:m-0 sm:rotate-[9deg]"
       >
         Fragile
-        <small className="mt-1 block font-parcel-body text-[0.8rem] leading-tight font-bold">contains Go code and feelings</small>
+        <small className="mt-1 block font-parcel-body text-[0.8rem] leading-tight font-bold">contains code and feelings</small>
       </div>
     </header>
   );

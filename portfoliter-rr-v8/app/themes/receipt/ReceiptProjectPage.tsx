@@ -3,8 +3,9 @@ import { Link } from "react-router";
 
 import { Markdown, markdownBase } from "~/components/Markdown";
 import { Barcode, Dept, Line, Paper, Rule, Tag } from "~/components/receipt/ReceiptParts";
-import { ItemPhoto } from "~/components/receipt/ShelfItems";
-import { educationLabel, experienceLabel, projectDates, projectGroupHref } from "~/lib/projects";
+import { ItemPhoto, STAFF_PICK } from "~/components/receipt/ShelfItems";
+import { linkedLine } from "~/lib/fields";
+import { projectDates, projectGroupHref } from "~/lib/projects";
 import type { ThemeProjectPageProps } from "../types";
 import { DEPARTMENTS, FONTS_HREF, ThankYou } from "./ReceiptPage";
 
@@ -57,6 +58,7 @@ export function ReceiptProjectPage({ portfolio, project }: ThemeProjectPageProps
 
   const department = DEPARTMENTS[project.projectType];
   const dates = projectDates(project);
+  const linked = linkedLine(project);
 
   return (
     <div className="px-3 py-10 sm:py-16">
@@ -68,7 +70,7 @@ export function ReceiptProjectPage({ portfolio, project }: ThemeProjectPageProps
           <p className="text-rc-faded">Item receipt</p>
           {project.isFeatured && (
             <p className="mt-2">
-              <Tag>Staff pick</Tag>
+              <Tag>{STAFF_PICK}</Tag>
             </p>
           )}
           <h1 className="mt-2 text-[clamp(1.45rem,5.6vw,2.2rem)] leading-[1.15] font-extrabold break-words font-stretch-[112.5%]">
@@ -87,8 +89,8 @@ export function ReceiptProjectPage({ portfolio, project }: ThemeProjectPageProps
           <div className="grid gap-0.5">
             <Line label="Department" amount={department.title} />
             {dates && <Line label="Dates" amount={dates} />}
-            {project.experience && <Line label="Made at" amount={experienceLabel(project.experience)} />}
-            {project.education && <Line label="Made for" amount={educationLabel(project.education)} />}
+            {linked && <Line label={linked.kind === "experience" ? "Made at" : "Made for"} amount={linked.title} />}
+            {linked?.dates && <Line label={linked.kind === "experience" ? "On shift" : "Enrolled"} amount={linked.dates} />}
             <Line label="SKU" amount={project.slug} />
           </div>
           {project.experience?.description && <p className="mt-3 pl-4 text-rc-faded">{project.experience.description}</p>}
