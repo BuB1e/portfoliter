@@ -13,11 +13,13 @@ import (
 //   - optional fields are null when unset, never ""; required text is always a string; lists are never null;
 //   - each project embeds the published experience or education it links to (null for drafts or unset);
 //   - SkillGroups holds the skills grouped by category in catalog order, uncategorized last under key "other";
-//   - each section carries Entries, its items read into one generic shape.
+//   - each section carries Entries, its items read into one generic shape;
+//   - SectionOrder lists the home page's section keys in the order every design renders them.
 //
 // Theme is the site design key from site_settings; empty means the frontend's default design.
 type Portfolio struct {
 	Theme          string          `json:"theme"`
+	SectionOrder   []string        `json:"sectionOrder"`
 	Profile        Profile         `json:"profile"`
 	Links          []Link          `json:"links"`
 	Experiences    []Experience    `json:"experiences"`

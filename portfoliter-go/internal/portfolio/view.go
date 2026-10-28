@@ -7,10 +7,36 @@ import (
 	"strings"
 )
 
+// Stable keys of the home page's sections, for Portfolio.SectionOrder. Each design maps every key to
+// its own themed block; the header and the footer are not sections and never move.
+const (
+	SectionAbout          = "about"          // the bio
+	SectionEducation      = "education"      // education rows
+	SectionSkills         = "skills"         // skillGroups
+	SectionExperience     = "experience"     // jobs
+	SectionProjects       = "projects"       // Work, Personal and University groups, in that order
+	SectionCertifications = "certifications" // certifications
+	SectionExtras         = "extras"         // custom sections (prompts, awards, ...), in their own order
+)
+
+// DefaultSectionOrder is the order every design renders the home page in: the owner's resume order,
+// with the bio first. It is the same for every portfolio for now; making it configurable means
+// storing a list in site_settings and validating it against these keys (see docs/portfolio-view.md).
+var DefaultSectionOrder = []string{
+	SectionAbout,
+	SectionEducation,
+	SectionSkills,
+	SectionExperience,
+	SectionProjects,
+	SectionCertifications,
+	SectionExtras,
+}
+
 // normalize turns the rows as loaded into the public view: blank optional text becomes null, lists
 // are never null, projects embed the rows they link to, skills are grouped and section items are read
 // into entries. It is pure, so the view's rules are unit-tested without a database.
 func normalize(p *Portfolio) {
+	p.SectionOrder = slices.Clone(DefaultSectionOrder)
 	normalizeProfile(&p.Profile)
 	p.Links = orEmpty(p.Links)
 	p.Experiences = orEmpty(p.Experiences)
