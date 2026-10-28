@@ -18,8 +18,8 @@ MCP server. Your own frontend reads the data and renders the site.
 ```
 
 This branch (`feature/harit-som`) is the owner's deployment of the template. It differs from `develop`
-only in the production host ports in `docker-compose.prod.yml` (backend `127.0.0.1:8082`, frontend
-`127.0.0.1:3002`); the owner's data and live design are in the database. To build your own portfolio,
+only in the production host ports in `docker-compose.prod.yml` (backend `127.0.0.1:8083`, frontend
+`127.0.0.1:3003`); the owner's data and live design are in the database. To build your own portfolio,
 clone `develop`: it is the template, with every design, and everything below applies to it.
 
 ## Contents
@@ -287,7 +287,7 @@ To add a design:
    docker compose -f docker-compose.prod.yml up -d --build
    ```
    Both services bind to `127.0.0.1` only (`:3000` frontend, `:8080` backend; on this branch
-   `:3002` and `:8082`).
+   `:3003` and `:8083`).
 3. Put a TLS reverse proxy in front. Example Caddyfile:
    ```
    portfolio.example.com {

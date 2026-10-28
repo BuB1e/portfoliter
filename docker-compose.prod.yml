@@ -1,6 +1,7 @@
 # Prod: docker compose -f docker-compose.prod.yml up -d --build
 # Ports bind to 127.0.0.1 only; put a TLS reverse proxy (Caddy/nginx) in front of
-# frontend :3002 and backend /mcp :8082 (host ports).
+# frontend :3003 and backend /mcp :8083 (host ports; this server's apps end in their own digit, and nginx's
+# portfoliter.conf points at these two).
 name: portfoliter-prod
 
 services:
@@ -8,7 +9,7 @@ services:
     build: ./portfoliter-go
     env_file: ./portfoliter-go/.env.prod
     ports:
-      - "127.0.0.1:8082:8080"
+      - "127.0.0.1:8083:8080"
     restart: always
 
   frontend:
@@ -18,7 +19,7 @@ services:
       NODE_ENV: production
       PORT: "3000"
     ports:
-      - "127.0.0.1:3002:3000"
+      - "127.0.0.1:3003:3000"
     depends_on:
       - backend
     restart: always
