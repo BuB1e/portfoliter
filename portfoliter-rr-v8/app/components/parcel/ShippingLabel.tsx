@@ -24,7 +24,9 @@ export function ShippingLabel({ profile, trackingNumber }: ShippingLabelProps) {
     >
       <Field name="Ship to" value="You, the person hiring" isLeft />
       <Field name="From" value={profile.location ?? "Somewhere with good coffee"} />
-      <div className="flex flex-col gap-5 border-b-2 border-parcel-ink px-6 pt-6 pb-5 sm:col-span-2 sm:flex-row sm:items-start">
+      {/* The Fragile stamp sits in this row's right strip from sm up; the row keeps that strip free (pr-60) so the
+          name and headline wrap before it instead of running under it (it used to float at 38% over the name). */}
+      <div className="relative flex flex-col gap-5 border-b-2 border-parcel-ink px-6 pt-6 pb-5 sm:col-span-2 sm:min-h-44 sm:flex-row sm:items-start sm:pr-60">
         {/* The sender's photo, clipped to the label like an ID card; initials stamped on kraft when there is none. */}
         <Avatar
           url={profile.avatarUrl}
@@ -38,19 +40,19 @@ export function ShippingLabel({ profile, trackingNumber }: ShippingLabelProps) {
           </h1>
           <p className="mt-3.5 max-w-[46ch] text-xl font-stretch-95%">{profile.headline}</p>
         </div>
+        <div
+          aria-hidden="true"
+          className="pointer-events-none inline-block max-w-52 -rotate-3 self-start border-4 border-parcel-tape px-3.5 pt-1.5 pb-2 text-center font-parcel-stencil text-[1.9rem] leading-none font-black text-parcel-tape opacity-90 mix-blend-multiply sm:absolute sm:top-6 sm:right-6 sm:rotate-[9deg]"
+        >
+          Fragile
+          <small className="mt-1 block font-parcel-body text-[0.8rem] leading-tight font-bold">contains code and feelings</small>
+        </div>
       </div>
       <Field name="Contents" value="1 engineer, fully assembled" isLeft />
       <Field name="Weight" value="Mostly coffee" />
       <div className="flex items-center gap-6 px-6 py-5 sm:col-span-2">
         <div aria-hidden="true" className="parcel-barcode h-16 flex-1" />
         <div className="text-lg font-bold font-stretch-70%">{trackingNumber}</div>
-      </div>
-      <div
-        aria-hidden="true"
-        className="pointer-events-none mx-6 mb-5 -rotate-3 justify-self-start border-4 border-parcel-tape px-3.5 pt-1.5 pb-2 text-center font-parcel-stencil text-[1.9rem] leading-none font-black text-parcel-tape opacity-90 mix-blend-multiply sm:absolute sm:top-[38%] sm:right-[4%] sm:m-0 sm:rotate-[9deg]"
-      >
-        Fragile
-        <small className="mt-1 block font-parcel-body text-[0.8rem] leading-tight font-bold">contains code and feelings</small>
       </div>
     </header>
   );
