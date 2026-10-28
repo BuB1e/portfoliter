@@ -113,6 +113,21 @@ func TestEmbedLinksCopiesPublishedRowsAndClearsMissingOnes(t *testing.T) {
 	}
 }
 
+func TestNormalizeSetsResumeSectionOrder(t *testing.T) {
+	var p Portfolio
+
+	normalize(&p)
+
+	want := []string{"about", "education", "skills", "experience", "projects", "certifications", "extras"}
+	if !reflect.DeepEqual(p.SectionOrder, want) {
+		t.Fatalf("SectionOrder = %v, want %v", p.SectionOrder, want)
+	}
+	p.SectionOrder[0] = "changed"
+	if DefaultSectionOrder[0] != SectionAbout {
+		t.Fatalf("normalize shares DefaultSectionOrder with the view: %v", DefaultSectionOrder)
+	}
+}
+
 func TestNormalizeBlanksBecomeNullAndListsAreNeverNull(t *testing.T) {
 	p := Portfolio{
 		Profile:     Profile{FullName: "Mira", Location: ptr("  "), Email: ptr(" mira@example.com ")},
@@ -152,7 +167,7 @@ func TestNormalizeBlanksBecomeNullAndListsAreNeverNull(t *testing.T) {
 	body, _ := json.Marshal(p)
 	var decoded map[string]any
 	_ = json.Unmarshal(body, &decoded)
-	for _, list := range []string{"links", "experiences", "projects", "skills", "skillGroups", "education", "certifications", "sections"} {
+	for _, list := range []string{"sectionOrder", "links", "experiences", "projects", "skills", "skillGroups", "education", "certifications", "sections"} {
 		if _, ok := decoded[list].([]any); !ok {
 			t.Errorf("%s = %v, want a JSON list", list, decoded[list])
 		}

@@ -1,3 +1,4 @@
+import { OrderedSections } from "~/components/shared/OrderedSections";
 import { SectionEntries } from "~/components/shared/SectionEntries";
 import { SpecCredentials } from "~/components/spec-sheet/SpecCredentials";
 import { SpecExperience } from "~/components/spec-sheet/SpecExperience";
@@ -41,40 +42,50 @@ export function SpecSheetPage({ portfolio }: ThemePageProps) {
       <SpecHeader profile={profile} links={portfolio.links} sinceYear={careerStartYear(experiences)} />
 
       <main>
-        {profile.bio && (
-          <SpecRow id="about-title" label="About">
-            <p className="max-w-[52ch] text-[clamp(1.2rem,2vw,1.4rem)] leading-normal">{profile.bio}</p>
-          </SpecRow>
-        )}
-        {experiences.length > 0 && (
-          <SpecRow id="experience-title" label="Experience">
-            <SpecExperience experiences={experiences} />
-          </SpecRow>
-        )}
-        {groupProjects(projects).map((group) => (
-          <SpecRow key={group.type} id={projectGroupId(group.type)} label={GROUP_LABELS[group.type]}>
-            <SpecProjects projects={group.projects} />
-          </SpecRow>
-        ))}
-        {skillGroups.length > 0 && (
-          <SpecRow id="skills-title" label="Skills">
-            <SpecSkills groups={skillGroups} />
-          </SpecRow>
-        )}
-        {education.length + certifications.length > 0 && (
-          <SpecRow id="credentials-title" label="Education and certifications">
-            <SpecCredentials education={education} certifications={certifications} />
-          </SpecRow>
-        )}
-        {/* Every free-form section, prompts and awards included, as one more labelled row. */}
-        {customSections(sections).map((section) => (
-          <SpecRow key={section.key} id={`section-${section.key}`} label={section.title}>
-            <SectionEntries
-              entries={section.entries}
-              classNames={{ list: "grid gap-3", item: "max-w-[65ch]", title: "font-semibold", detail: "text-ss-muted", link: "text-ss-blue" }}
-            />
-          </SpecRow>
-        ))}
+        <OrderedSections
+          order={portfolio.sectionOrder}
+          sections={{
+            about: profile.bio && (
+              <SpecRow id="about-title" label="About">
+                <p className="max-w-[52ch] text-[clamp(1.2rem,2vw,1.4rem)] leading-normal">{profile.bio}</p>
+              </SpecRow>
+            ),
+            education: education.length > 0 && (
+              <SpecRow id="education-title" label="Education">
+                <SpecCredentials education={education} />
+              </SpecRow>
+            ),
+            skills: skillGroups.length > 0 && (
+              <SpecRow id="skills-title" label="Skills">
+                <SpecSkills groups={skillGroups} />
+              </SpecRow>
+            ),
+            experience: experiences.length > 0 && (
+              <SpecRow id="experience-title" label="Experience">
+                <SpecExperience experiences={experiences} />
+              </SpecRow>
+            ),
+            projects: groupProjects(projects).map((group) => (
+              <SpecRow key={group.type} id={projectGroupId(group.type)} label={GROUP_LABELS[group.type]}>
+                <SpecProjects projects={group.projects} />
+              </SpecRow>
+            )),
+            certifications: certifications.length > 0 && (
+              <SpecRow id="certifications-title" label="Certifications">
+                <SpecCredentials certifications={certifications} />
+              </SpecRow>
+            ),
+            // Every free-form section, prompts and awards included, as one more labelled row.
+            extras: customSections(sections).map((section) => (
+              <SpecRow key={section.key} id={`section-${section.key}`} label={section.title}>
+                <SectionEntries
+                  entries={section.entries}
+                  classNames={{ list: "grid gap-3", item: "max-w-[65ch]", title: "font-semibold", detail: "text-ss-muted", link: "text-ss-blue" }}
+                />
+              </SpecRow>
+            )),
+          }}
+        />
       </main>
 
       <footer className="mt-6 border-t border-ss-ink py-14">

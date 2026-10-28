@@ -275,7 +275,8 @@ To add a design:
 2. Add the key to `THEME_KEYS`.
 3. Add `{Key: "minimal", Name: "Minimal", Description: "..."}` to `themeCatalog`.
 4. Run `cd portfoliter-go && go test ./...` and `cd portfoliter-rr-v8 && npm test`; the coverage
-   contract (`app/themes/fields.test.tsx`) fails until the design shows every published field.
+   contract (`app/themes/fields.test.tsx`) fails until the design shows every published field, and the
+   order contract (`app/themes/sectionOrder.test.tsx`) until it renders its sections in `sectionOrder`.
 5. Deploy both apps together, then ask Claude to list and switch themes.
 
 ## Deploy to production

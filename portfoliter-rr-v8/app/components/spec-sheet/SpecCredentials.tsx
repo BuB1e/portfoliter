@@ -3,9 +3,10 @@ import type { ReactNode } from "react";
 import { certificationLine, educationLine } from "~/lib/fields";
 import type { Certification, Education } from "~/lib/portfolio";
 
+// Pass one list per row: schools under "Education", certificates under "Certifications".
 interface SpecCredentialsProps {
-  education: Education[];
-  certifications: Certification[];
+  education?: Education[];
+  certifications?: Certification[];
 }
 
 // The date column is left out when there is no date; the content keeps its own column.
@@ -22,7 +23,7 @@ function Entry({ when, title, detail, note }: { when: string | null; title: Reac
   );
 }
 
-export function SpecCredentials({ education, certifications }: SpecCredentialsProps) {
+export function SpecCredentials({ education = [], certifications = [] }: SpecCredentialsProps) {
   return (
     <ul className="grid gap-6">
       {education.map((item) => {

@@ -3,9 +3,10 @@ import type { ReactNode } from "react";
 import { certificationLine, educationLine } from "~/lib/fields";
 import type { Certification, Education } from "~/lib/portfolio";
 
+// Pass one list per section: schools under "Verified", certificates under "Certified".
 interface VerifiedListProps {
-  education: Education[];
-  certifications: Certification[];
+  education?: Education[];
+  certifications?: Certification[];
 }
 
 function Badge({ title, detail, note }: { title: ReactNode; detail: string; note?: string | null }) {
@@ -24,7 +25,7 @@ function Badge({ title, detail, note }: { title: ReactNode; detail: string; note
 }
 
 // Schools and certifications as verification badges. A missing date or link leaves no gap.
-export function VerifiedList({ education, certifications }: VerifiedListProps) {
+export function VerifiedList({ education = [], certifications = [] }: VerifiedListProps) {
   return (
     <div className="grid gap-3">
       {education.map((entry) => {

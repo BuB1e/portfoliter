@@ -98,6 +98,10 @@ from each skill name, so the server and the browser render the same bars.
   uncategorized skills, a certification with no date, education with no start date, projects with no
   cover or content, custom sections with unknown keys) and fails if any published field is missing, or
   if an empty value renders as `undefined`, `null`, `NaN` or a broken image or link.
+- `app/themes/sectionOrder.test.tsx` is the **order contract**. Every design must render its home page
+  sections in the view's `sectionOrder` (the resume order by default: about, education, skills,
+  experience, projects, certifications, extras), follow any other order it is given, and list them in
+  the same order in its in-page navs. It finds each section by its heading id.
 - `app/themes/themes.test.tsx`: every design's three project sections, card links, clamped short
   descriptions, project page and not-found page.
 - `app/lib/*.test.ts`: the field layer, labels, project grouping and theme fallback;
@@ -112,13 +116,18 @@ from each skill name, so the server and the browser render the same bars.
    `educationLine()`, `certificationLine()`, `linkedLine()` for a project's job or school,
    `portfolio.skillGroups` with `skillGroupLabel()`, and `customSections()` for every free-form
    section. Do not look rows up by id or regroup data yourself.
+   Render the home page's sections with `<OrderedSections order={portfolio.sectionOrder} sections={{...}} />`
+   (`app/components/shared/OrderedSections.tsx`): one themed block per key of `app/lib/sectionOrder.ts`,
+   `false` when it is empty. Build any in-page nav with `inSectionOrder()` so it follows the same order.
+   The header and footer stay outside it.
 3. Handle the empty states: `portfolio` is `null` until a profile exists; `project` is `null` on the
    project page for unknown or draft slugs.
 4. Register the pages and a page title in `app/themes/registry.ts`, add the key to `THEME_KEYS` in
    `app/lib/theme.ts` and to `themeCatalog` in `portfoliter-go/internal/admin/theme_catalog.go`, in the
    same order (`go test ./...` checks they match).
-5. Add the design's featured marker to `FEATURED_LABELS` in `app/themes/fields.test.tsx` (typecheck
-   fails until you do), then run `npm test`. The design is done when the coverage contract passes.
+5. Add the design's featured marker to `FEATURED_LABELS` in `app/themes/fields.test.tsx` and its section
+   heading ids to `SECTION_IDS` in `app/themes/sectionOrder.test.tsx` (typecheck fails until you do),
+   then run `npm test`. The design is done when the coverage and order contracts pass.
 6. Add page colours under `[data-theme="<key>"]` in `app/app.css`, with prefixed tokens.
 
 ## Deploy

@@ -218,6 +218,8 @@ const projects: Project[] = [
 export function makeSampleView(overrides: Partial<PortfolioView> = {}): PortfolioView {
   return {
     theme: "",
+    // The backend's default: the resume order.
+    sectionOrder: ["about", "education", "skills", "experience", "projects", "certifications", "extras"],
     profile: {
       fullName: "Mira Castellanos",
       headline: "Platform engineer who keeps freight moving.",

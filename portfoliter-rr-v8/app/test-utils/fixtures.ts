@@ -1,4 +1,5 @@
 import type { Education, PortfolioView, Project } from "~/lib/portfolio";
+import { SECTION_KEYS } from "~/lib/sectionOrder";
 
 // Small fixtures for focused tests. All content is fictional. For a complete profile with every field
 // set, use makeSampleView() in ./sampleView.ts.
@@ -47,6 +48,7 @@ export function makeProjectDetail(overrides: Partial<Project> = {}): Project {
 export function makePortfolio(overrides: Partial<PortfolioView> = {}): PortfolioView {
   return {
     theme: "",
+    sectionOrder: [...SECTION_KEYS],
     profile: {
       fullName: "Jane Doe",
       headline: "Engineer",

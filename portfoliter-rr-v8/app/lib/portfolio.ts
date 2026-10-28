@@ -106,6 +106,9 @@ export interface Section {
 export interface PortfolioView {
   // Active design key from set_theme; "" until one is set. See lib/theme.ts.
   theme: string;
+  // Home page section keys in render order (lib/sectionOrder.ts); the backend sends the owner's
+  // resume order: about, education, skills, experience, projects, certifications, extras.
+  sectionOrder: string[];
   profile: Profile;
   links: Link[];
   experiences: Experience[];

@@ -4,7 +4,8 @@ interface FeedSectionProps {
   id: string;
   title: string;
   lede: string;
-  children: ReactNode;
+  // None for a section that is only its lede (the bio).
+  children?: ReactNode;
 }
 
 export function FeedSection({ id, title, lede, children }: FeedSectionProps) {

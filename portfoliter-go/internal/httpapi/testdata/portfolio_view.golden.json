@@ -1,5 +1,14 @@
 {
   "theme": "parcel",
+  "sectionOrder": [
+    "about",
+    "education",
+    "skills",
+    "experience",
+    "projects",
+    "certifications",
+    "extras"
+  ],
   "profile": {
     "fullName": "Mira Castellanos",
     "headline": "Platform engineer",

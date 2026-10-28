@@ -42,10 +42,12 @@ export function Classifieds({ groups }: { groups: SkillGroup[] }) {
   );
 }
 
+// Pass one kind per page section: schools under "Commencement", certificates under "Licensing",
+// custom sections under "Notices".
 interface NoticesProps {
-  education: Education[];
-  certifications: Certification[];
-  extras: Section[];
+  education?: Education[];
+  certifications?: Certification[];
+  extras?: Section[];
 }
 
 function Notice({ title, children }: { title: string; children: ReactNode }) {
@@ -58,7 +60,7 @@ function Notice({ title, children }: { title: string; children: ReactNode }) {
 }
 
 // Education, certifications and any custom section as the paper's public notices.
-export function Notices({ education, certifications, extras }: NoticesProps) {
+export function Notices({ education = [], certifications = [], extras = [] }: NoticesProps) {
   return (
     <div className="bs-column-rule gap-10 md:columns-2 xl:columns-3">
       {education.length > 0 && (

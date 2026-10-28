@@ -8,6 +8,7 @@ import { ShippingLabel } from "~/components/parcel/ShippingLabel";
 import { Stickers } from "~/components/parcel/Stickers";
 import { Tape } from "~/components/parcel/Tape";
 import { TrackingHistory } from "~/components/parcel/TrackingHistory";
+import { OrderedSections } from "~/components/shared/OrderedSections";
 import { SectionEntries } from "~/components/shared/SectionEntries";
 import { customSections } from "~/lib/fields";
 import { initials } from "~/lib/format";
@@ -62,52 +63,69 @@ export function ParcelPage({ portfolio }: ThemePageProps) {
       <main className="mx-auto max-w-[1080px] px-4">
         <ShippingLabel profile={profile} trackingNumber={trackingNumber(portfolio)} />
 
-        <ParcelSection
-          id="wrap-title"
-          title="Free bubble wrap"
-          note={[profile.bio, "Pop a few while you read. Nobody is watching."].filter(Boolean).join(" ")}
-        >
-          <BubbleWrap />
-        </ParcelSection>
-        {groupProjects(projects).map((group) => (
-          <ParcelSection key={group.type} id={projectGroupId(group.type)} title={PACKING_GROUPS[group.type].title} note={PACKING_GROUPS[group.type].note}>
-            <PackingList projects={group.projects} />
-          </ParcelSection>
-        ))}
-        {experiences.length > 0 && (
-          <ParcelSection id="history-title" title="Tracking history" note="Where this package has been. No dents reported.">
-            <TrackingHistory experiences={experiences} />
-          </ParcelSection>
-        )}
-        {skillGroups.length > 0 && (
-          <ParcelSection id="skills-title" title="Contents may include" note="Checked at the warehouse. Batteries not included.">
-            <ContentsChecklist groups={skillGroups} />
-          </ParcelSection>
-        )}
-        {education.length + certifications.length > 0 && (
-          <ParcelSection id="customs-title" title="Customs declaration" note="Paperwork, so this engineer clears the border.">
-            <CustomsDeclaration education={education} certifications={certifications} />
-          </ParcelSection>
-        )}
-        {awards && awards.awards.length > 0 && (
-          <ParcelSection id="stickers-title" title="Stickers on the box" note={`${awards.title}, each one peeled and applied by hand.`}>
-            <Stickers awards={awards.awards} />
-          </ParcelSection>
-        )}
-        {notes.map((section) => (
-          <ParcelSection key={section.key} id={`section-${section.key}`} title={section.title}>
-            <SectionEntries
-              entries={section.entries}
-              classNames={{
-                list: "max-w-[720px] rotate-[0.4deg] border-2 border-dashed border-parcel-ink bg-parcel-label px-6 py-5 shadow-[0_6px_0_var(--color-parcel-kraft-dark)]",
-                item: "border-b border-dashed border-parcel-ink/50 py-3 first:pt-0 last:border-b-0 last:pb-0",
-                title: "block text-[1.1rem] font-extrabold",
-                detail: "block font-stretch-90%",
-                link: "decoration-parcel-tape decoration-2",
-              }}
-            />
-          </ParcelSection>
-        ))}
+        <OrderedSections
+          order={portfolio.sectionOrder}
+          sections={{
+            // Always shown: the bubble wrap is the box's opening, with the bio as its note when there is one.
+            about: (
+              <ParcelSection
+                id="wrap-title"
+                title="Free bubble wrap"
+                note={[profile.bio, "Pop a few while you read. Nobody is watching."].filter(Boolean).join(" ")}
+              >
+                <BubbleWrap />
+              </ParcelSection>
+            ),
+            education: education.length > 0 && (
+              <ParcelSection id="origin-title" title="Certificate of origin" note="Where this engineer was made. Schools listed, newest first.">
+                <CustomsDeclaration education={education} />
+              </ParcelSection>
+            ),
+            skills: skillGroups.length > 0 && (
+              <ParcelSection id="skills-title" title="Contents may include" note="Checked at the warehouse. Batteries not included.">
+                <ContentsChecklist groups={skillGroups} />
+              </ParcelSection>
+            ),
+            experience: experiences.length > 0 && (
+              <ParcelSection id="history-title" title="Tracking history" note="Where this package has been. No dents reported.">
+                <TrackingHistory experiences={experiences} />
+              </ParcelSection>
+            ),
+            projects: groupProjects(projects).map((group) => (
+              <ParcelSection key={group.type} id={projectGroupId(group.type)} title={PACKING_GROUPS[group.type].title} note={PACKING_GROUPS[group.type].note}>
+                <PackingList projects={group.projects} />
+              </ParcelSection>
+            )),
+            certifications: certifications.length > 0 && (
+              <ParcelSection id="customs-title" title="Customs declaration" note="Paperwork, so this engineer clears the border.">
+                <CustomsDeclaration certifications={certifications} />
+              </ParcelSection>
+            ),
+            extras: (
+              <>
+                {awards && awards.awards.length > 0 && (
+                  <ParcelSection id="stickers-title" title="Stickers on the box" note={`${awards.title}, each one peeled and applied by hand.`}>
+                    <Stickers awards={awards.awards} />
+                  </ParcelSection>
+                )}
+                {notes.map((section) => (
+                  <ParcelSection key={section.key} id={`section-${section.key}`} title={section.title}>
+                    <SectionEntries
+                      entries={section.entries}
+                      classNames={{
+                        list: "max-w-[720px] rotate-[0.4deg] border-2 border-dashed border-parcel-ink bg-parcel-label px-6 py-5 shadow-[0_6px_0_var(--color-parcel-kraft-dark)]",
+                        item: "border-b border-dashed border-parcel-ink/50 py-3 first:pt-0 last:border-b-0 last:pb-0",
+                        title: "block text-[1.1rem] font-extrabold",
+                        detail: "block font-stretch-90%",
+                        link: "decoration-parcel-tape decoration-2",
+                      }}
+                    />
+                  </ParcelSection>
+                ))}
+              </>
+            ),
+          }}
+        />
       </main>
       <ReturnToSender profile={profile} links={portfolio.links} />
     </>

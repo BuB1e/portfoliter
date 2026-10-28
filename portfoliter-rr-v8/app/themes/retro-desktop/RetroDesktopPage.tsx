@@ -4,10 +4,12 @@ import { CareerLog, Certificates, Diplomas, ExtraList, InstalledSkills, Pane } f
 import { Taskbar } from "~/components/retro-desktop/Taskbar";
 import { Window } from "~/components/retro-desktop/Window";
 import { Avatar } from "~/components/shared/Avatar";
+import { OrderedSections } from "~/components/shared/OrderedSections";
 import { customSections } from "~/lib/fields";
 import { initials, platformName } from "~/lib/format";
 import type { ProjectType } from "~/lib/portfolio";
 import { groupProjects, projectGroupId } from "~/lib/projects";
+import { inSectionOrder } from "~/lib/sectionOrder";
 import type { ThemePageProps } from "../types";
 
 export const FONTS_HREF =
@@ -39,14 +41,17 @@ export function RetroDesktopPage({ portfolio }: ThemePageProps) {
   const groups = groupProjects(projects);
   const extras = customSections(sections);
 
+  // Taskbar buttons in the order the windows are stacked; the About window (name and bio) is always first.
   const windows = [
     { href: "#about-title", label: "About" },
-    ...groups.map((group) => ({ href: `#${projectGroupId(group.type)}`, label: FOLDERS[group.type] })),
-    ...(experiences.length > 0 ? [{ href: "#career-title", label: "career.log" }] : []),
-    ...(skills.length > 0 ? [{ href: "#skills-title", label: "Installed skills" }] : []),
-    ...(education.length > 0 ? [{ href: "#diplomas-title", label: "Diplomas" }] : []),
-    ...(certifications.length > 0 ? [{ href: "#certificates-title", label: "Certificates" }] : []),
-    ...extras.map((section) => ({ href: `#extra-${section.key}`, label: section.title })),
+    ...inSectionOrder(portfolio.sectionOrder, {
+      education: education.length > 0 ? [{ href: "#diplomas-title", label: "Diplomas" }] : [],
+      skills: skills.length > 0 ? [{ href: "#skills-title", label: "Installed skills" }] : [],
+      experience: experiences.length > 0 ? [{ href: "#career-title", label: "career.log" }] : [],
+      projects: groups.map((group) => ({ href: `#${projectGroupId(group.type)}`, label: FOLDERS[group.type] })),
+      certifications: certifications.length > 0 ? [{ href: "#certificates-title", label: "Certificates" }] : [],
+      extras: extras.map((section) => ({ href: `#extra-${section.key}`, label: section.title })),
+    }),
   ];
 
   return (
@@ -107,42 +112,48 @@ export function RetroDesktopPage({ portfolio }: ThemePageProps) {
             )}
           </Window>
 
-          {groups.map((group) => (
-            <Window
-              key={group.type}
-              id={projectGroupId(group.type)}
-              title={FOLDERS[group.type]}
-              icon={<FolderIcon size="small" />}
-              status={[`${group.projects.length} object(s)`, `Projects/${FOLDERS[group.type].split(" ")[0]}`]}
-            >
-              <FileTiles projects={group.projects} />
-            </Window>
-          ))}
-          {experiences.length > 0 && (
-            <Window id="career-title" title="career.log" icon={<DocIcon size="small" />} status={[`${experiences.length} entries`]}>
-              <CareerLog experiences={experiences} />
-            </Window>
-          )}
-          {skills.length > 0 && (
-            <Window id="skills-title" title="Installed skills" icon={<AppIcon letter="S" size="small" />} status={[`${skills.length} skills installed`]}>
-              <InstalledSkills groups={skillGroups} />
-            </Window>
-          )}
-          {education.length > 0 && (
-            <Window id="diplomas-title" title="Diplomas" icon={<FolderIcon size="small" />}>
-              <Diplomas education={education} />
-            </Window>
-          )}
-          {certifications.length > 0 && (
-            <Window id="certificates-title" title="Certificates" icon={<FolderIcon size="small" />}>
-              <Certificates certifications={certifications} />
-            </Window>
-          )}
-          {extras.map((section) => (
-            <Window key={section.key} id={`extra-${section.key}`} title={section.title} icon={<FolderIcon size="small" />}>
-              <ExtraList entries={section.entries} />
-            </Window>
-          ))}
+          {/* The About window above carries the bio, so there is no separate about window. */}
+          <OrderedSections
+            order={portfolio.sectionOrder}
+            sections={{
+              education: education.length > 0 && (
+                <Window id="diplomas-title" title="Diplomas" icon={<FolderIcon size="small" />}>
+                  <Diplomas education={education} />
+                </Window>
+              ),
+              skills: skills.length > 0 && (
+                <Window id="skills-title" title="Installed skills" icon={<AppIcon letter="S" size="small" />} status={[`${skills.length} skills installed`]}>
+                  <InstalledSkills groups={skillGroups} />
+                </Window>
+              ),
+              experience: experiences.length > 0 && (
+                <Window id="career-title" title="career.log" icon={<DocIcon size="small" />} status={[`${experiences.length} entries`]}>
+                  <CareerLog experiences={experiences} />
+                </Window>
+              ),
+              projects: groups.map((group) => (
+                <Window
+                  key={group.type}
+                  id={projectGroupId(group.type)}
+                  title={FOLDERS[group.type]}
+                  icon={<FolderIcon size="small" />}
+                  status={[`${group.projects.length} object(s)`, `Projects/${FOLDERS[group.type].split(" ")[0]}`]}
+                >
+                  <FileTiles projects={group.projects} />
+                </Window>
+              )),
+              certifications: certifications.length > 0 && (
+                <Window id="certificates-title" title="Certificates" icon={<FolderIcon size="small" />}>
+                  <Certificates certifications={certifications} />
+                </Window>
+              ),
+              extras: extras.map((section) => (
+                <Window key={section.key} id={`extra-${section.key}`} title={section.title} icon={<FolderIcon size="small" />}>
+                  <ExtraList entries={section.entries} />
+                </Window>
+              )),
+            }}
+          />
         </main>
       </div>
       <Taskbar fullName={profile.fullName} location={profile.location} windows={windows} />

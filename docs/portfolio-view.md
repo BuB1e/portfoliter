@@ -32,11 +32,42 @@ pinned by the Go test fixture: `portfoliter-go/internal/httpapi/testdata/portfol
 | `certifications` | `sort_order`, then issued date (newest first, undated last), then id |
 | `sections` | `sort_order`, then id |
 
+## Section order
+
+`sectionOrder` is the order of the home page's sections, as stable keys. Every design renders its
+sections by walking this list, so the order is decided here once instead of in each design. The
+default is the owner's resume order, `DefaultSectionOrder` in `view.go`:
+
+| Key | Section | Rows |
+|---|---|---|
+| `about` | About / bio | `profile.bio` |
+| `education` | Education | `education` |
+| `skills` | Skills | `skillGroups` |
+| `experience` | Experience (jobs) | `experiences` |
+| `projects` | Projects: Work, Personal, University groups, in that order | `projects` |
+| `certifications` | Certifications | `certifications` |
+| `extras` | Custom sections (prompts, awards, talks, ...), in each design's own order | `sections` |
+
+- The header (each design's identity block) and the footer/contact block are not sections: they
+  stay first and last. Design chrome (top bars, desktop icons, the taskbar, receipt totals) stays put.
+- Each design maps every key to its own themed block and wording (a design that keeps the bio in its
+  header has no `about` block). Empty sections are not rendered.
+- In-page navigation (the quest menu, the retro taskbar, the broadsheet "Inside today" index and
+  masthead) lists its entries in the same order.
+- The frontend reads it through `resolveSectionOrder()` in `app/lib/sectionOrder.ts`: unknown keys
+  are skipped and missing keys are appended in the default order, so a section can never disappear,
+  and a response without `sectionOrder` renders the default order.
+
+The order is a constant for now. To make it configurable later, add a `section_order text[]` column to
+`site_settings`, an MCP tool that accepts only the keys above (each once), and fill `sectionOrder`
+from it in `normalize`, falling back to `DefaultSectionOrder`. No frontend change is needed.
+
 ## Shape
 
 ```jsonc
 {
   "theme": "parcel",                       // active design key; "" until set_theme is used
+  "sectionOrder": ["about", "education", "skills", "experience", "projects", "certifications", "extras"],
   "profile": {
     "fullName": "Mira Castellanos", "headline": "Platform engineer", "bio": "...",
     "avatarUrl": "https://..." | null, "location": "Porto, Portugal" | null,
@@ -99,7 +130,7 @@ So `{"question": "Favourite bug?", "answer": "Off by one"}` is `{title: "Favouri
 
 ## Compatibility
 
-The view only adds fields to the earlier response: `skillGroups`, `projects[].experience`,
+The view only adds fields to the earlier response: `sectionOrder`, `skillGroups`, `projects[].experience`,
 `projects[].education`, `certifications[].id` and `sections[].entries`. The project endpoint drops its
 separate "detail" type: it was already the project fields plus `experience` and `education`, which
 every project now has.

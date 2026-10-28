@@ -151,6 +151,13 @@ func TestPortfolioViewFullFixture(t *testing.T) {
 		t.Fatalf("decode: %v", err)
 	}
 
+	t.Run("section order is the resume order", func(t *testing.T) {
+		want := []string{"about", "education", "skills", "experience", "projects", "certifications", "extras"}
+		if !equal(got.SectionOrder, want) {
+			t.Errorf("sectionOrder = %v, want %v", got.SectionOrder, want)
+		}
+	})
+
 	t.Run("only published rows", func(t *testing.T) {
 		if len(got.Experiences) != 3 || len(got.Education) != 2 || len(got.Certifications) != 2 ||
 			len(got.Sections) != 2 || len(got.Projects) != 4 {

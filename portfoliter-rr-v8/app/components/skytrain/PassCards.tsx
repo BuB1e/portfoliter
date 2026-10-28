@@ -3,9 +3,10 @@ import type { ReactNode } from "react";
 import { certificationLine, educationLine } from "~/lib/fields";
 import type { Certification, Education } from "~/lib/portfolio";
 
+// Pass one list per section: schools under "Student cards", certificates under "Passes".
 interface PassCardsProps {
-  education: Education[];
-  certifications: Certification[];
+  education?: Education[];
+  certifications?: Certification[];
 }
 
 const CARD_COLORS = ["bg-sky-blue", "bg-sky-pink", "bg-sky-silom"];
@@ -36,7 +37,7 @@ function Pass({ color, title, issuer, when, note }: PassProps) {
   );
 }
 
-export function PassCards({ education, certifications }: PassCardsProps) {
+export function PassCards({ education = [], certifications = [] }: PassCardsProps) {
   const passes = [
     ...education.map((entry) => {
       const line = educationLine(entry);

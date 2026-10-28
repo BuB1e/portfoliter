@@ -6,6 +6,7 @@ import { ReportSighting } from "~/components/field-guide/ReportSighting";
 import { SpecimenGrid } from "~/components/field-guide/SpecimenGrid";
 import { SpecimenPlate } from "~/components/field-guide/SpecimenPlate";
 import { Sightings } from "~/components/field-guide/Sightings";
+import { OrderedSections } from "~/components/shared/OrderedSections";
 import { currentCompany } from "~/lib/experience";
 import { customSections } from "~/lib/fields";
 import type { ProjectType } from "~/lib/portfolio";
@@ -70,37 +71,52 @@ export function FieldGuidePage({ portfolio }: ThemePageProps) {
       <GuideBar location={profile.location} />
       <SpecimenPlate profile={profile} currentCompany={currentCompany(experiences)} />
 
+      {/* The bio is printed on the specimen plate above, so the guide has no separate about section. */}
       <main>
-        {groupProjects(projects).map((group) => (
-          <GuideSection key={group.type} id={projectGroupId(group.type)} title={SPECIMEN_GROUPS[group.type].title} intro={SPECIMEN_GROUPS[group.type].intro}>
-            <SpecimenGrid projects={group.projects} />
-          </GuideSection>
-        ))}
-        {experiences.length > 0 && (
-          <GuideSection id="migration-title" title="Migration record" intro="Where this engineer has been seen feeding, most recent first.">
-            <MigrationRecord experiences={experiences} />
-          </GuideSection>
-        )}
-        {skillGroups.length > 0 && (
-          <GuideSection id="diet-title" title="Diet" intro="Feeds mostly on statically typed languages. Will eat YAML when nothing else is available.">
-            <Diet groups={skillGroups} />
-          </GuideSection>
-        )}
-        {education.length + certifications.length > 0 && (
-          <GuideSection id="banding-title" title="Banding records" intro="Official tags fitted by recognised institutions. The engineer did not resist.">
-            <BandingRecords education={education} certifications={certifications} />
-          </GuideSection>
-        )}
-        {awards && (
-          <GuideSection id="sightings-title" title="Notable sightings" intro={`${awards.title} reported by reliable observers, and one by the engineer.`}>
-            <Sightings entries={awards.awards} />
-          </GuideSection>
-        )}
-        {extras.map((section) => (
-          <GuideSection key={section.key} id={`section-${section.key}`} title={section.title} intro="Further observations, as recorded.">
-            <Sightings entries={section.entries} />
-          </GuideSection>
-        ))}
+        <OrderedSections
+          order={portfolio.sectionOrder}
+          sections={{
+            education: education.length > 0 && (
+              <GuideSection id="fledging-title" title="Fledging record" intro="Where this engineer learned to fly, most recent first.">
+                <BandingRecords education={education} />
+              </GuideSection>
+            ),
+            skills: skillGroups.length > 0 && (
+              <GuideSection id="diet-title" title="Diet" intro="Feeds mostly on statically typed languages. Will eat YAML when nothing else is available.">
+                <Diet groups={skillGroups} />
+              </GuideSection>
+            ),
+            experience: experiences.length > 0 && (
+              <GuideSection id="migration-title" title="Migration record" intro="Where this engineer has been seen feeding, most recent first.">
+                <MigrationRecord experiences={experiences} />
+              </GuideSection>
+            ),
+            projects: groupProjects(projects).map((group) => (
+              <GuideSection key={group.type} id={projectGroupId(group.type)} title={SPECIMEN_GROUPS[group.type].title} intro={SPECIMEN_GROUPS[group.type].intro}>
+                <SpecimenGrid projects={group.projects} />
+              </GuideSection>
+            )),
+            certifications: certifications.length > 0 && (
+              <GuideSection id="banding-title" title="Banding records" intro="Official tags fitted by recognised institutions. The engineer did not resist.">
+                <BandingRecords certifications={certifications} />
+              </GuideSection>
+            ),
+            extras: (
+              <>
+                {awards && (
+                  <GuideSection id="sightings-title" title="Notable sightings" intro={`${awards.title} reported by reliable observers, and one by the engineer.`}>
+                    <Sightings entries={awards.awards} />
+                  </GuideSection>
+                )}
+                {extras.map((section) => (
+                  <GuideSection key={section.key} id={`section-${section.key}`} title={section.title} intro="Further observations, as recorded.">
+                    <Sightings entries={section.entries} />
+                  </GuideSection>
+                ))}
+              </>
+            ),
+          }}
+        />
       </main>
 
       <ReportSighting profile={profile} links={portfolio.links} />
