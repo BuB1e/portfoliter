@@ -3,6 +3,7 @@ import { Purchases } from "~/components/receipt/Purchases";
 import { Barcode, Dept, Line, Paper, Rule } from "~/components/receipt/ReceiptParts";
 import { ShelfItems } from "~/components/receipt/ShelfItems";
 import { StoreHeader } from "~/components/receipt/StoreHeader";
+import { OrderedSections } from "~/components/shared/OrderedSections";
 import { careerStartYear } from "~/lib/experience";
 import { initials, platformName } from "~/lib/format";
 import type { PortfolioView, ProjectType } from "~/lib/portfolio";
@@ -66,41 +67,46 @@ export function ReceiptPage({ portfolio }: ThemePageProps) {
         <Rule kind="double" />
 
         <main>
-          {profile.bio && (
-            <Dept id="note-title" title="Note from the cashier">
-              <p>{profile.bio}</p>
-            </Dept>
-          )}
-          {experiences.length > 0 && (
-            <Dept id="purchases-title" title="Purchases" note="Every job so far, priced in months.">
-              <Purchases experiences={experiences} />
-            </Dept>
-          )}
-          {groups.map((group) => (
-            <Dept key={group.type} id={projectGroupId(group.type)} title={DEPARTMENTS[group.type].title} note={DEPARTMENTS[group.type].note}>
-              <ShelfItems projects={group.projects} />
-            </Dept>
-          ))}
-          {skillGroups.length > 0 && (
-            <Dept id="bag-title" title="In the bag">
-              <InTheBag groups={skillGroups} />
-            </Dept>
-          )}
-          {education.length > 0 && (
-            <Dept id="member-title" title="Member card">
-              <MemberCards education={education} />
-            </Dept>
-          )}
-          {certifications.length > 0 && (
-            <Dept id="coupons-title" title="Coupons applied">
-              <Coupons certifications={certifications} />
-            </Dept>
-          )}
-          {extras.map((section) => (
-            <Dept key={section.key} id={`extra-${section.key}`} title={section.title}>
-              <ExtraLines entries={section.entries} />
-            </Dept>
-          ))}
+          <OrderedSections
+            order={portfolio.sectionOrder}
+            sections={{
+              about: profile.bio && (
+                <Dept id="note-title" title="Note from the cashier">
+                  <p>{profile.bio}</p>
+                </Dept>
+              ),
+              education: education.length > 0 && (
+                <Dept id="member-title" title="Member card">
+                  <MemberCards education={education} />
+                </Dept>
+              ),
+              skills: skillGroups.length > 0 && (
+                <Dept id="bag-title" title="In the bag">
+                  <InTheBag groups={skillGroups} />
+                </Dept>
+              ),
+              experience: experiences.length > 0 && (
+                <Dept id="purchases-title" title="Purchases" note="Every job so far, priced in months.">
+                  <Purchases experiences={experiences} />
+                </Dept>
+              ),
+              projects: groups.map((group) => (
+                <Dept key={group.type} id={projectGroupId(group.type)} title={DEPARTMENTS[group.type].title} note={DEPARTMENTS[group.type].note}>
+                  <ShelfItems projects={group.projects} />
+                </Dept>
+              )),
+              certifications: certifications.length > 0 && (
+                <Dept id="coupons-title" title="Coupons applied">
+                  <Coupons certifications={certifications} />
+                </Dept>
+              ),
+              extras: extras.map((section) => (
+                <Dept key={section.key} id={`extra-${section.key}`} title={section.title}>
+                  <ExtraLines entries={section.entries} />
+                </Dept>
+              )),
+            }}
+          />
         </main>
 
         <Rule kind="double" />

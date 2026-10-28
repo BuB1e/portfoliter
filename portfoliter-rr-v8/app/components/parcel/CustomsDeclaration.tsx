@@ -3,9 +3,11 @@ import type { ReactNode } from "react";
 import { certificationLine, educationLine } from "~/lib/fields";
 import type { Certification, Education } from "~/lib/portfolio";
 
+// Pass one list per section: schools on the "Certificate of origin", certificates on the "Customs
+// declaration".
 interface CustomsDeclarationProps {
-  education: Education[];
-  certifications: Certification[];
+  education?: Education[];
+  certifications?: Certification[];
 }
 
 const CELL = "border-b border-parcel-ink px-4 py-3 text-left align-top";
@@ -23,7 +25,7 @@ function Row({ item, issuer, date }: { item: ReactNode; issuer: ReactNode; date:
   );
 }
 
-export function CustomsDeclaration({ education, certifications }: CustomsDeclarationProps) {
+export function CustomsDeclaration({ education = [], certifications = [] }: CustomsDeclarationProps) {
   return (
     <div className="overflow-x-auto border-[3px] border-parcel-ink bg-parcel-label">
       <table className="w-full border-collapse [&_tr:last-child_td]:border-b-0">

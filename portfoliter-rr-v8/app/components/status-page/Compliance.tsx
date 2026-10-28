@@ -4,9 +4,10 @@ import { certificationLine, educationLine } from "~/lib/fields";
 import type { Certification, Education } from "~/lib/portfolio";
 import { StatusPill } from "./StatusPill";
 
+// Pass one list per card: schools under "Build provenance", certificates under "Compliance".
 interface ComplianceProps {
-  education: Education[];
-  certifications: Certification[];
+  education?: Education[];
+  certifications?: Certification[];
 }
 
 interface RowProps {
@@ -30,7 +31,7 @@ function Row({ title, detail, note, label }: RowProps) {
   );
 }
 
-export function Compliance({ education, certifications }: ComplianceProps) {
+export function Compliance({ education = [], certifications = [] }: ComplianceProps) {
   return (
     <ul className="divide-y divide-st-line">
       {education.map((entry) => {

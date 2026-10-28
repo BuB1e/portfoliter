@@ -2,10 +2,12 @@ import { CharacterSheet, QuestMenu } from "~/components/quest-log/CharacterSheet
 import { Entries, KeyItems, QuestLog, Stats, Training } from "~/components/quest-log/Ledger";
 import { QuestBoard } from "~/components/quest-log/QuestBoard";
 import { QuestWindow } from "~/components/quest-log/QuestWindow";
+import { OrderedSections } from "~/components/shared/OrderedSections";
 import { customSections } from "~/lib/fields";
 import { firstName, platformName } from "~/lib/format";
 import type { ProjectType } from "~/lib/portfolio";
 import { groupProjects, projectGroupId } from "~/lib/projects";
+import { inSectionOrder } from "~/lib/sectionOrder";
 import type { ThemePageProps } from "../types";
 
 export const FONTS_HREF =
@@ -38,13 +40,16 @@ export function QuestLogPage({ portfolio }: ThemePageProps) {
   const quests = [...projects, ...experiences];
   const cleared = quests.filter((quest) => quest.endDate).length;
 
+  // The menu lists the windows in the order they open on the page; the party invite is always last.
   const menu = [
-    ...groups.map((group) => ({ href: `#${projectGroupId(group.type)}`, label: QUEST_TYPES[group.type].title })),
-    ...(experiences.length > 0 ? [{ href: "#log-title", label: "Quest log" }] : []),
-    ...(skillGroups.length > 0 ? [{ href: "#stats-title", label: "Stats" }] : []),
-    ...(education.length > 0 ? [{ href: "#training-title", label: "Training" }] : []),
-    ...(certifications.length > 0 ? [{ href: "#items-title", label: "Key items" }] : []),
-    ...extras.map((section) => ({ href: `#extra-${section.key}`, label: section.title })),
+    ...inSectionOrder(portfolio.sectionOrder, {
+      education: education.length > 0 ? [{ href: "#training-title", label: "Training" }] : [],
+      skills: skillGroups.length > 0 ? [{ href: "#stats-title", label: "Stats" }] : [],
+      experience: experiences.length > 0 ? [{ href: "#log-title", label: "Quest log" }] : [],
+      projects: groups.map((group) => ({ href: `#${projectGroupId(group.type)}`, label: QUEST_TYPES[group.type].title })),
+      certifications: certifications.length > 0 ? [{ href: "#items-title", label: "Key items" }] : [],
+      extras: extras.map((section) => ({ href: `#extra-${section.key}`, label: section.title })),
+    }),
     { href: "#party-title", label: "Party invite" },
   ];
 
@@ -58,36 +63,42 @@ export function QuestLogPage({ portfolio }: ThemePageProps) {
         </div>
 
         <main className="grid min-w-0 gap-8">
-          {groups.map((group) => (
-            <QuestWindow key={group.type} id={projectGroupId(group.type)} title={QUEST_TYPES[group.type].title} note={QUEST_TYPES[group.type].note}>
-              <QuestBoard projects={group.projects} />
-            </QuestWindow>
-          ))}
-          {experiences.length > 0 && (
-            <QuestWindow id="log-title" title="Quest log" note="Every job, newest first.">
-              <QuestLog experiences={experiences} />
-            </QuestWindow>
-          )}
-          {skillGroups.length > 0 && (
-            <QuestWindow id="stats-title" title="Stats" note="Skills per category.">
-              <Stats groups={skillGroups} />
-            </QuestWindow>
-          )}
-          {education.length > 0 && (
-            <QuestWindow id="training-title" title="Training">
-              <Training education={education} />
-            </QuestWindow>
-          )}
-          {certifications.length > 0 && (
-            <QuestWindow id="items-title" title="Key items">
-              <KeyItems certifications={certifications} />
-            </QuestWindow>
-          )}
-          {extras.map((section) => (
-            <QuestWindow key={section.key} id={`extra-${section.key}`} title={section.title}>
-              <Entries entries={section.entries} />
-            </QuestWindow>
-          ))}
+          {/* The bio is on the character sheet above, so there is no separate about window. */}
+          <OrderedSections
+            order={portfolio.sectionOrder}
+            sections={{
+              education: education.length > 0 && (
+                <QuestWindow id="training-title" title="Training">
+                  <Training education={education} />
+                </QuestWindow>
+              ),
+              skills: skillGroups.length > 0 && (
+                <QuestWindow id="stats-title" title="Stats" note="Skills per category.">
+                  <Stats groups={skillGroups} />
+                </QuestWindow>
+              ),
+              experience: experiences.length > 0 && (
+                <QuestWindow id="log-title" title="Quest log" note="Every job, newest first.">
+                  <QuestLog experiences={experiences} />
+                </QuestWindow>
+              ),
+              projects: groups.map((group) => (
+                <QuestWindow key={group.type} id={projectGroupId(group.type)} title={QUEST_TYPES[group.type].title} note={QUEST_TYPES[group.type].note}>
+                  <QuestBoard projects={group.projects} />
+                </QuestWindow>
+              )),
+              certifications: certifications.length > 0 && (
+                <QuestWindow id="items-title" title="Key items">
+                  <KeyItems certifications={certifications} />
+                </QuestWindow>
+              ),
+              extras: extras.map((section) => (
+                <QuestWindow key={section.key} id={`extra-${section.key}`} title={section.title}>
+                  <Entries entries={section.entries} />
+                </QuestWindow>
+              )),
+            }}
+          />
 
           <footer>
             <QuestWindow id="party-title" title="Party invite" note="Recruiting? Send word.">

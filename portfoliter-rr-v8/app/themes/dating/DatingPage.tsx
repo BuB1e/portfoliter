@@ -8,13 +8,14 @@ import { ProfileCard } from "~/components/dating/ProfileCard";
 import { ProjectDeck } from "~/components/dating/ProjectDeck";
 import { PromptList } from "~/components/dating/PromptList";
 import { VerifiedList } from "~/components/dating/VerifiedList";
+import { OrderedSections } from "~/components/shared/OrderedSections";
 import { SectionEntries } from "~/components/shared/SectionEntries";
 import { currentCompany } from "~/lib/experience";
 import { customSections } from "~/lib/fields";
 import { firstName } from "~/lib/format";
 import type { ProjectType } from "~/lib/portfolio";
 import { groupProjects, projectGroupId } from "~/lib/projects";
-import { FEATURED_SECTION_KEYS, getAwards, getPrompts } from "~/lib/sections";
+import { FEATURED_SECTION_KEYS, getAwards, getPrompts, PROMPTS_KEY } from "~/lib/sections";
 import type { ThemePageProps } from "../types";
 
 export const FONTS_HREF =
@@ -81,55 +82,67 @@ export function DatingPage({ portfolio }: ThemePageProps) {
         <ProfileCard profile={profile} links={portfolio.links} currentCompany={currentCompany(experiences)} />
 
         <main>
-          {(profile.bio || prompts) && (
-            <FeedSection id="about-title" title="About me" lede={profile.bio}>
-              {prompts && (
+          <OrderedSections
+            order={portfolio.sectionOrder}
+            sections={{
+              about: profile.bio && (
+                <FeedSection id="about-title" title="About me" lede={profile.bio} />
+              ),
+              education: education.length > 0 && (
+                <FeedSection id="verified-title" title="Verified" lede="Not a catfish. These schools checked.">
+                  <VerifiedList education={education} />
+                </FeedSection>
+              ),
+              skills: skillGroups.length > 0 && (
+                <FeedSection id="interests-title" title="Interests" lede="Things I will bring up on a first date whether you ask or not.">
+                  <InterestList groups={skillGroups} />
+                </FeedSection>
+              ),
+              experience: experiences.length > 0 && (
+                <FeedSection id="exes-title" title="Experiences" lede="We're still on good terms. Their services are still running.">
+                  <ExList experiences={experiences} />
+                </FeedSection>
+              ),
+              projects: groupProjects(projects).map((group) => (
+                <FeedSection key={group.type} id={projectGroupId(group.type)} title={DECKS[group.type].title} lede={DECKS[group.type].lede}>
+                  <ProjectDeck projects={group.projects} ownerFirstName={ownerFirstName} email={profile.email} />
+                </FeedSection>
+              )),
+              certifications: certifications.length > 0 && (
+                <FeedSection id="certified-title" title="Certified" lede="Exams passed, paperwork attached. Ask to see the originals.">
+                  <VerifiedList certifications={certifications} />
+                </FeedSection>
+              ),
+              extras: (
                 <>
-                  <h3 className="mb-3 text-xl font-bold tracking-tight">{prompts.title}</h3>
-                  <PromptList prompts={prompts.prompts} />
+                  {prompts && (
+                    <FeedSection id={`section-${PROMPTS_KEY}`} title={prompts.title} lede="Prompts, answered honestly.">
+                      <PromptList prompts={prompts.prompts} />
+                    </FeedSection>
+                  )}
+                  {awards && awards.awards.length > 0 && (
+                    <FeedSection id="brag-title" title="Humble brags" lede={`${awards.title}, listed modestly.`}>
+                      <BragList awards={awards.awards} />
+                    </FeedSection>
+                  )}
+                  {extras.map((section) => (
+                    <FeedSection key={section.key} id={`section-${section.key}`} title={section.title} lede="More things worth knowing before a first date.">
+                      <SectionEntries
+                        entries={section.entries}
+                        classNames={{
+                          list: "grid gap-3",
+                          item: "rounded-[18px] bg-night-raised px-5 py-4",
+                          title: "block text-lg font-bold",
+                          detail: "block text-sm opacity-75",
+                          link: "text-mint",
+                        }}
+                      />
+                    </FeedSection>
+                  ))}
                 </>
-              )}
-            </FeedSection>
-          )}
-          {groupProjects(projects).map((group) => (
-            <FeedSection key={group.type} id={projectGroupId(group.type)} title={DECKS[group.type].title} lede={DECKS[group.type].lede}>
-              <ProjectDeck projects={group.projects} ownerFirstName={ownerFirstName} email={profile.email} />
-            </FeedSection>
-          ))}
-          {experiences.length > 0 && (
-            <FeedSection id="exes-title" title="Experiences" lede="We're still on good terms. Their services are still running.">
-              <ExList experiences={experiences} />
-            </FeedSection>
-          )}
-          {skillGroups.length > 0 && (
-            <FeedSection id="interests-title" title="Interests" lede="Things I will bring up on a first date whether you ask or not.">
-              <InterestList groups={skillGroups} />
-            </FeedSection>
-          )}
-          {education.length + certifications.length > 0 && (
-            <FeedSection id="verified-title" title="Verified" lede="Not a catfish. These people checked.">
-              <VerifiedList education={education} certifications={certifications} />
-            </FeedSection>
-          )}
-          {awards && awards.awards.length > 0 && (
-            <FeedSection id="brag-title" title="Humble brags" lede={`${awards.title}, listed modestly.`}>
-              <BragList awards={awards.awards} />
-            </FeedSection>
-          )}
-          {extras.map((section) => (
-            <FeedSection key={section.key} id={`section-${section.key}`} title={section.title} lede="More things worth knowing before a first date.">
-              <SectionEntries
-                entries={section.entries}
-                classNames={{
-                  list: "grid gap-3",
-                  item: "rounded-[18px] bg-night-raised px-5 py-4",
-                  title: "block text-lg font-bold",
-                  detail: "block text-sm opacity-75",
-                  link: "text-mint",
-                }}
-              />
-            </FeedSection>
-          ))}
+              ),
+            }}
+          />
         </main>
       </div>
     </>

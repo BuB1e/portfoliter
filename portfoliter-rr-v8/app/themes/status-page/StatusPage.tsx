@@ -4,6 +4,7 @@ import { ServiceList } from "~/components/status-page/ServiceList";
 import { SkillComponents } from "~/components/status-page/SkillComponents";
 import { StatusCard } from "~/components/status-page/StatusCard";
 import { StatusHeader } from "~/components/status-page/StatusHeader";
+import { OrderedSections } from "~/components/shared/OrderedSections";
 import { SectionEntries } from "~/components/shared/SectionEntries";
 import { currentCompany } from "~/lib/experience";
 import { customSections } from "~/lib/fields";
@@ -47,49 +48,59 @@ export function StatusPage({ portfolio }: ThemePageProps) {
       <StatusHeader profile={profile} currentCompany={currentCompany(experiences)} />
 
       <main>
-        {(profile.headline || profile.bio) && (
-          <StatusCard id="about-title" title="About this service">
-            <div className="px-5 py-5">
-              <p className="text-lg font-medium">{profile.headline}</p>
-              {profile.bio && <p className="mt-2 max-w-[65ch] text-st-muted">{profile.bio}</p>}
-            </div>
-          </StatusCard>
-        )}
-        {skillGroups.length > 0 && (
-          <StatusCard id="components-title" title="Components" aside="Uptime over the past 90 days">
-            <SkillComponents groups={skillGroups} />
-          </StatusCard>
-        )}
-        {groupProjects(projects).map((group) => (
-          <StatusCard key={group.type} id={projectGroupId(group.type)} title={SERVICE_GROUPS[group.type].title} aside={SERVICE_GROUPS[group.type].aside}>
-            <ServiceList projects={group.projects} />
-          </StatusCard>
-        ))}
-        {experiences.length > 0 && (
-          <StatusCard id="incidents-title" title="Incident history" aside="Newest first">
-            <IncidentHistory experiences={experiences} />
-          </StatusCard>
-        )}
-        {education.length + certifications.length > 0 && (
-          <StatusCard id="compliance-title" title="Compliance">
-            <Compliance education={education} certifications={certifications} />
-          </StatusCard>
-        )}
-        {/* Every free-form section (prompts, awards, talks, ...) as a plain list card. */}
-        {customSections(sections).map((section) => (
-          <StatusCard key={section.key} id={`section-${section.key}`} title={section.title}>
-            <SectionEntries
-              entries={section.entries}
-              classNames={{
-                list: "divide-y divide-st-line",
-                item: "flex flex-wrap justify-between gap-x-6 gap-y-1 px-5 py-4",
-                title: "font-medium",
-                detail: "text-st-muted",
-                link: "text-st-info",
-              }}
-            />
-          </StatusCard>
-        ))}
+        <OrderedSections
+          order={portfolio.sectionOrder}
+          sections={{
+            about: (profile.headline || profile.bio) && (
+              <StatusCard id="about-title" title="About this service">
+                <div className="px-5 py-5">
+                  <p className="text-lg font-medium">{profile.headline}</p>
+                  {profile.bio && <p className="mt-2 max-w-[65ch] text-st-muted">{profile.bio}</p>}
+                </div>
+              </StatusCard>
+            ),
+            education: education.length > 0 && (
+              <StatusCard id="provenance-title" title="Build provenance" aside="Where this service was built">
+                <Compliance education={education} />
+              </StatusCard>
+            ),
+            skills: skillGroups.length > 0 && (
+              <StatusCard id="components-title" title="Components" aside="Uptime over the past 90 days">
+                <SkillComponents groups={skillGroups} />
+              </StatusCard>
+            ),
+            experience: experiences.length > 0 && (
+              <StatusCard id="incidents-title" title="Incident history" aside="Newest first">
+                <IncidentHistory experiences={experiences} />
+              </StatusCard>
+            ),
+            projects: groupProjects(projects).map((group) => (
+              <StatusCard key={group.type} id={projectGroupId(group.type)} title={SERVICE_GROUPS[group.type].title} aside={SERVICE_GROUPS[group.type].aside}>
+                <ServiceList projects={group.projects} />
+              </StatusCard>
+            )),
+            certifications: certifications.length > 0 && (
+              <StatusCard id="compliance-title" title="Compliance" aside="Audits passed">
+                <Compliance certifications={certifications} />
+              </StatusCard>
+            ),
+            // Every free-form section (prompts, awards, talks, ...) as a plain list card.
+            extras: customSections(sections).map((section) => (
+              <StatusCard key={section.key} id={`section-${section.key}`} title={section.title}>
+                <SectionEntries
+                  entries={section.entries}
+                  classNames={{
+                    list: "divide-y divide-st-line",
+                    item: "flex flex-wrap justify-between gap-x-6 gap-y-1 px-5 py-4",
+                    title: "font-medium",
+                    detail: "text-st-muted",
+                    link: "text-st-info",
+                  }}
+                />
+              </StatusCard>
+            )),
+          }}
+        />
       </main>
 
       <footer className="mt-12 flex flex-wrap items-center justify-between gap-4 border-t border-st-line pt-6 text-sm text-st-muted">

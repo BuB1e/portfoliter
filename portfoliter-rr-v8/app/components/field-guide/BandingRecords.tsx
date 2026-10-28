@@ -1,15 +1,16 @@
 import { certificationLine, educationLine } from "~/lib/fields";
 import type { Certification, Education } from "~/lib/portfolio";
 
+// Pass one list per section: schools under "Fledging record", certificates under "Banding records".
 interface BandingRecordsProps {
-  education: Education[];
-  certifications: Certification[];
+  education?: Education[];
+  certifications?: Certification[];
 }
 
 const CELL = "border-b border-fg-pine/30 px-4 py-3 text-left align-top";
 
 // One row per tag. A record with no date lets "Banded by" span the "When" column, so no cell is empty.
-export function BandingRecords({ education, certifications }: BandingRecordsProps) {
+export function BandingRecords({ education = [], certifications = [] }: BandingRecordsProps) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full border-collapse border-[1.5px] border-fg-pine bg-fg-paper [&_tr:last-child_td]:border-b-0">

@@ -3,11 +3,13 @@ import { Appointments, Classifieds, Notices } from "~/components/broadsheet/Colu
 import { LeadStory } from "~/components/broadsheet/LeadStory";
 import { Masthead, paperName } from "~/components/broadsheet/Masthead";
 import { SectionFlag } from "~/components/broadsheet/SectionFlag";
+import { OrderedSections } from "~/components/shared/OrderedSections";
 import { careerStartYear } from "~/lib/experience";
 import { platformName } from "~/lib/format";
 import type { ProjectType } from "~/lib/portfolio";
 import { customSections } from "~/lib/fields";
 import { groupProjects, projectGroupId } from "~/lib/projects";
+import { inSectionOrder } from "~/lib/sectionOrder";
 import type { ThemePageProps } from "../types";
 
 export const FONTS_HREF =
@@ -36,14 +38,16 @@ export function BroadsheetPage({ portfolio }: ThemePageProps) {
   const { profile, links, experiences, projects, skills, skillGroups, education, certifications, sections } = portfolio;
   const groups = groupProjects(projects);
   const extras = customSections(sections);
-  const hasNotices = education.length + certifications.length + extras.length > 0;
 
-  const index = [
-    ...groups.map((group) => ({ href: `#${projectGroupId(group.type)}`, label: DESKS[group.type].title, count: group.projects.length })),
-    ...(experiences.length > 0 ? [{ href: "#appointments-title", label: "Appointments", count: experiences.length }] : []),
-    ...(skills.length > 0 ? [{ href: "#classifieds-title", label: "Classifieds", count: skills.length }] : []),
-    ...(hasNotices ? [{ href: "#notices-title", label: "Notices", count: education.length + certifications.length + extras.length }] : []),
-  ];
+  // "Inside today" and the masthead list the paper's sections in the order they are printed.
+  const index = inSectionOrder(portfolio.sectionOrder, {
+    education: education.length > 0 ? [{ href: "#commencement-title", label: "Commencement", count: education.length }] : [],
+    skills: skills.length > 0 ? [{ href: "#classifieds-title", label: "Classifieds", count: skills.length }] : [],
+    experience: experiences.length > 0 ? [{ href: "#appointments-title", label: "Appointments", count: experiences.length }] : [],
+    projects: groups.map((group) => ({ href: `#${projectGroupId(group.type)}`, label: DESKS[group.type].title, count: group.projects.length })),
+    certifications: certifications.length > 0 ? [{ href: "#licensing-title", label: "Licensing", count: certifications.length }] : [],
+    extras: extras.length > 0 ? [{ href: "#notices-title", label: "Notices", count: extras.length }] : [],
+  });
 
   return (
     <div className="mx-auto max-w-[1180px] px-4 pb-10 sm:px-6">
@@ -59,26 +63,42 @@ export function BroadsheetPage({ portfolio }: ThemePageProps) {
       <main>
         <LeadStory profile={profile} links={links} index={index} />
 
-        {groups.map((group) => (
-          <SectionFlag key={group.type} id={projectGroupId(group.type)} title={DESKS[group.type].title} note={DESKS[group.type].note}>
-            <Articles projects={group.projects} />
-          </SectionFlag>
-        ))}
-        {experiences.length > 0 && (
-          <SectionFlag id="appointments-title" title="Appointments" note="People on the move: every job so far.">
-            <Appointments experiences={experiences} />
-          </SectionFlag>
-        )}
-        {skillGroups.length > 0 && (
-          <SectionFlag id="classifieds-title" title="Classifieds" note="Skills, listed by trade.">
-            <Classifieds groups={skillGroups} />
-          </SectionFlag>
-        )}
-        {hasNotices && (
-          <SectionFlag id="notices-title" title="Notices" note="Degrees, certificates and other public notices.">
-            <Notices education={education} certifications={certifications} extras={extras} />
-          </SectionFlag>
-        )}
+        {/* The bio runs in the lead story above, so the paper has no separate about section. */}
+        <OrderedSections
+          order={portfolio.sectionOrder}
+          sections={{
+            education: education.length > 0 && (
+              <SectionFlag id="commencement-title" title="Commencement" note="As announced by the schools, newest first.">
+                <Notices education={education} />
+              </SectionFlag>
+            ),
+            skills: skillGroups.length > 0 && (
+              <SectionFlag id="classifieds-title" title="Classifieds" note="Skills, listed by trade.">
+                <Classifieds groups={skillGroups} />
+              </SectionFlag>
+            ),
+            experience: experiences.length > 0 && (
+              <SectionFlag id="appointments-title" title="Appointments" note="People on the move: every job so far.">
+                <Appointments experiences={experiences} />
+              </SectionFlag>
+            ),
+            projects: groups.map((group) => (
+              <SectionFlag key={group.type} id={projectGroupId(group.type)} title={DESKS[group.type].title} note={DESKS[group.type].note}>
+                <Articles projects={group.projects} />
+              </SectionFlag>
+            )),
+            certifications: certifications.length > 0 && (
+              <SectionFlag id="licensing-title" title="Licensing" note="Certificates granted, with the issuing body and date.">
+                <Notices certifications={certifications} />
+              </SectionFlag>
+            ),
+            extras: extras.length > 0 && (
+              <SectionFlag id="notices-title" title="Notices" note="Other public notices.">
+                <Notices extras={extras} />
+              </SectionFlag>
+            ),
+          }}
+        />
       </main>
 
       <footer className="mt-16 border-t-[3px] border-double border-bs-ink pt-4 text-[0.92rem] text-bs-grey">
