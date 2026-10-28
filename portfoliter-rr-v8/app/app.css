@@ -71,6 +71,14 @@
   --color-st-warn: #e5a000;
   --color-st-info: #0d74ce;
 
+  /* receipt: Thai text falls back to a looped Thai face, as on Thai till receipts */
+  --font-rc: "Martian Mono", "Noto Sans Thai Looped", ui-monospace, monospace;
+  --color-rc-counter: #9aa1a4;
+  --color-rc-paper: #fdfdfb;
+  --color-rc-ink: #232326;
+  --color-rc-faded: #5c5c62;
+  --color-rc-red: #b8211b;
+
   --animate-match-pop: match-pop 0.5s cubic-bezier(0.2, 1.6, 0.4, 1);
 
   @keyframes match-pop {
@@ -156,6 +164,56 @@
     outline: 2px solid var(--color-st-info);
     outline-offset: 2px;
   }
+}
+
+[data-theme="receipt"] {
+  @apply font-rc text-rc-ink;
+  color-scheme: light;
+  /* speckled laminate shop counter */
+  background-color: var(--color-rc-counter);
+  background-image:
+    radial-gradient(circle at 20% 30%, rgb(255 255 255 / 0.22) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 70% 80%, rgb(0 0 0 / 0.14) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 45% 60%, rgb(255 255 255 / 0.12) 0 1.5px, transparent 2px);
+  background-size: 23px 19px, 31px 29px, 41px 37px;
+
+  :focus-visible {
+    outline: 3px solid var(--color-rc-red);
+    outline-offset: 2px;
+  }
+}
+
+/* receipt paper: zigzag tear along the top and bottom edges */
+@utility rc-tear {
+  --rc-tooth: 14px;
+  -webkit-mask:
+    conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) top / var(--rc-tooth) 51% repeat-x,
+    conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / var(--rc-tooth) 51% repeat-x;
+  mask:
+    conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) top / var(--rc-tooth) 51% repeat-x,
+    conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / var(--rc-tooth) 51% repeat-x;
+}
+
+/* the one moment of motion: the receipt prints line by line on load */
+@utility rc-print {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: rc-print 1.4s steps(36, end) both;
+  }
+}
+
+@keyframes rc-print {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* thermal print of a photo: one ink, no colour */
+@utility rc-thermal {
+  filter: grayscale(1) contrast(1.35) brightness(1.08);
+  mix-blend-mode: multiply;
 }
 
 /* parcel pieces that are pure CSS drawings */

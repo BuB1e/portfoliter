@@ -17,7 +17,7 @@ MCP server. Your own frontend reads the data and renders the site.
  PostgreSQL   Cloudflare R2 (avatar, project covers, resume)
 ```
 
-This branch (`feature/harit-som`) is the owner's own site: it adds six designs on top of `develop`. If you are cloning to build your own portfolio, start
+This branch (`feature/harit-som`) is the owner's own site: it adds seven designs on top of `develop`. If you are cloning to build your own portfolio, start
 from `develop`, where the frontend is a placeholder page that loads your data and prints it.
 Sections below describe `develop`; [Designs on this branch](#designs-on-this-branch) covers the rest.
 
@@ -250,6 +250,7 @@ To add a design:
 | `spec-sheet` | Serious and minimal: white page, one sans-serif, label-and-content rows | `app/themes/spec-sheet/SpecSheetPage.tsx` |
 | `skytrain` | Bangkok BTS line map; jobs are stations, projects are interchanges | `app/themes/skytrain/SkytrainPage.tsx` |
 | `status-page` | Uptime status page; skills are components, past jobs are resolved incidents | `app/themes/status-page/StatusPage.tsx` |
+| `receipt` | Thermal mini-mart receipt in monospace; jobs are purchases, projects are line items | `app/themes/receipt/ReceiptPage.tsx` |
 
 Every design shows projects in three sections (Work, Personal, University; empty ones are hidden),
 and every card links to `/projects/<slug>`, which renders in the same design:
@@ -262,6 +263,7 @@ and every card links to `/projects/<slug>`, which renders in the same design:
 | `spec-sheet` | Work, Personal and University project rows | A spec sheet: one labelled row per fact |
 | `skytrain` | Sukhumvit line (work), Gold line (personal), Blue line (university) | A station in its line's colour: platform information, timetable, connecting line, exits |
 | `status-page` | Production, Side and Campus services | The service's status entry: banner, components, update log |
+| `receipt` | Made at work, Homemade, School supplies (line items with a staff-pick tag) | An item receipt: item lines, "printed on the back" detail, ingredients, barcode; a VOID slip for 404 |
 
 Ask Claude "list my themes" or "switch the site to parcel". The production compose file on this
 branch binds the backend to `127.0.0.1:8082` and the frontend to `127.0.0.1:3002`.

@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router";
 import { describe, expect, it } from "vitest";
 
+import { shortDescription } from "~/lib/projects";
 import { THEME_KEYS } from "~/lib/theme";
 import { makePortfolio, makeProject, makeProjectDetail } from "~/test-utils/fixtures";
 import { themePages, themeProjectPages } from "./registry";
@@ -48,6 +49,21 @@ describe.each(THEME_KEYS)("%s design", (key) => {
       expect(html).toContain(`href="/projects/${slug}"`);
     }
     expect(html).toContain("Moves money.");
+  });
+
+  it("puts each card's short description inside its link, clamping long summaries", () => {
+    const Page = themePages[key];
+    const long = "Reads bank emails and statements to track spending without an open-banking API. ".repeat(4).trim();
+    const project = { ...portfolio.projects[2], summary: long };
+
+    const html = render(<Page portfolio={{ ...portfolio, projects: [project] }} />);
+
+    const short = shortDescription(long);
+    expect(short.length).toBeLessThan(long.length);
+    expect(html).toContain(short);
+    expect(html).not.toContain(long);
+    const links = html.match(/<a [^>]*href="\/projects\/rememo"[^>]*>[\s\S]*?<\/a>/g) ?? [];
+    expect(links.some((link) => link.includes(short))).toBe(true);
   });
 
   it("hides groups that have no projects", () => {

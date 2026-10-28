@@ -7,6 +7,8 @@ import { FieldGuidePage } from "./field-guide/FieldGuidePage";
 import { FieldGuideProjectPage } from "./field-guide/FieldGuideProjectPage";
 import { ParcelPage } from "./parcel/ParcelPage";
 import { ParcelProjectPage } from "./parcel/ParcelProjectPage";
+import { ReceiptPage } from "./receipt/ReceiptPage";
+import { ReceiptProjectPage } from "./receipt/ReceiptProjectPage";
 import { SkytrainPage } from "./skytrain/SkytrainPage";
 import { SkytrainProjectPage } from "./skytrain/SkytrainProjectPage";
 import { SpecSheetPage } from "./spec-sheet/SpecSheetPage";
@@ -22,6 +24,7 @@ export const themePages: Record<ThemeKey, ComponentType<ThemePageProps>> = {
   "spec-sheet": SpecSheetPage,
   skytrain: SkytrainPage,
   "status-page": StatusPage,
+  receipt: ReceiptPage,
 };
 
 // /projects/:slug in each design; the Record type makes a new theme fail typecheck until it has one.
@@ -32,6 +35,7 @@ export const themeProjectPages: Record<ThemeKey, ComponentType<ThemeProjectPageP
   "spec-sheet": SpecSheetProjectPage,
   skytrain: SkytrainProjectPage,
   "status-page": StatusProjectPage,
+  receipt: ReceiptProjectPage,
 };
 
 export const themeTitles: Record<ThemeKey, (fullName: string) => string> = {
@@ -41,4 +45,5 @@ export const themeTitles: Record<ThemeKey, (fullName: string) => string> = {
   "spec-sheet": (fullName) => `${fullName}, software engineer`,
   skytrain: (fullName) => `Next station: ${fullName}`,
   "status-page": (fullName) => `${fullName} status`,
+  receipt: (fullName) => `Receipt: ${fullName}`,
 };
