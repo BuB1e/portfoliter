@@ -9,6 +9,7 @@ import { themePages, themeProjectPages } from "./registry";
 // Designs that render every published field. Each one names its own featured-project marker.
 const FEATURED_LABELS: Partial<Record<ThemeKey, string>> = {
   receipt: "Staff pick",
+  broadsheet: "Editor's pick",
 };
 
 function render(node: React.ReactNode): string {

@@ -1,6 +1,9 @@
 import type { ComponentType } from "react";
 
+import { paperName } from "~/components/broadsheet/Masthead";
 import type { ThemeKey } from "~/lib/theme";
+import { BroadsheetPage } from "./broadsheet/BroadsheetPage";
+import { BroadsheetProjectPage } from "./broadsheet/BroadsheetProjectPage";
 import { DatingPage } from "./dating/DatingPage";
 import { DatingProjectPage } from "./dating/DatingProjectPage";
 import { FieldGuidePage } from "./field-guide/FieldGuidePage";
@@ -25,6 +28,7 @@ export const themePages: Record<ThemeKey, ComponentType<ThemePageProps>> = {
   skytrain: SkytrainPage,
   "status-page": StatusPage,
   receipt: ReceiptPage,
+  broadsheet: BroadsheetPage,
 };
 
 // /projects/:slug in each design; the Record type makes a new theme fail typecheck until it has one.
@@ -36,6 +40,7 @@ export const themeProjectPages: Record<ThemeKey, ComponentType<ThemeProjectPageP
   skytrain: SkytrainProjectPage,
   "status-page": StatusProjectPage,
   receipt: ReceiptProjectPage,
+  broadsheet: BroadsheetProjectPage,
 };
 
 export const themeTitles: Record<ThemeKey, (fullName: string) => string> = {
@@ -46,4 +51,5 @@ export const themeTitles: Record<ThemeKey, (fullName: string) => string> = {
   skytrain: (fullName) => `Next station: ${fullName}`,
   "status-page": (fullName) => `${fullName} status`,
   receipt: (fullName) => `Receipt: ${fullName}`,
+  broadsheet: (fullName) => `${paperName(fullName)}, the personal paper of ${fullName}`,
 };
