@@ -1,4 +1,4 @@
-import { capitalize, formatRange } from "~/lib/format";
+import { experienceLine } from "~/lib/fields";
 import type { Experience } from "~/lib/portfolio";
 import { Line, monthsBetween, Sub } from "./ReceiptParts";
 
@@ -13,24 +13,23 @@ export function Purchases({ experiences }: { experiences: Experience[] }) {
   return (
     <>
       <ol className="grid gap-5">
-        {experiences.map((experience) => (
-          <li key={experience.id}>
-            <h3 className="font-bold">
-              <Line
-                label={experience.role}
-                amount={experience.endDate ? `${monthsBetween(experience.startDate, experience.endDate)} mo` : "Open tab"}
-              />
-            </h3>
-            <Sub isFaded={false}>@ {experience.company}</Sub>
-            <Sub>
-              {[formatRange(experience.startDate, experience.endDate), experience.employmentType && capitalize(experience.employmentType), experience.location]
-                .filter(Boolean)
-                .join(", ")}
-            </Sub>
-            {experience.description && <Sub isFaded={false}>{experience.description}</Sub>}
-            {experience.skills.length > 0 && <Sub>+ {experience.skills.join(", ")}</Sub>}
-          </li>
-        ))}
+        {experiences.map((experience) => {
+          const line = experienceLine(experience);
+          return (
+            <li key={experience.id}>
+              <h3 className="font-bold">
+                <Line
+                  label={line.role}
+                  amount={experience.endDate ? `${monthsBetween(experience.startDate, experience.endDate)} mo` : "Open tab"}
+                />
+              </h3>
+              <Sub isFaded={false}>@ {line.company}</Sub>
+              <Sub>{line.meta}</Sub>
+              {line.description && <Sub isFaded={false}>{line.description}</Sub>}
+              {line.skills.length > 0 && <Sub>+ {line.skills.join(", ")}</Sub>}
+            </li>
+          );
+        })}
       </ol>
       <div className="mt-5 border-t-2 border-dashed border-rc-ink pt-3">
         <Line label="Subtotal" amount={`${closedMonths} mo${hasOpenTab ? " + open tab" : ""}`} isStrong />

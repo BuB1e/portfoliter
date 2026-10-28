@@ -8,11 +8,13 @@ import { ProfileCard } from "~/components/dating/ProfileCard";
 import { ProjectDeck } from "~/components/dating/ProjectDeck";
 import { PromptList } from "~/components/dating/PromptList";
 import { VerifiedList } from "~/components/dating/VerifiedList";
+import { SectionEntries } from "~/components/shared/SectionEntries";
 import { currentCompany } from "~/lib/experience";
+import { customSections } from "~/lib/fields";
 import { firstName } from "~/lib/format";
 import type { ProjectType } from "~/lib/portfolio";
 import { groupProjects, projectGroupId } from "~/lib/projects";
-import { getAwards, getPrompts } from "~/lib/sections";
+import { FEATURED_SECTION_KEYS, getAwards, getPrompts } from "~/lib/sections";
 import type { ThemePageProps } from "../types";
 
 export const FONTS_HREF =
@@ -65,9 +67,10 @@ export function DatingPage({ portfolio }: ThemePageProps) {
     );
   }
 
-  const { profile, experiences, projects, skills, education, certifications, sections } = portfolio;
+  const { profile, experiences, projects, skillGroups, education, certifications, sections } = portfolio;
   const prompts = getPrompts(sections);
   const awards = getAwards(sections);
+  const extras = customSections(sections, FEATURED_SECTION_KEYS);
   const ownerFirstName = firstName(profile.fullName);
 
   return (
@@ -78,20 +81,19 @@ export function DatingPage({ portfolio }: ThemePageProps) {
         <ProfileCard profile={profile} links={portfolio.links} currentCompany={currentCompany(experiences)} />
 
         <main>
-          {(profile.bio || prompts.length > 0) && (
+          {(profile.bio || prompts) && (
             <FeedSection id="about-title" title="About me" lede={profile.bio}>
-              <PromptList prompts={prompts} />
+              {prompts && (
+                <>
+                  <h3 className="mb-3 text-xl font-bold tracking-tight">{prompts.title}</h3>
+                  <PromptList prompts={prompts.prompts} />
+                </>
+              )}
             </FeedSection>
           )}
           {groupProjects(projects).map((group) => (
             <FeedSection key={group.type} id={projectGroupId(group.type)} title={DECKS[group.type].title} lede={DECKS[group.type].lede}>
-              <ProjectDeck
-                projects={group.projects}
-                experiences={experiences}
-                education={education}
-                ownerFirstName={ownerFirstName}
-                email={profile.email}
-              />
+              <ProjectDeck projects={group.projects} ownerFirstName={ownerFirstName} email={profile.email} />
             </FeedSection>
           ))}
           {experiences.length > 0 && (
@@ -99,9 +101,9 @@ export function DatingPage({ portfolio }: ThemePageProps) {
               <ExList experiences={experiences} />
             </FeedSection>
           )}
-          {skills.length > 0 && (
+          {skillGroups.length > 0 && (
             <FeedSection id="interests-title" title="Interests" lede="Things I will bring up on a first date whether you ask or not.">
-              <InterestList skills={skills} />
+              <InterestList groups={skillGroups} />
             </FeedSection>
           )}
           {education.length + certifications.length > 0 && (
@@ -114,6 +116,20 @@ export function DatingPage({ portfolio }: ThemePageProps) {
               <BragList awards={awards.awards} />
             </FeedSection>
           )}
+          {extras.map((section) => (
+            <FeedSection key={section.key} id={`section-${section.key}`} title={section.title} lede="More things worth knowing before a first date.">
+              <SectionEntries
+                entries={section.entries}
+                classNames={{
+                  list: "grid gap-3",
+                  item: "rounded-[18px] bg-night-raised px-5 py-4",
+                  title: "block text-lg font-bold",
+                  detail: "block text-sm opacity-75",
+                  link: "text-mint",
+                }}
+              />
+            </FeedSection>
+          ))}
         </main>
       </div>
     </>

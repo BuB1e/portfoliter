@@ -1,44 +1,26 @@
-import type { Section } from "./portfolio";
+import { findSection } from "./fields";
+import type { Section, SectionEntry } from "./portfolio";
 
-// Free-form sections store items as JSON; these readers keep only well-formed items.
-// Expected item shapes: prompts {question, answer}; awards {name, note}.
+// Section keys some designs give a look of their own. Every other section is rendered by the design's
+// generic renderer (customSections() in lib/fields.ts), so no section is ever dropped.
+export const PROMPTS_KEY = "prompts";
+export const AWARDS_KEY = "awards";
+export const FEATURED_SECTION_KEYS = [PROMPTS_KEY, AWARDS_KEY] as const;
 
-export interface Prompt {
-  question: string;
-  answer: string;
-}
-
-export interface Award {
-  name: string;
-  note: string;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
-}
-
-function findSection(sections: Section[], key: string): Section | undefined {
-  return sections.find((section) => section.key === key);
-}
-
-export function getPrompts(sections: Section[]): Prompt[] {
-  const items = findSection(sections, "prompts")?.items ?? [];
-  return items.flatMap((item) =>
-    isRecord(item) && typeof item.question === "string" && typeof item.answer === "string"
-      ? [{ question: item.question, answer: item.answer }]
-      : [],
-  );
-}
-
-export function getAwards(sections: Section[]): { title: string; awards: Award[] } | null {
-  const section = findSection(sections, "awards");
+// The prompts section ({question, answer} items) as question and answer pairs, read from its entries.
+export function getPrompts(sections: Section[]): { title: string; prompts: { question: string; answer: string }[] } | null {
+  const section = findSection(sections, PROMPTS_KEY);
   if (!section) {
     return null;
   }
-  const awards = section.items.flatMap((item) =>
-    isRecord(item) && typeof item.name === "string"
-      ? [{ name: item.name, note: typeof item.note === "string" ? item.note : "" }]
-      : [],
-  );
-  return { title: section.title, awards };
+  return {
+    title: section.title,
+    prompts: section.entries.map((entry) => ({ question: entry.title, answer: entry.detail ?? "" })),
+  };
+}
+
+// The awards section ({name, note} items, any extra keys folded into the detail).
+export function getAwards(sections: Section[]): { title: string; awards: SectionEntry[] } | null {
+  const section = findSection(sections, AWARDS_KEY);
+  return section ? { title: section.title, awards: section.entries } : null;
 }

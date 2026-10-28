@@ -2,11 +2,10 @@ import { CharacterSheet, QuestMenu } from "~/components/quest-log/CharacterSheet
 import { Entries, KeyItems, QuestLog, Stats, Training } from "~/components/quest-log/Ledger";
 import { QuestBoard } from "~/components/quest-log/QuestBoard";
 import { QuestWindow } from "~/components/quest-log/QuestWindow";
+import { customSections } from "~/lib/fields";
 import { firstName, platformName } from "~/lib/format";
 import type { ProjectType } from "~/lib/portfolio";
 import { groupProjects, projectGroupId } from "~/lib/projects";
-import { customSections } from "~/lib/sectionItems";
-import { groupSkills } from "~/lib/skills";
 import type { ThemePageProps } from "../types";
 
 export const FONTS_HREF =
@@ -33,7 +32,7 @@ export function QuestLogPage({ portfolio }: ThemePageProps) {
     );
   }
 
-  const { profile, links, experiences, projects, skills, education, certifications, sections } = portfolio;
+  const { profile, links, experiences, projects, skillGroups, education, certifications, sections } = portfolio;
   const groups = groupProjects(projects);
   const extras = customSections(sections);
   const quests = [...projects, ...experiences];
@@ -42,7 +41,7 @@ export function QuestLogPage({ portfolio }: ThemePageProps) {
   const menu = [
     ...groups.map((group) => ({ href: `#${projectGroupId(group.type)}`, label: QUEST_TYPES[group.type].title })),
     ...(experiences.length > 0 ? [{ href: "#log-title", label: "Quest log" }] : []),
-    ...(skills.length > 0 ? [{ href: "#stats-title", label: "Stats" }] : []),
+    ...(skillGroups.length > 0 ? [{ href: "#stats-title", label: "Stats" }] : []),
     ...(education.length > 0 ? [{ href: "#training-title", label: "Training" }] : []),
     ...(certifications.length > 0 ? [{ href: "#items-title", label: "Key items" }] : []),
     ...extras.map((section) => ({ href: `#extra-${section.key}`, label: section.title })),
@@ -61,7 +60,7 @@ export function QuestLogPage({ portfolio }: ThemePageProps) {
         <main className="grid min-w-0 gap-8">
           {groups.map((group) => (
             <QuestWindow key={group.type} id={projectGroupId(group.type)} title={QUEST_TYPES[group.type].title} note={QUEST_TYPES[group.type].note}>
-              <QuestBoard projects={group.projects} experiences={experiences} education={education} />
+              <QuestBoard projects={group.projects} />
             </QuestWindow>
           ))}
           {experiences.length > 0 && (
@@ -69,9 +68,9 @@ export function QuestLogPage({ portfolio }: ThemePageProps) {
               <QuestLog experiences={experiences} />
             </QuestWindow>
           )}
-          {skills.length > 0 && (
+          {skillGroups.length > 0 && (
             <QuestWindow id="stats-title" title="Stats" note="Skills per category.">
-              <Stats groups={groupSkills(skills)} />
+              <Stats groups={skillGroups} />
             </QuestWindow>
           )}
           {education.length > 0 && (
@@ -86,7 +85,7 @@ export function QuestLogPage({ portfolio }: ThemePageProps) {
           )}
           {extras.map((section) => (
             <QuestWindow key={section.key} id={`extra-${section.key}`} title={section.title}>
-              <Entries items={section.items} />
+              <Entries entries={section.entries} />
             </QuestWindow>
           ))}
 

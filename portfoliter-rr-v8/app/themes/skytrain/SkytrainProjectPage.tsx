@@ -2,10 +2,12 @@ import type { ReactNode } from "react";
 import { Link } from "react-router";
 
 import { Markdown, markdownBase } from "~/components/Markdown";
-import { interchange, PROJECT_LINES, stationCode } from "~/components/skytrain/ProjectLine";
+import { Cover } from "~/components/shared/Cover";
+import { EXPRESS_LABEL, PROJECT_LINES, stationCode } from "~/components/skytrain/ProjectLine";
+import { linkedLine, linkedName } from "~/lib/fields";
 import { formatMonth } from "~/lib/format";
 import type { ProjectType } from "~/lib/portfolio";
-import { educationLabel, experienceLabel, positionInGroup, projectGroupHref } from "~/lib/projects";
+import { positionInGroup, projectGroupHref } from "~/lib/projects";
 import type { ThemeProjectPageProps } from "../types";
 import { FONTS_HREF } from "./SkytrainPage";
 
@@ -52,7 +54,8 @@ export function SkytrainProjectPage({ portfolio, project }: ThemeProjectPageProp
 
   const line = PROJECT_LINES[project.projectType];
   const code = stationCode(project.projectType, Math.max(1, positionInGroup(project, portfolio?.projects ?? [])));
-  const connection = interchange(project.experience, project.education);
+  const connection = linkedName(project);
+  const connectingLine = linkedLine(project);
   const isRunning = !project.endDate;
 
   return (
@@ -71,6 +74,7 @@ export function SkytrainProjectPage({ portfolio, project }: ThemeProjectPageProp
           <div className="mt-10 flex flex-wrap items-center gap-3 text-[0.95rem] font-semibold">
             <span className={`grid size-12 place-items-center rounded-full bg-white font-sky-sign text-lg font-bold ${line.roundel}`}>{code}</span>
             <span>{line.name}</span>
+            {project.isFeatured && <span className="rounded-md bg-sky-yellow px-2.5 py-0.5 text-sky-ink">{EXPRESS_LABEL}</span>}
           </div>
           <p className="mt-6 text-lg opacity-80">This station</p>
           <h1 className="font-sky-sign text-[clamp(2.8rem,9vw,6rem)] leading-[0.9] font-bold tracking-[-0.01em] break-words">{project.title}</h1>
@@ -90,9 +94,7 @@ export function SkytrainProjectPage({ portfolio, project }: ThemeProjectPageProp
             Platform information
           </h2>
           <p className="mt-2 mb-8 text-sky-muted">Everything about this stop, in order of travel.</p>
-          {project.coverUrl && (
-            <img src={project.coverUrl} alt={`Cover image of ${project.title}`} className="mb-8 w-full rounded-2xl" />
-          )}
+          <Cover url={project.coverUrl} title={project.title} className="mb-8 w-full rounded-2xl" isLazy={false} />
           {project.content ? (
             <Markdown className={markdownClass}>{project.content}</Markdown>
           ) : (
@@ -116,16 +118,20 @@ export function SkytrainProjectPage({ portfolio, project }: ThemeProjectPageProp
         <aside className="grid content-start gap-4">
           <InfoPanel title="Timetable">
             <dl className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1">
-              <dt className="font-semibold">Opened</dt>
-              <dd>{project.startDate ? formatMonth(project.startDate) : "Not on the timetable"}</dd>
+              {project.startDate && (
+                <>
+                  <dt className="font-semibold">Opened</dt>
+                  <dd>{formatMonth(project.startDate)}</dd>
+                </>
+              )}
               <dt className="font-semibold">Service</dt>
               <dd>{isRunning ? "Running" : `Last train ${formatMonth(project.endDate)}`}</dd>
             </dl>
           </InfoPanel>
-          {(project.experience || project.education) && (
+          {connectingLine && (
             <InfoPanel title="Connecting line">
-              {project.experience && <p>{experienceLabel(project.experience)}</p>}
-              {project.education && <p>{educationLabel(project.education)}</p>}
+              <p>{connectingLine.title}</p>
+              {connectingLine.dates && <p className="text-sky-muted">{connectingLine.dates}</p>}
             </InfoPanel>
           )}
           {(project.demoUrl || project.repoUrl) && (

@@ -1,4 +1,6 @@
-// Mirrors the JSON from the Go API's GET /v1/portfolio. Dates are "YYYY-MM-DD".
+// Mirrors the Go API's normalized portfolio view (docs/portfolio-view.md). Dates are "YYYY-MM-DD".
+// Optional fields are null when unset (never ""); required text is a string, "" when empty; lists are
+// never null. Designs render this shape and do not re-derive grouping or links.
 
 export type ProjectType = "WORK" | "PERSONAL" | "UNIVERSITY";
 
@@ -17,6 +19,8 @@ export interface Link {
   url: string;
 }
 
+// employmentType is free text as the owner wrote it ("full-time", "internship", ...); label it with
+// employmentTypeLabel() from lib/labels.ts.
 export interface Experience {
   id: number;
   company: string;
@@ -29,8 +33,20 @@ export interface Experience {
   skills: string[];
 }
 
+export interface Education {
+  id: number;
+  institution: string;
+  degree: string | null;
+  field: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  description: string;
+}
+
 // summary is the card's short description; content is markdown for the project page.
-// experienceId (WORK) and educationId (UNIVERSITY) are null when unset or when the linked row is a draft.
+// experience (WORK) and education (UNIVERSITY) are the published rows the project links to, embedded
+// by the backend; they and their ids are null when unset or when the linked row is a draft.
+// GET /v1/projects/:slug returns this same shape.
 export interface Project {
   id: number;
   slug: string;
@@ -47,6 +63,8 @@ export interface Project {
   endDate: string | null;
   isFeatured: boolean;
   skills: string[];
+  experience: Experience | null;
+  education: Education | null;
 }
 
 export interface Skill {
@@ -54,36 +72,38 @@ export interface Skill {
   category: string | null;
 }
 
-export interface Education {
-  id: number;
-  institution: string;
-  degree: string | null;
-  field: string | null;
-  startDate: string | null;
-  endDate: string | null;
-  description: string;
-}
-
-// GET /v1/projects/:slug: one published project with the published rows it links to.
-export interface ProjectDetail extends Project {
-  experience: Experience | null;
-  education: Education | null;
+// Skills of one category, in catalog order. Uncategorized skills are the last group, key "other" and
+// category null; skillGroupLabel() in lib/labels.ts gives every group its heading.
+export interface SkillGroup {
+  key: string;
+  category: string | null;
+  skills: string[];
 }
 
 export interface Certification {
+  id: number;
   name: string;
   issuer: string;
   issuedDate: string | null;
   credentialUrl: string | null;
 }
 
+// One item of a free-form section, read by the backend into a generic shape. url is http(s) only.
+export interface SectionEntry {
+  title: string;
+  detail: string | null;
+  url: string | null;
+}
+
+// items is the raw JSON as stored; render entries.
 export interface Section {
   key: string;
   title: string;
   items: unknown[];
+  entries: SectionEntry[];
 }
 
-export interface Portfolio {
+export interface PortfolioView {
   // Active design key from set_theme; "" until one is set. See lib/theme.ts.
   theme: string;
   profile: Profile;
@@ -91,6 +111,7 @@ export interface Portfolio {
   experiences: Experience[];
   projects: Project[];
   skills: Skill[];
+  skillGroups: SkillGroup[];
   education: Education[];
   certifications: Certification[];
   sections: Section[];

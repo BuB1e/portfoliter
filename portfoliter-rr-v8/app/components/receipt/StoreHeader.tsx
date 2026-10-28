@@ -1,4 +1,5 @@
-import { firstName, initials, platformName } from "~/lib/format";
+import { Avatar } from "~/components/shared/Avatar";
+import { firstName, platformName } from "~/lib/format";
 import type { Link, Profile } from "~/lib/portfolio";
 import { Line } from "./ReceiptParts";
 
@@ -12,17 +13,12 @@ interface StoreHeaderProps {
 export function StoreHeader({ profile, links, sinceYear }: StoreHeaderProps) {
   return (
     <header className="text-center">
-      {profile.avatarUrl ? (
-        <img
-          src={profile.avatarUrl}
-          alt={`Photo of ${profile.fullName}`}
-          className="rc-thermal mx-auto size-24 border-2 border-rc-ink object-cover"
-        />
-      ) : (
-        <div aria-hidden="true" className="mx-auto grid size-24 place-items-center border-2 border-rc-ink text-3xl font-extrabold font-stretch-[112.5%]">
-          {initials(profile.fullName)}
-        </div>
-      )}
+      <Avatar
+        url={profile.avatarUrl}
+        name={profile.fullName}
+        className="rc-thermal mx-auto block size-24 border-2 border-rc-ink object-cover"
+        fallbackClassName="mx-auto grid size-24 place-items-center border-2 border-rc-ink text-3xl font-extrabold font-stretch-[112.5%]"
+      />
       <h1 className="mt-5 text-[clamp(1.55rem,6.4vw,2.5rem)] leading-[1.1] font-extrabold break-words uppercase font-stretch-[112.5%]">
         {profile.fullName}
       </h1>

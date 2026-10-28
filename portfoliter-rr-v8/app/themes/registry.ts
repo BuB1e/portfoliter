@@ -1,7 +1,6 @@
 import type { ComponentType } from "react";
 
 import { paperName } from "~/components/broadsheet/Masthead";
-import { DefaultProjectPage } from "~/components/DefaultProjectPage";
 import type { ThemeKey } from "~/lib/theme";
 import { BroadsheetPage } from "./broadsheet/BroadsheetPage";
 import { BroadsheetProjectPage } from "./broadsheet/BroadsheetProjectPage";
@@ -12,6 +11,7 @@ import { FieldGuideProjectPage } from "./field-guide/FieldGuideProjectPage";
 import { ParcelPage } from "./parcel/ParcelPage";
 import { ParcelProjectPage } from "./parcel/ParcelProjectPage";
 import { PlainPage } from "./plain/PlainPage";
+import { PlainProjectPage } from "./plain/PlainProjectPage";
 import { QuestLogPage } from "./quest-log/QuestLogPage";
 import { QuestLogProjectPage } from "./quest-log/QuestLogProjectPage";
 import { ReceiptPage } from "./receipt/ReceiptPage";
@@ -42,7 +42,7 @@ export const themePages: Record<ThemeKey, ComponentType<ThemePageProps>> = {
 
 // /projects/:slug in each design; the Record type makes a new theme fail typecheck until it has one.
 export const themeProjectPages: Record<ThemeKey, ComponentType<ThemeProjectPageProps>> = {
-  plain: DefaultProjectPage,
+  plain: PlainProjectPage,
   dating: DatingProjectPage,
   "field-guide": FieldGuideProjectPage,
   parcel: ParcelProjectPage,

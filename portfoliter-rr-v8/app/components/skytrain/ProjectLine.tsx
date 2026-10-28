@@ -1,8 +1,10 @@
 import { useId } from "react";
 import { Link } from "react-router";
 
-import type { Education, Experience, Project, ProjectType } from "~/lib/portfolio";
-import { findEducation, findExperience, projectDates, projectPath, shortDescription } from "~/lib/projects";
+import { Cover } from "~/components/shared/Cover";
+import { linkedName } from "~/lib/fields";
+import type { Project, ProjectType } from "~/lib/portfolio";
+import { projectDates, projectPath, shortDescription } from "~/lib/projects";
 
 interface LineStyle {
   title: string;
@@ -46,22 +48,21 @@ export function stationCode(type: ProjectType, position: number): string {
   return `${PROJECT_LINES[type].code}${position}`;
 }
 
-// The other line a project connects to: the job or the school it belongs to.
-export function interchange(experience: Experience | null, education: Education | null): string | null {
-  return experience?.company ?? education?.institution ?? null;
-}
+// A featured project runs as an express; the rest stop at all stations.
+export const EXPRESS_LABEL = "Express service";
 
 interface StationCardProps {
   project: Project;
   code: string;
-  interchangeWith: string | null;
 }
 
-function StationCard({ project, code, interchangeWith }: StationCardProps) {
+function StationCard({ project, code }: StationCardProps) {
   const titleId = useId();
   const descriptionId = useId();
   const line = PROJECT_LINES[project.projectType];
   const dates = projectDates(project);
+  // The other line a project connects to: the job or the school it belongs to.
+  const interchangeWith = linkedName(project);
   return (
     <Link
       to={projectPath(project.slug)}
@@ -71,8 +72,9 @@ function StationCard({ project, code, interchangeWith }: StationCardProps) {
     >
       <div className={`flex items-center gap-3 px-5 py-3 ${line.band}`}>
         <span className={`grid size-9 place-items-center rounded-full bg-white font-sky-sign text-sm font-bold ${line.roundel}`}>{code}</span>
-        <span className="font-semibold">{project.isFeatured ? "Express service" : "All stations"}</span>
+        <span className="font-semibold">{project.isFeatured ? EXPRESS_LABEL : "All stations"}</span>
       </div>
+      <Cover url={project.coverUrl} title={project.title} className="aspect-video w-full object-cover" />
       <div className="flex flex-1 flex-col px-5 pt-4 pb-5">
         <h3 id={titleId} className="font-sky-sign text-[1.7rem] leading-none font-bold group-hover:underline">
           {project.title}
@@ -98,23 +100,13 @@ function StationCard({ project, code, interchangeWith }: StationCardProps) {
   );
 }
 
-interface ProjectLineProps {
-  projects: Project[];
-  experiences: Experience[];
-  education: Education[];
-}
-
 // Station codes count along the line in API order: G1, G2, ...
-export function ProjectLine({ projects, experiences, education }: ProjectLineProps) {
+export function ProjectLine({ projects }: { projects: Project[] }) {
   return (
     <ul className="grid gap-5 sm:grid-cols-2">
       {projects.map((project, index) => (
         <li key={project.id}>
-          <StationCard
-            project={project}
-            code={stationCode(project.projectType, index + 1)}
-            interchangeWith={interchange(findExperience(project, experiences), findEducation(project, education))}
-          />
+          <StationCard project={project} code={stationCode(project.projectType, index + 1)} />
         </li>
       ))}
     </ul>

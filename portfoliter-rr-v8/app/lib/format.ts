@@ -1,9 +1,14 @@
+import { capitalize, LABELS } from "./labels";
+
+export { capitalize };
+
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 // Formats "YYYY-MM-DD" by hand so server and client render identical text (no locale drift on hydration).
+// A missing date is the open end of a range: "now".
 export function formatMonth(date: string | null): string {
   if (!date) {
-    return "now";
+    return LABELS.present;
   }
   const [year, month] = date.split("-");
   return `${MONTHS[Number(month) - 1]} ${year}`;
@@ -14,10 +19,6 @@ export function formatRange(start: string | null, end: string | null): string {
     return end ? formatMonth(end) : "";
   }
   return `${formatMonth(start)} to ${formatMonth(end)}`;
-}
-
-export function capitalize(text: string): string {
-  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 const PLATFORM_NAMES: Record<string, string> = {

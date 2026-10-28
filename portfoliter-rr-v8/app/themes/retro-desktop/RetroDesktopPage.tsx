@@ -3,11 +3,11 @@ import { AppIcon, DesktopIcon, DocIcon, FolderIcon } from "~/components/retro-de
 import { CareerLog, Certificates, Diplomas, ExtraList, InstalledSkills, Pane } from "~/components/retro-desktop/Panes";
 import { Taskbar } from "~/components/retro-desktop/Taskbar";
 import { Window } from "~/components/retro-desktop/Window";
+import { Avatar } from "~/components/shared/Avatar";
+import { customSections } from "~/lib/fields";
 import { initials, platformName } from "~/lib/format";
 import type { ProjectType } from "~/lib/portfolio";
 import { groupProjects, projectGroupId } from "~/lib/projects";
-import { customSections } from "~/lib/sectionItems";
-import { groupSkills } from "~/lib/skills";
 import type { ThemePageProps } from "../types";
 
 export const FONTS_HREF =
@@ -35,7 +35,7 @@ export function RetroDesktopPage({ portfolio }: ThemePageProps) {
     );
   }
 
-  const { profile, links, experiences, projects, skills, education, certifications, sections } = portfolio;
+  const { profile, links, experiences, projects, skills, skillGroups, education, certifications, sections } = portfolio;
   const groups = groupProjects(projects);
   const extras = customSections(sections);
 
@@ -68,13 +68,12 @@ export function RetroDesktopPage({ portfolio }: ThemePageProps) {
           <Window id="about-title" title={`About ${profile.fullName}`} icon={<AppIcon letter={initials(profile.fullName).charAt(0)} size="small" />}>
             <div className="grid gap-4 sm:grid-cols-[8rem_1fr]">
               <div className="rd-sunken size-32 bg-white p-[3px]">
-                {profile.avatarUrl ? (
-                  <img src={profile.avatarUrl} alt={`Photo of ${profile.fullName}`} className="size-full object-cover" />
-                ) : (
-                  <div aria-hidden="true" className="grid size-full place-items-center bg-rd-title font-rd-pixel text-4xl text-white">
-                    {initials(profile.fullName)}
-                  </div>
-                )}
+                <Avatar
+                  url={profile.avatarUrl}
+                  name={profile.fullName}
+                  className="size-full object-cover"
+                  fallbackClassName="grid size-full place-items-center bg-rd-title font-rd-pixel text-4xl text-white"
+                />
               </div>
               <div className="min-w-0">
                 <h1 className="text-[clamp(1.8rem,5vw,2.8rem)] leading-[1.05] font-bold break-words">{profile.fullName}</h1>
@@ -116,7 +115,7 @@ export function RetroDesktopPage({ portfolio }: ThemePageProps) {
               icon={<FolderIcon size="small" />}
               status={[`${group.projects.length} object(s)`, `Projects/${FOLDERS[group.type].split(" ")[0]}`]}
             >
-              <FileTiles projects={group.projects} experiences={experiences} education={education} />
+              <FileTiles projects={group.projects} />
             </Window>
           ))}
           {experiences.length > 0 && (
@@ -126,7 +125,7 @@ export function RetroDesktopPage({ portfolio }: ThemePageProps) {
           )}
           {skills.length > 0 && (
             <Window id="skills-title" title="Installed skills" icon={<AppIcon letter="S" size="small" />} status={[`${skills.length} skills installed`]}>
-              <InstalledSkills groups={groupSkills(skills)} />
+              <InstalledSkills groups={skillGroups} />
             </Window>
           )}
           {education.length > 0 && (
@@ -141,7 +140,7 @@ export function RetroDesktopPage({ portfolio }: ThemePageProps) {
           )}
           {extras.map((section) => (
             <Window key={section.key} id={`extra-${section.key}`} title={section.title} icon={<FolderIcon size="small" />}>
-              <ExtraList items={section.items} />
+              <ExtraList entries={section.entries} />
             </Window>
           ))}
         </main>

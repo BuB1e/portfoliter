@@ -4,12 +4,12 @@ import { ServiceList } from "~/components/status-page/ServiceList";
 import { SkillComponents } from "~/components/status-page/SkillComponents";
 import { StatusCard } from "~/components/status-page/StatusCard";
 import { StatusHeader } from "~/components/status-page/StatusHeader";
+import { SectionEntries } from "~/components/shared/SectionEntries";
 import { currentCompany } from "~/lib/experience";
-import { capitalize } from "~/lib/format";
-import type { ProjectType } from "~/lib/portfolio";
+import { customSections } from "~/lib/fields";
+import { platformName } from "~/lib/format";
+import type { ProjectType, Skill } from "~/lib/portfolio";
 import { groupProjects, projectGroupId } from "~/lib/projects";
-import { getAwards } from "~/lib/sections";
-import { groupSkills } from "~/lib/skills";
 import type { ThemePageProps } from "../types";
 
 export const SERVICE_GROUPS: Record<ProjectType, { title: string; aside: string }> = {
@@ -19,6 +19,12 @@ export const SERVICE_GROUPS: Record<ProjectType, { title: string; aside: string 
 };
 
 export const FONTS_HREF = "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap";
+
+// "Powered by Go, PostgreSQL and coffee": the owner's first two skills, from the data.
+function poweredBy(skills: Skill[]): string {
+  const names = skills.slice(0, 2).map((skill) => skill.name);
+  return names.length > 0 ? `Powered by ${names.join(", ")} and coffee` : "Powered by coffee";
+}
 
 export function StatusPage({ portfolio }: ThemePageProps) {
   const fonts = <link rel="stylesheet" href={FONTS_HREF} precedence="default" />;
@@ -33,8 +39,7 @@ export function StatusPage({ portfolio }: ThemePageProps) {
     );
   }
 
-  const { profile, experiences, projects, skills, education, certifications, sections } = portfolio;
-  const awards = getAwards(sections);
+  const { profile, experiences, projects, skills, skillGroups, education, certifications, sections } = portfolio;
 
   return (
     <div className="mx-auto max-w-[860px] px-5 pb-16">
@@ -50,14 +55,14 @@ export function StatusPage({ portfolio }: ThemePageProps) {
             </div>
           </StatusCard>
         )}
-        {skills.length > 0 && (
+        {skillGroups.length > 0 && (
           <StatusCard id="components-title" title="Components" aside="Uptime over the past 90 days">
-            <SkillComponents groups={groupSkills(skills)} />
+            <SkillComponents groups={skillGroups} />
           </StatusCard>
         )}
         {groupProjects(projects).map((group) => (
           <StatusCard key={group.type} id={projectGroupId(group.type)} title={SERVICE_GROUPS[group.type].title} aside={SERVICE_GROUPS[group.type].aside}>
-            <ServiceList projects={group.projects} experiences={experiences} education={education} />
+            <ServiceList projects={group.projects} />
           </StatusCard>
         ))}
         {experiences.length > 0 && (
@@ -70,27 +75,30 @@ export function StatusPage({ portfolio }: ThemePageProps) {
             <Compliance education={education} certifications={certifications} />
           </StatusCard>
         )}
-        {awards && awards.awards.length > 0 && (
-          <StatusCard id="kudos-title" title={awards.title}>
-            <ul className="divide-y divide-st-line">
-              {awards.awards.map((award) => (
-                <li key={award.name} className="flex flex-wrap justify-between gap-x-6 gap-y-1 px-5 py-4">
-                  <span className="font-medium">{award.name}</span>
-                  {award.note && <span className="text-st-muted">{award.note}</span>}
-                </li>
-              ))}
-            </ul>
+        {/* Every free-form section (prompts, awards, talks, ...) as a plain list card. */}
+        {customSections(sections).map((section) => (
+          <StatusCard key={section.key} id={`section-${section.key}`} title={section.title}>
+            <SectionEntries
+              entries={section.entries}
+              classNames={{
+                list: "divide-y divide-st-line",
+                item: "flex flex-wrap justify-between gap-x-6 gap-y-1 px-5 py-4",
+                title: "font-medium",
+                detail: "text-st-muted",
+                link: "text-st-info",
+              }}
+            />
           </StatusCard>
-        )}
+        ))}
       </main>
 
       <footer className="mt-12 flex flex-wrap items-center justify-between gap-4 border-t border-st-line pt-6 text-sm text-st-muted">
-        <span>Powered by Go, PostgreSQL and coffee</span>
+        <span>{poweredBy(skills)}</span>
         <nav aria-label="Contact" className="flex flex-wrap gap-4 font-medium">
           {profile.email && <a href={`mailto:${profile.email}`} className="text-st-info">Report an issue</a>}
           {portfolio.links.map((link) => (
             <a key={link.url} href={link.url} className="text-st-info">
-              {capitalize(link.platform)}
+              {platformName(link.platform)}
             </a>
           ))}
           {profile.resumeUrl && <a href={profile.resumeUrl} className="text-st-info">Runbook (PDF)</a>}

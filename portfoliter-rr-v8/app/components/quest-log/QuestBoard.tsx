@@ -1,36 +1,43 @@
 import { useId } from "react";
 import { Link } from "react-router";
 
-import type { Education, Experience, Project } from "~/lib/portfolio";
-import { findEducation, findExperience, projectDates, projectPath, shortDescription } from "~/lib/projects";
+import { Cover } from "~/components/shared/Cover";
+import type { Project } from "~/lib/portfolio";
+import { projectDates, projectPath, shortDescription } from "~/lib/projects";
 import { Cursor, QuestStatus } from "./QuestWindow";
 
-// Who handed out the quest: the company or the school, or the owner for side projects.
-export function questGiver(experience: Experience | null, education: Education | null): string {
-  if (experience) {
-    return `${experience.company} (${experience.role})`;
+// Who handed out the quest: the company (with the role taken on) or the school the backend embeds,
+// or the owner for side projects.
+export function questGiver(project: Pick<Project, "experience" | "education">): string {
+  if (project.experience) {
+    return `${project.experience.company} (${project.experience.role})`;
   }
-  return education ? education.institution : "Self-assigned";
+  return project.education ? project.education.institution : "Self-assigned";
 }
 
 // The quest's map: its cover picture, or a pixel crest with the quest's initial when it has none.
 export function QuestArt({ project, className = "" }: { project: Project; className?: string }) {
-  if (project.coverUrl) {
-    return <img src={project.coverUrl} alt={`Cover of ${project.title}`} className={`w-full object-cover ${className}`} loading="lazy" />;
-  }
   return (
-    <div
-      aria-hidden="true"
-      className={`grid w-full place-items-center bg-[repeating-conic-gradient(var(--color-ql-window-bottom)_0_25%,var(--color-ql-edge)_0_50%)] bg-[length:16px_16px] ${className}`}
-    >
-      <span className="grid size-16 place-items-center border-[3px] border-ql-gold bg-ql-edge text-4xl font-bold text-ql-gold">
-        {project.title.charAt(0)}
-      </span>
-    </div>
+    <Cover
+      url={project.coverUrl}
+      title={project.title}
+      className={`w-full object-cover ${className}`}
+      fallback={
+        <div
+          aria-hidden="true"
+          className={`grid w-full place-items-center bg-[repeating-conic-gradient(var(--color-ql-window-bottom)_0_25%,var(--color-ql-edge)_0_50%)] bg-[length:16px_16px] ${className}`}
+        >
+          <span className="grid size-16 place-items-center border-[3px] border-ql-gold bg-ql-edge text-4xl font-bold text-ql-gold">
+            {project.title.charAt(0)}
+          </span>
+        </div>
+      }
+    />
   );
 }
 
-function QuestCard({ project, giver }: { project: Project; giver: string }) {
+function QuestCard({ project }: { project: Project }) {
+  const giver = questGiver(project);
   const epicId = useId();
   const titleId = useId();
   const descriptionId = useId();
@@ -79,18 +86,12 @@ function QuestCard({ project, giver }: { project: Project; giver: string }) {
   );
 }
 
-interface QuestBoardProps {
-  projects: Project[];
-  experiences: Experience[];
-  education: Education[];
-}
-
-export function QuestBoard({ projects, experiences, education }: QuestBoardProps) {
+export function QuestBoard({ projects }: { projects: Project[] }) {
   return (
     <ul className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
       {projects.map((project) => (
         <li key={project.id}>
-          <QuestCard project={project} giver={questGiver(findExperience(project, experiences), findEducation(project, education))} />
+          <QuestCard project={project} />
         </li>
       ))}
     </ul>

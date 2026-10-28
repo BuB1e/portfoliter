@@ -1,4 +1,4 @@
-import type { Portfolio, ProjectDetail } from "./portfolio";
+import type { PortfolioView, Project } from "./portfolio";
 
 function requireEnv(name: string): string {
   const value = process.env[name];
@@ -24,11 +24,11 @@ async function getOrNull<T>(path: string, signal: AbortSignal): Promise<T | null
 }
 
 // Returns null when the profile has not been created yet.
-export function fetchPortfolio(signal: AbortSignal): Promise<Portfolio | null> {
-  return getOrNull<Portfolio>("/v1/portfolio", signal);
+export function fetchPortfolio(signal: AbortSignal): Promise<PortfolioView | null> {
+  return getOrNull<PortfolioView>("/v1/portfolio", signal);
 }
 
 // Returns null for unknown slugs and drafts.
-export function fetchProject(slug: string, signal: AbortSignal): Promise<ProjectDetail | null> {
-  return getOrNull<ProjectDetail>(`/v1/projects/${encodeURIComponent(slug)}`, signal);
+export function fetchProject(slug: string, signal: AbortSignal): Promise<Project | null> {
+  return getOrNull<Project>(`/v1/projects/${encodeURIComponent(slug)}`, signal);
 }

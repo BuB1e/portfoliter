@@ -1,9 +1,16 @@
+import { Avatar } from "~/components/shared/Avatar";
 import type { Profile } from "~/lib/portfolio";
 import { EngineerFigure } from "./EngineerFigure";
 
 interface SpecimenPlateProps {
   profile: Profile;
   currentCompany: string | null;
+}
+
+// The species name, Latinised from the owner's home town: "Porto, Portugal" -> "Programmator portoensis".
+export function speciesName(location: string | null): string {
+  const town = (location ?? "").split(",")[0].toLowerCase().replace(/[^a-z]/g, "");
+  return town ? `Programmator ${town}ensis` : "Programmator vulgaris";
 }
 
 export function SpecimenPlate({ profile, currentCompany }: SpecimenPlateProps) {
@@ -22,7 +29,7 @@ export function SpecimenPlate({ profile, currentCompany }: SpecimenPlateProps) {
           {profile.fullName}
         </h1>
         <p className="mt-2.5 mb-6 font-fg-serif text-[clamp(1.4rem,2.6vw,2rem)] leading-tight text-fg-moss italic">
-          Programmator bangkokensis
+          {speciesName(profile.location)}
         </p>
         <p className="mb-8 max-w-[40ch] font-fg-serif text-xl leading-normal">{profile.headline}</p>
         <dl className="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-2">
@@ -35,11 +42,8 @@ export function SpecimenPlate({ profile, currentCompany }: SpecimenPlateProps) {
         </dl>
       </div>
       <figure className="border-[1.5px] border-fg-pine bg-fg-paper p-4">
-        {profile.avatarUrl ? (
-          <img src={profile.avatarUrl} alt={`Photo of ${profile.fullName}`} className="block w-full" />
-        ) : (
-          <EngineerFigure />
-        )}
+        {/* No photo: the guide's drawing of the species stands in. */}
+        {profile.avatarUrl ? <Avatar url={profile.avatarUrl} name={profile.fullName} className="block w-full" /> : <EngineerFigure />}
         <figcaption className="mt-2.5 text-center font-fg-serif text-[0.95rem] leading-snug italic">
           Adult in typical working posture. Observed between 10 a.m. and late.
         </figcaption>

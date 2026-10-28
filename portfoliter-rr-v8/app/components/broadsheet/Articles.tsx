@@ -1,33 +1,42 @@
 import { useId } from "react";
 import { Link } from "react-router";
 
-import type { Education, Experience, Project } from "~/lib/portfolio";
-import { findEducation, findExperience, projectDates, projectPath, shortDescription } from "~/lib/projects";
+import { Cover } from "~/components/shared/Cover";
+import type { Project } from "~/lib/portfolio";
+import { projectDates, projectPath, shortDescription } from "~/lib/projects";
+
+export const EDITORS_PICK = "Editor's pick";
 
 // The kicker over a headline: the newsroom the story came from.
-export function storyDesk(project: Project, experience: Experience | null, education: Education | null): string {
-  if (experience) {
-    return `${experience.role}, ${experience.company}`;
+export function storyDesk(project: Project): string {
+  if (project.experience) {
+    return `${project.experience.role}, ${project.experience.company}`;
   }
-  if (education) {
-    return education.institution;
+  if (project.education) {
+    return project.education.institution;
   }
   return project.projectType === "PERSONAL" ? "Side project" : "";
 }
 
 // The story's photograph in one ink, or a halftone panel with the headline's initial when none was filed.
-export function StoryPhoto({ project, className = "" }: { project: Project; className?: string }) {
-  if (project.coverUrl) {
-    return <img src={project.coverUrl} alt={`Photograph for ${project.title}`} className={`bs-photo w-full object-cover ${className}`} loading="lazy" />;
-  }
+export function StoryPhoto({ project, className = "", isLazy = true }: { project: Project; className?: string; isLazy?: boolean }) {
   return (
-    <div aria-hidden="true" className={`bs-halftone grid w-full place-items-center font-bs-nameplate text-7xl ${className}`}>
-      {project.title.charAt(0)}
-    </div>
+    <Cover
+      url={project.coverUrl}
+      title={project.title}
+      className={`bs-photo w-full object-cover ${className}`}
+      isLazy={isLazy}
+      fallback={
+        <div aria-hidden="true" className={`bs-halftone grid w-full place-items-center font-bs-nameplate text-7xl ${className}`}>
+          {project.title.charAt(0)}
+        </div>
+      }
+    />
   );
 }
 
-function Story({ project, desk, isLead }: { project: Project; desk: string; isLead: boolean }) {
+function Story({ project, isLead }: { project: Project; isLead: boolean }) {
+  const desk = storyDesk(project);
   const pickId = useId();
   const titleId = useId();
   const descriptionId = useId();
@@ -44,7 +53,7 @@ function Story({ project, desk, isLead }: { project: Project; desk: string; isLe
         <p className="text-[0.92rem] text-bs-red italic">
           {project.isFeatured && (
             <span id={pickId} className="mr-2 font-semibold not-italic">
-              Editor&apos;s pick
+              {EDITORS_PICK}
             </span>
           )}
           {desk}
@@ -73,16 +82,10 @@ function Story({ project, desk, isLead }: { project: Project; desk: string; isLe
   );
 }
 
-interface ArticlesProps {
-  projects: Project[];
-  experiences: Experience[];
-  education: Education[];
-}
-
 // Stories in ruled columns; the first one leads across two columns on wide screens. The list starts
 // 1.25rem to the left inside a clipping box, so the first column's rule is cut off; the box keeps
 // 0.5rem of room on every side so focus outlines are not.
-export function Articles({ projects, experiences, education }: ArticlesProps) {
+export function Articles({ projects }: { projects: Project[] }) {
   return (
     <div className="-m-2 overflow-hidden p-2">
       <ul className="-mx-5 grid gap-y-10 md:grid-cols-2 lg:grid-cols-3">
@@ -90,11 +93,7 @@ export function Articles({ projects, experiences, education }: ArticlesProps) {
           const isLead = index === 0 && projects.length > 1;
           return (
             <li key={project.id} className={`min-w-0 border-l border-bs-rule px-5 ${isLead ? "md:col-span-2" : ""}`}>
-              <Story
-                project={project}
-                desk={storyDesk(project, findExperience(project, experiences), findEducation(project, education))}
-                isLead={isLead}
-              />
+              <Story project={project} isLead={isLead} />
             </li>
           );
         })}

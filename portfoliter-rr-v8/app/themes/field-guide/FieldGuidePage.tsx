@@ -7,10 +7,10 @@ import { SpecimenGrid } from "~/components/field-guide/SpecimenGrid";
 import { SpecimenPlate } from "~/components/field-guide/SpecimenPlate";
 import { Sightings } from "~/components/field-guide/Sightings";
 import { currentCompany } from "~/lib/experience";
+import { customSections } from "~/lib/fields";
 import type { ProjectType } from "~/lib/portfolio";
 import { groupProjects, projectGroupId } from "~/lib/projects";
-import { getAwards } from "~/lib/sections";
-import { groupSkills } from "~/lib/skills";
+import { AWARDS_KEY, getAwards } from "~/lib/sections";
 import type { ThemePageProps } from "../types";
 
 export const FONTS_HREF =
@@ -59,8 +59,10 @@ export function FieldGuidePage({ portfolio }: ThemePageProps) {
     );
   }
 
-  const { profile, experiences, projects, skills, education, certifications, sections } = portfolio;
+  const { profile, experiences, projects, skillGroups, education, certifications, sections } = portfolio;
   const awards = getAwards(sections);
+  // Awards get the guide's own heading; every other section is filed as further observations.
+  const extras = customSections(sections, [AWARDS_KEY]);
 
   return (
     <div className="mx-auto max-w-[1120px] px-5 pb-16">
@@ -71,7 +73,7 @@ export function FieldGuidePage({ portfolio }: ThemePageProps) {
       <main>
         {groupProjects(projects).map((group) => (
           <GuideSection key={group.type} id={projectGroupId(group.type)} title={SPECIMEN_GROUPS[group.type].title} intro={SPECIMEN_GROUPS[group.type].intro}>
-            <SpecimenGrid projects={group.projects} experiences={experiences} education={education} />
+            <SpecimenGrid projects={group.projects} />
           </GuideSection>
         ))}
         {experiences.length > 0 && (
@@ -79,9 +81,9 @@ export function FieldGuidePage({ portfolio }: ThemePageProps) {
             <MigrationRecord experiences={experiences} />
           </GuideSection>
         )}
-        {skills.length > 0 && (
+        {skillGroups.length > 0 && (
           <GuideSection id="diet-title" title="Diet" intro="Feeds mostly on statically typed languages. Will eat YAML when nothing else is available.">
-            <Diet groups={groupSkills(skills)} />
+            <Diet groups={skillGroups} />
           </GuideSection>
         )}
         {education.length + certifications.length > 0 && (
@@ -89,11 +91,16 @@ export function FieldGuidePage({ portfolio }: ThemePageProps) {
             <BandingRecords education={education} certifications={certifications} />
           </GuideSection>
         )}
-        {awards && awards.awards.length > 0 && (
+        {awards && (
           <GuideSection id="sightings-title" title="Notable sightings" intro={`${awards.title} reported by reliable observers, and one by the engineer.`}>
-            <Sightings awards={awards.awards} />
+            <Sightings entries={awards.awards} />
           </GuideSection>
         )}
+        {extras.map((section) => (
+          <GuideSection key={section.key} id={`section-${section.key}`} title={section.title} intro="Further observations, as recorded.">
+            <Sightings entries={section.entries} />
+          </GuideSection>
+        ))}
       </main>
 
       <ReportSighting profile={profile} links={portfolio.links} />

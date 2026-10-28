@@ -1,10 +1,11 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router";
 
-import { storyDesk, StoryPhoto } from "~/components/broadsheet/Articles";
+import { EDITORS_PICK, storyDesk, StoryPhoto } from "~/components/broadsheet/Articles";
 import { SlimMasthead } from "~/components/broadsheet/Masthead";
 import { Markdown, markdownBase } from "~/components/Markdown";
-import { educationLabel, experienceLabel, projectDates, projectGroupHref } from "~/lib/projects";
+import { linkedLine } from "~/lib/fields";
+import { projectDates, projectGroupHref } from "~/lib/projects";
 import type { ThemeProjectPageProps } from "../types";
 import { DESKS, FONTS_HREF } from "./BroadsheetPage";
 
@@ -49,7 +50,9 @@ export function BroadsheetProjectPage({ portfolio, project }: ThemeProjectPagePr
 
   const desk = DESKS[project.projectType];
   const dates = projectDates(project);
-  const filedFrom = storyDesk(project, project.experience, project.education);
+  const filedFrom = storyDesk(project);
+  const linked = linkedLine(project);
+  const linkedDescription = project.experience?.description || project.education?.description || null;
 
   return (
     <div className="mx-auto max-w-[1180px] px-4 pb-16 sm:px-6">
@@ -61,7 +64,7 @@ export function BroadsheetProjectPage({ portfolio, project }: ThemeProjectPagePr
           <header className="mx-auto max-w-[56rem] pt-10 text-center">
             <p className="text-bs-red italic">
               {desk.title}
-              {project.isFeatured && <span className="font-semibold not-italic">, Editor&apos;s pick</span>}
+              {project.isFeatured && <span className="font-semibold not-italic">, {EDITORS_PICK}</span>}
             </p>
             <h1 id="story-title" className="mt-2 text-[clamp(2.3rem,6.5vw,4.8rem)] leading-[1] font-bold tracking-[-0.02em] text-balance break-words">
               {project.title}
@@ -81,7 +84,7 @@ export function BroadsheetProjectPage({ portfolio, project }: ThemeProjectPagePr
           </header>
 
           <figure className="mx-auto mt-8 max-w-[56rem]">
-            <StoryPhoto project={project} className="aspect-[16/9]" />
+            <StoryPhoto project={project} className="aspect-[16/9]" isLazy={false} />
             <figcaption className="mt-2 border-b border-bs-rule pb-2 text-[0.88rem] text-bs-grey italic">
               {project.coverUrl ? project.title : "No photograph was filed with this story."}
             </figcaption>
@@ -107,16 +110,11 @@ export function BroadsheetProjectPage({ portfolio, project }: ThemeProjectPagePr
               </h2>
               <dl>
                 {dates && <Fact label="Dates">{dates}</Fact>}
-                {project.experience && (
-                  <Fact label="Built at">
-                    <span className="font-semibold">{experienceLabel(project.experience)}</span>
-                    {project.experience.description && <span className="mt-1 block text-[0.95rem] text-bs-grey">{project.experience.description}</span>}
-                  </Fact>
-                )}
-                {project.education && (
-                  <Fact label="Part of">
-                    <span className="font-semibold">{educationLabel(project.education)}</span>
-                    {project.education.description && <span className="mt-1 block text-[0.95rem] text-bs-grey">{project.education.description}</span>}
+                {linked && (
+                  <Fact label={linked.kind === "experience" ? "Built at" : "Part of"}>
+                    <span className="font-semibold">{linked.title}</span>
+                    {linked.dates && <span className="block text-[0.95rem] text-bs-grey italic">{linked.dates}</span>}
+                    {linkedDescription && <span className="mt-1 block text-[0.95rem] text-bs-grey">{linkedDescription}</span>}
                   </Fact>
                 )}
                 {project.skills.length > 0 && <Fact label="Filed under">{project.skills.join(", ")}</Fact>}

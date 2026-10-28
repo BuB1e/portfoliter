@@ -3,15 +3,17 @@ import { Link } from "react-router";
 
 import { Markdown, markdownBase } from "~/components/Markdown";
 import { ContentsTags } from "~/components/parcel/ContentsTags";
-import { boxCover, parcelOrigin } from "~/components/parcel/PackingList";
+import { boxPattern, FEATURED_LABEL, parcelOrigin } from "~/components/parcel/PackingList";
 import { Tape } from "~/components/parcel/Tape";
+import { linkedLine } from "~/lib/fields";
 import type { ProjectType } from "~/lib/portfolio";
-import { educationLabel, experienceLabel, projectDates, projectGroupHref } from "~/lib/projects";
+import { projectDates, projectGroupHref } from "~/lib/projects";
 import type { ThemeProjectPageProps } from "../types";
 import { FONTS_HREF, PACKING_GROUPS } from "./ParcelPage";
 
+// "Priority" is reserved for featured projects (FEATURED_LABEL), so the work stamp says "Insured".
 const STAMPS: Record<ProjectType, { word: string; note: string }> = {
-  WORK: { word: "Priority", note: "shipped to production" },
+  WORK: { word: "Insured", note: "shipped to production" },
   PERSONAL: { word: "Handmade", note: "packed after dinner" },
   UNIVERSITY: { word: "Graded", note: "inspected by a professor" },
 };
@@ -75,7 +77,8 @@ export function ParcelProjectPage({ portfolio, project }: ThemeProjectPageProps)
 
   const stamp = STAMPS[project.projectType];
   const dates = projectDates(project);
-  const origin = parcelOrigin(project, project.experience, project.education);
+  const origin = parcelOrigin(project);
+  const linked = linkedLine(project);
 
   return (
     <>
@@ -106,17 +109,25 @@ export function ParcelProjectPage({ portfolio, project }: ThemeProjectPageProps)
               {project.title}
             </h1>
             {project.summary && <p className="mt-4 max-w-[52ch] text-xl font-stretch-95%">{project.summary}</p>}
+            {project.isFeatured && (
+              <p className="mt-4 inline-block rotate-[-2deg] bg-parcel-tape px-3 py-2 font-parcel-stencil text-[1.1rem] leading-none font-black text-parcel-label">
+                {FEATURED_LABEL}
+              </p>
+            )}
             <Stamp stamp={stamp} />
           </div>
           <Field name="Packed" isLeft>
             {dates || "Date not stamped"}
           </Field>
-          <Field name={project.education ? "Course" : "Packed by"}>
-            {project.experience
-              ? experienceLabel(project.experience)
-              : project.education
-                ? educationLabel(project.education)
-                : (portfolio?.profile.fullName ?? "The owner")}
+          <Field name={linked?.kind === "education" ? "Course" : "Packed by"}>
+            {linked ? (
+              <>
+                {linked.title}
+                {linked.dates && <span className="block text-[0.9rem] font-semibold font-stretch-80%">{linked.dates}</span>}
+              </>
+            ) : (
+              (portfolio?.profile.fullName ?? "The owner")
+            )}
           </Field>
           {project.skills.length > 0 && (
             <div className="border-b-2 border-parcel-ink px-5 py-4 sm:col-span-2 sm:px-6">
@@ -149,7 +160,7 @@ export function ParcelProjectPage({ portfolio, project }: ThemeProjectPageProps)
               {project.coverUrl ? (
                 <img src={project.coverUrl} alt={`Photo of ${project.title}`} className="block w-full" />
               ) : (
-                <div aria-hidden="true" className="parcel-box-tape relative aspect-[4/3]" style={{ background: boxCover(project) }} />
+                <div aria-hidden="true" className="parcel-box-tape relative aspect-[4/3]" style={{ background: boxPattern(project) }} />
               )}
               <figcaption className="mt-2 text-center text-sm font-bold font-stretch-80%">
                 {project.coverUrl ? "Photo of the contents" : "No photo. The box is still taped shut."}

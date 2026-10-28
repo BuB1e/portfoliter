@@ -1,22 +1,22 @@
 import type { KeyboardEvent } from "react";
+import { Link } from "react-router";
 
 import { useSwipeDeck } from "~/hooks/useSwipeDeck";
-import type { Education, Experience, Project } from "~/lib/portfolio";
-import { findEducation, findExperience } from "~/lib/projects";
+import { linkedName } from "~/lib/fields";
+import type { Project } from "~/lib/portfolio";
+import { projectDates, projectPath, shortDescription } from "~/lib/projects";
 import { MatchDialog } from "./MatchDialog";
-import { metAt, SwipeCard } from "./SwipeCard";
+import { SwipeCard } from "./SwipeCard";
 
 const VISIBLE_CARDS = 3;
 
 interface ProjectDeckProps {
   projects: Project[];
-  experiences: Experience[];
-  education: Education[];
   ownerFirstName: string;
   email: string | null;
 }
 
-export function ProjectDeck({ projects, experiences, education, ownerFirstName, email }: ProjectDeckProps) {
+export function ProjectDeck({ projects, ownerFirstName, email }: ProjectDeckProps) {
   const { queue, exiting, match, swipe, restart, closeMatch } = useSwipeDeck(projects);
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -46,7 +46,6 @@ export function ProjectDeck({ projects, experiences, education, ownerFirstName, 
               <SwipeCard
                 key={project.id}
                 project={project}
-                origin={metAt(project, findExperience(project, experiences), findEducation(project, education))}
                 depth={depth}
                 exitDirection={exiting?.id === project.id ? exiting.direction : null}
                 onSwipe={swipe}
@@ -77,6 +76,28 @@ export function ProjectDeck({ projects, experiences, education, ownerFirstName, 
         </button>
       </div>
       <p className="text-center text-sm opacity-70">Drag to swipe, tap a card to see the whole project.</p>
+
+      {/* Only the top cards are dealt; the rest are listed so every project is on the page without swiping. */}
+      {projects.length > VISIBLE_CARDS && (
+        <div className="w-full max-w-[420px] border-t border-card/20 pt-4">
+          <p className="text-sm font-bold opacity-80">Further down the deck</p>
+          <ul className="mt-2 grid gap-3">
+            {projects.slice(VISIBLE_CARDS).map((project) => {
+              const facts = [linkedName(project), projectDates(project)].filter(Boolean).join(", ");
+              return (
+                <li key={project.id}>
+                  <Link to={projectPath(project.slug)} className="font-bold underline underline-offset-2">
+                    {project.title}
+                  </Link>
+                  {facts && <span className="text-sm opacity-75">, {facts}</span>}
+                  {project.summary && <p className="text-sm opacity-90">{shortDescription(project.summary)}</p>}
+                  {project.skills.length > 0 && <p className="text-sm opacity-75">{project.skills.join(", ")}</p>}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
 
       <MatchDialog project={match} ownerFirstName={ownerFirstName} email={email} onClose={closeMatch} />
     </div>

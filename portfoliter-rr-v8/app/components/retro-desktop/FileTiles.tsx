@@ -1,19 +1,20 @@
 import { useId } from "react";
 import { Link } from "react-router";
 
-import type { Education, Experience, Project } from "~/lib/portfolio";
-import { findEducation, findExperience, projectDates, projectPath, shortDescription } from "~/lib/projects";
+import type { Project } from "~/lib/portfolio";
+import { projectDates, projectPath, shortDescription } from "~/lib/projects";
 import { ProjectIcon } from "./Icons";
 
-// The "made at" line of a file: the job or the school, or nothing for side projects.
-export function fileOrigin(experience: Experience | null, education: Education | null): string {
-  if (experience) {
-    return `${experience.role}, ${experience.company}`;
+// The "made at" line of a file: the job or the school the backend embeds, or nothing for side projects.
+export function fileOrigin(project: Pick<Project, "experience" | "education">): string {
+  if (project.experience) {
+    return `${project.experience.role}, ${project.experience.company}`;
   }
-  return education ? education.institution : "";
+  return project.education ? project.education.institution : "";
 }
 
-function FileTile({ project, origin }: { project: Project; origin: string }) {
+function FileTile({ project }: { project: Project }) {
+  const origin = fileOrigin(project);
   const pinId = useId();
   const titleId = useId();
   const descriptionId = useId();
@@ -49,19 +50,13 @@ function FileTile({ project, origin }: { project: Project; origin: string }) {
   );
 }
 
-interface FileTilesProps {
-  projects: Project[];
-  experiences: Experience[];
-  education: Education[];
-}
-
 // A folder's contents in tiles view, inside the white sunken pane of the folder window.
-export function FileTiles({ projects, experiences, education }: FileTilesProps) {
+export function FileTiles({ projects }: { projects: Project[] }) {
   return (
     <ul className="rd-sunken grid gap-1 bg-white p-2 md:grid-cols-2 xl:grid-cols-3">
       {projects.map((project) => (
         <li key={project.id} className="min-w-0">
-          <FileTile project={project} origin={fileOrigin(findExperience(project, experiences), findEducation(project, education))} />
+          <FileTile project={project} />
         </li>
       ))}
     </ul>

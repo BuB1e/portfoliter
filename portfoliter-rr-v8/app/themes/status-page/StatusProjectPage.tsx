@@ -2,11 +2,13 @@ import type { ReactNode } from "react";
 import { Link } from "react-router";
 
 import { Markdown, markdownBase } from "~/components/Markdown";
-import { environment, serviceStatus } from "~/components/status-page/ServiceList";
+import { Cover } from "~/components/shared/Cover";
+import { environment, KEY_SERVICE_LABEL, serviceStatus } from "~/components/status-page/ServiceList";
 import { StatusCard } from "~/components/status-page/StatusCard";
 import { StatusPill } from "~/components/status-page/StatusPill";
+import { linkedLine } from "~/lib/fields";
 import { formatMonth } from "~/lib/format";
-import { educationLabel, experienceLabel, projectGroupHref } from "~/lib/projects";
+import { projectGroupHref } from "~/lib/projects";
 import type { ThemeProjectPageProps } from "../types";
 import { FONTS_HREF, SERVICE_GROUPS } from "./StatusPage";
 
@@ -64,8 +66,10 @@ export function StatusProjectPage({ portfolio, project }: ThemeProjectPageProps)
 
   const status = serviceStatus(project);
   const isUp = status.tone === "up";
-  const env = environment(project, project.experience, project.education);
+  const env = environment(project);
   const group = SERVICE_GROUPS[project.projectType];
+  const host = linkedLine(project);
+  const hostNote = project.experience?.description || project.education?.description || null;
 
   return (
     <div className="mx-auto max-w-[860px] px-5 pb-16">
@@ -80,7 +84,10 @@ export function StatusProjectPage({ portfolio, project }: ThemeProjectPageProps)
           {isUp ? "✓" : "–"}
         </span>
         <div className="min-w-0">
-          <p className={`text-sm font-medium ${isUp ? "text-white/85" : "text-st-muted"}`}>{status.label}</p>
+          <p className={`text-sm font-medium ${isUp ? "text-white/85" : "text-st-muted"}`}>
+            {status.label}
+            {project.isFeatured && `, ${KEY_SERVICE_LABEL}`}
+          </p>
           <h1 className="text-2xl font-semibold break-words sm:text-3xl">{project.title}</h1>
           <p className={isUp ? "text-white/85" : "text-st-muted"}>
             {env}
@@ -94,9 +101,7 @@ export function StatusProjectPage({ portfolio, project }: ThemeProjectPageProps)
         <StatusCard id="about-title" title="About this service">
           <div className="grid gap-4 px-5 py-5">
             {project.summary && <p className="text-lg font-medium">{project.summary}</p>}
-            {project.coverUrl && (
-              <img src={project.coverUrl} alt={`Cover image of ${project.title}`} className="w-full rounded-lg border border-st-line" />
-            )}
+            <Cover url={project.coverUrl} title={project.title} className="w-full rounded-lg border border-st-line" isLazy={false} />
             {(project.demoUrl || project.repoUrl) && (
               <p className="flex flex-wrap gap-4 text-sm font-medium">
                 {project.demoUrl && (
@@ -152,21 +157,12 @@ export function StatusProjectPage({ portfolio, project }: ThemeProjectPageProps)
           </ol>
         </StatusCard>
 
-        {(project.experience || project.education) && (
-          <StatusCard id="hosting-title" title={project.experience ? "Hosted at" : "Part of"}>
+        {host && (
+          <StatusCard id="hosting-title" title={host.kind === "experience" ? "Hosted at" : "Part of"}>
             <div className="px-5 py-5">
-              {project.experience && (
-                <>
-                  <p className="font-semibold">{experienceLabel(project.experience)}</p>
-                  {project.experience.description && <p className="mt-1 max-w-[65ch] text-st-muted">{project.experience.description}</p>}
-                </>
-              )}
-              {project.education && (
-                <>
-                  <p className="font-semibold">{educationLabel(project.education)}</p>
-                  {project.education.description && <p className="mt-1 text-st-muted">{project.education.description}</p>}
-                </>
-              )}
+              <p className="font-semibold">{host.title}</p>
+              {host.dates && <p className="text-sm text-st-muted">{host.dates}</p>}
+              {hostNote && <p className="mt-1 max-w-[65ch] text-st-muted">{hostNote}</p>}
             </div>
           </StatusCard>
         )}
