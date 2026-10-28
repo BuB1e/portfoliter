@@ -10,6 +10,8 @@ import { FieldGuidePage } from "./field-guide/FieldGuidePage";
 import { FieldGuideProjectPage } from "./field-guide/FieldGuideProjectPage";
 import { ParcelPage } from "./parcel/ParcelPage";
 import { ParcelProjectPage } from "./parcel/ParcelProjectPage";
+import { QuestLogPage } from "./quest-log/QuestLogPage";
+import { QuestLogProjectPage } from "./quest-log/QuestLogProjectPage";
 import { ReceiptPage } from "./receipt/ReceiptPage";
 import { ReceiptProjectPage } from "./receipt/ReceiptProjectPage";
 import { SkytrainPage } from "./skytrain/SkytrainPage";
@@ -29,6 +31,7 @@ export const themePages: Record<ThemeKey, ComponentType<ThemePageProps>> = {
   "status-page": StatusPage,
   receipt: ReceiptPage,
   broadsheet: BroadsheetPage,
+  "quest-log": QuestLogPage,
 };
 
 // /projects/:slug in each design; the Record type makes a new theme fail typecheck until it has one.
@@ -41,6 +44,7 @@ export const themeProjectPages: Record<ThemeKey, ComponentType<ThemeProjectPageP
   "status-page": StatusProjectPage,
   receipt: ReceiptProjectPage,
   broadsheet: BroadsheetProjectPage,
+  "quest-log": QuestLogProjectPage,
 };
 
 export const themeTitles: Record<ThemeKey, (fullName: string) => string> = {
@@ -52,4 +56,5 @@ export const themeTitles: Record<ThemeKey, (fullName: string) => string> = {
   "status-page": (fullName) => `${fullName} status`,
   receipt: (fullName) => `Receipt: ${fullName}`,
   broadsheet: (fullName) => `${paperName(fullName)}, the personal paper of ${fullName}`,
+  "quest-log": (fullName) => `${fullName}: quest log`,
 };

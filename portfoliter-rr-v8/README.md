@@ -72,7 +72,7 @@ If you build more than one design and want Claude to switch between them with `s
 
 ## Designs on this branch (`feature/harit-som`)
 
-This branch replaces the placeholder with eight designs. `routes/home.tsx` renders
+This branch replaces the placeholder with nine designs. `routes/home.tsx` renders
 `themePages[themeKey(portfolio.theme)]` from `app/themes/registry.ts`, and `root.tsx` sets
 `<html data-theme>` during SSR so each design's page colors in `app.css` apply before hydration.
 
@@ -86,13 +86,14 @@ This branch replaces the placeholder with eight designs. `routes/home.tsx` rende
 | `status-page` | `app/themes/status-page/StatusPage.tsx` | `app/components/status-page/` |
 | `receipt` | `app/themes/receipt/ReceiptPage.tsx` | `app/components/receipt/` |
 | `broadsheet` | `app/themes/broadsheet/BroadsheetPage.tsx` | `app/components/broadsheet/` |
+| `quest-log` | `app/themes/quest-log/QuestLogPage.tsx` | `app/components/quest-log/` |
 
 `routes/project.tsx` renders `themeProjectPages[themeKey(portfolio.theme)]` (`app/themes/<key>/*ProjectPage.tsx`)
 for `/projects/:slug`, and `root.tsx` reads the theme from either route, so project pages keep the
 active design. Each design groups projects with `groupProjects()` and links every card to its page.
 
 Each page loads its own Google Fonts with `<link precedence>`; tokens are prefixed per design in
-`app.css` (`fg-*`, `parcel-*`, `ss-*`, `sky-*`, `st-*`, `rc-*`, `bs-*`). Newer designs list a Thai fallback
+`app.css` (`fg-*`, `parcel-*`, `ss-*`, `sky-*`, `st-*`, `rc-*`, `bs-*`, `ql-*`). Newer designs list a Thai fallback
 font after their Latin face, so Thai text never drops to a system font. The status page's uptime bars are
 decorative and generated from each skill name, so the server and the browser render the same bars. `npm test` runs the Vitest checks: theme key fallback, project grouping, the project loader's 404,
 and, for every design, the three sections, card links with clamped short descriptions, the project

@@ -10,6 +10,7 @@ import { themePages, themeProjectPages } from "./registry";
 const FEATURED_LABELS: Partial<Record<ThemeKey, string>> = {
   receipt: "Staff pick",
   broadsheet: "Editor's pick",
+  "quest-log": "Epic quest",
 };
 
 function render(node: React.ReactNode): string {

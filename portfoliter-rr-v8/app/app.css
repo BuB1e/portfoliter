@@ -88,6 +88,22 @@
   --color-bs-rule: #8d8c86;
   --color-bs-red: #9e1b1f;
 
+  /* quest-log: pixel UI face for menus, a calligraphic serif for the quest scroll, Thai fallbacks */
+  --font-ql: "Pixelify Sans", "Noto Sans Thai", system-ui, sans-serif;
+  --font-ql-scroll: "Alegreya", "Noto Serif Thai", Georgia, serif;
+  --color-ql-night: #191536;
+  --color-ql-window-top: #2b44ad;
+  --color-ql-window-bottom: #0f1966;
+  --color-ql-frame: #eef1ff;
+  --color-ql-edge: #070a2b;
+  --color-ql-soft: #c9d3ff;
+  --color-ql-gold: #ffd866;
+  --color-ql-green: #7ee0a0;
+  --color-ql-parchment: #f0dfb4;
+  --color-ql-ink: #3b2412;
+  --color-ql-ink-soft: #6b4a2e;
+  --color-ql-wax: #9b1c22;
+
   --animate-match-pop: match-pop 0.5s cubic-bezier(0.2, 1.6, 0.4, 1);
 
   @keyframes match-pop {
@@ -256,6 +272,72 @@
 /* thin vertical rules between newspaper text columns */
 @utility bs-column-rule {
   column-rule: 1px solid var(--color-bs-rule);
+}
+
+[data-theme="quest-log"] {
+  @apply bg-ql-night font-ql text-white;
+  color-scheme: dark;
+  /* a sky of single-pixel stars */
+  background-image:
+    radial-gradient(circle at 12% 18%, rgb(255 255 255 / 0.55) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 63% 41%, rgb(255 255 255 / 0.35) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 34% 77%, rgb(255 216 102 / 0.4) 0 1px, transparent 1.5px);
+  background-size: 173px 151px, 211px 197px, 263px 229px;
+
+  :focus-visible {
+    outline: 3px solid var(--color-ql-gold);
+    outline-offset: 3px;
+  }
+
+  /* gold would vanish on parchment; the scroll uses the wax red */
+  .ql-parchment :focus-visible {
+    outline-color: var(--color-ql-wax);
+  }
+}
+
+/* the classic RPG menu window: deep blue gradient inside a white frame with a dark keyline */
+@utility ql-window {
+  background: linear-gradient(180deg, var(--color-ql-window-top), var(--color-ql-window-bottom));
+  border: 3px solid var(--color-ql-frame);
+  border-radius: 8px;
+  box-shadow:
+    0 0 0 3px var(--color-ql-edge),
+    inset 0 0 0 2px var(--color-ql-edge),
+    6px 7px 0 3px rgb(0 0 0 / 0.35);
+}
+
+/* a pixel meter: square segments, filled up to --ql-fill */
+@utility ql-meter {
+  border: 2px solid var(--color-ql-frame);
+  background:
+    repeating-linear-gradient(90deg, transparent 0 9px, var(--color-ql-edge) 9px 11px),
+    linear-gradient(90deg, var(--color-ql-green) var(--ql-fill, 0%), rgb(7 10 43 / 0.7) var(--ql-fill, 0%));
+}
+
+/* the pointing cursor beside the focused or hovered menu entry */
+@utility ql-cursor {
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+  background: var(--color-ql-gold);
+
+  @media (prefers-reduced-motion: no-preference) {
+    animation: ql-bob 0.8s steps(2, jump-none) infinite;
+  }
+}
+
+@keyframes ql-bob {
+  to {
+    transform: translateX(3px);
+  }
+}
+
+/* aged parchment for the quest scroll, darker towards the edges */
+@utility ql-parchment {
+  background-color: var(--color-ql-parchment);
+  background-image:
+    radial-gradient(ellipse at 50% 50%, transparent 55%, rgb(139 94 40 / 0.22)),
+    radial-gradient(circle at 20% 30%, rgb(139 94 40 / 0.08) 0 2px, transparent 3px),
+    radial-gradient(circle at 75% 65%, rgb(139 94 40 / 0.07) 0 2px, transparent 3px);
+  background-size: 100% 100%, 37px 41px, 53px 47px;
 }
 
 /* parcel pieces that are pure CSS drawings */

@@ -17,7 +17,7 @@ MCP server. Your own frontend reads the data and renders the site.
  PostgreSQL   Cloudflare R2 (avatar, project covers, resume)
 ```
 
-This branch (`feature/harit-som`) is the owner's own site: it adds eight designs on top of `develop`. If you are cloning to build your own portfolio, start
+This branch (`feature/harit-som`) is the owner's own site: it adds nine designs on top of `develop`. If you are cloning to build your own portfolio, start
 from `develop`, where the frontend is a placeholder page that loads your data and prints it.
 Sections below describe `develop`; [Designs on this branch](#designs-on-this-branch) covers the rest.
 
@@ -252,6 +252,7 @@ To add a design:
 | `status-page` | Uptime status page; skills are components, past jobs are resolved incidents | `app/themes/status-page/StatusPage.tsx` |
 | `receipt` | Thermal mini-mart receipt in monospace; jobs are purchases, projects are line items | `app/themes/receipt/ReceiptPage.tsx` |
 | `broadsheet` | Newspaper front page, "The Daily <first name>"; projects are articles, skills are classifieds | `app/themes/broadsheet/BroadsheetPage.tsx` |
+| `quest-log` | RPG character sheet in blue pixel menu windows; skills are stats, jobs are quests | `app/themes/quest-log/QuestLogPage.tsx` |
 
 Every design shows projects in three sections (Work, Personal, University; empty ones are hidden),
 and every card links to `/projects/<slug>`, which renders in the same design:
@@ -266,6 +267,7 @@ and every card links to `/projects/<slug>`, which renders in the same design:
 | `status-page` | Production, Side and Campus services | The service's status entry: banner, components, update log |
 | `receipt` | Made at work, Homemade, School supplies (line items with a staff-pick tag) | An item receipt: item lines, "printed on the back" detail, ingredients, barcode; a VOID slip for 404 |
 | `broadsheet` | Business, Weekend and Campus sections (ruled columns of stories, an editor's-pick kicker) | The full article: headline, standfirst, byline, photo, two-column text and a fact box; a correction notice for 404 |
+| `quest-log` | Main, Side and Academy quests (quest cards with giver, status and rewards; "Epic quest" when featured) | A parchment quest scroll: giver, status, map, objectives, rewards, wax seal; a blank-scroll window for 404 |
 
 Ask Claude "list my themes" or "switch the site to parcel". The production compose file on this
 branch binds the backend to `127.0.0.1:8082` and the frontend to `127.0.0.1:3002`.
