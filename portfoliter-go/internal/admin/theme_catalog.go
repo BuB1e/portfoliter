@@ -16,4 +16,5 @@ var themeCatalog = []Theme{
 	{Key: "broadsheet", Name: "Broadsheet", Description: "Newspaper front page with a blackletter masthead; projects are articles, jobs are appointments, skills are classifieds."},
 	{Key: "quest-log", Name: "Quest log", Description: "RPG character sheet in blue pixel menu windows; skills are stats, jobs are quests, projects open as quest scrolls."},
 	{Key: "retro-desktop", Name: "Retro desktop", Description: "1990s desktop on teal with bevelled grey windows and a taskbar; projects are files that open in their own window."},
+	{Key: "parcel-new", Name: "Parcel (new)", Description: "Parcel redrawn: a full-size shipping label beside the sender's photo, flat kraft and paper with cut edges, bubble wrap to pop."},
 }

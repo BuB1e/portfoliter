@@ -1,4 +1,6 @@
 @import "tailwindcss";
+/* Designs made with the taste skill keep their stylesheets beside their pages. */
+@import "./themes/parcel-new/parcel-new.css";
 
 /* Tokens for every design live here; field-guide and parcel are prefixed so names never clash. */
 @theme {
@@ -116,6 +118,16 @@
   --color-rd-link: #1a1aa6;
   --color-rd-muted: #404040;
   --color-rd-folder: #f2cf4a;
+
+  /* parcel-new: the same box redrawn with the taste rules; flat kraft, one paper, one ink, tape red on the action */
+  --color-pn-kraft: #cda677;
+  --color-pn-kraft-deep: #8b6542;
+  --color-pn-kraft-light: #dfc29b;
+  --color-pn-paper: #f0efec;
+  --color-pn-paper-deep: #e2dfd9;
+  --color-pn-ink: #1e1b18;
+  --color-pn-ink-soft: #4a413a;
+  --color-pn-tape: #c8213a;
 
   --animate-match-pop: match-pop 0.5s cubic-bezier(0.2, 1.6, 0.4, 1);
 
@@ -508,5 +520,21 @@
     background: var(--color-parcel-label)
       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5l3 3 7-8' fill='none' stroke='%23d7263d' stroke-width='2.6'/%3E%3C/svg%3E")
       center / 90% no-repeat;
+  }
+}
+
+/* Entrance motion for the taste-made designs (hooks/useReveal.ts): parts marked data-reveal rise into
+   place once, staggered by their --i step. Hidden only after the hook has run, never with reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-reveal="on"] [data-reveal] {
+    transition:
+      opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1),
+      transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+    transition-delay: calc(var(--i, 0) * 75ms);
+  }
+
+  [data-reveal="on"] [data-reveal]:not([data-shown]) {
+    opacity: 0;
+    transform: translateY(24px);
   }
 }

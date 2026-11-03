@@ -1,0 +1,350 @@
+/* parcel-new: the parcel built as real stationery. Flat kraft ground, paper panels with cut edges, one ink,
+   tape red only on the action. Type steps: display, heading, lead (22px), body (17px), small (14px). */
+
+[data-theme="parcel-new"] {
+  background-color: var(--color-pn-kraft);
+  color: var(--color-pn-ink);
+  font-family: var(--font-parcel-body);
+  color-scheme: light;
+
+  :focus-visible {
+    outline: 3px solid var(--color-pn-ink);
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background: var(--color-pn-ink);
+    color: var(--color-pn-paper);
+  }
+}
+
+@layer components {
+  .pn-page {
+    --pn-margin: clamp(16px, 2.5vw, 32px);
+    --pn-gap: clamp(120px, 14vw, 200px);
+    font-size: 1.0625rem;
+    line-height: 1.55;
+  }
+
+  .pn-wrap {
+    width: 100%;
+    max-width: 1440px;
+    margin-inline: auto;
+    padding-inline: var(--pn-margin);
+  }
+
+  .pn-section {
+    margin-top: var(--pn-gap);
+  }
+
+  .pn-display {
+    font-family: var(--font-parcel-stencil);
+    font-weight: 900;
+    font-size: clamp(3.5rem, 8.4vw, 8.5rem);
+    line-height: 0.86;
+    letter-spacing: -0.02em;
+  }
+
+  .pn-heading {
+    font-family: var(--font-parcel-stencil);
+    font-weight: 900;
+    font-size: clamp(2rem, 3.6vw, 3.25rem);
+    line-height: 0.95;
+    letter-spacing: -0.01em;
+  }
+
+  /* a fact on a form: heading size in the text face */
+  .pn-fact {
+    font-size: clamp(2rem, 3.6vw, 3.25rem);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  .pn-lead {
+    font-size: 1.375rem;
+    line-height: 1.4;
+  }
+
+  .pn-small {
+    font-size: 0.875rem;
+    line-height: 1.45;
+  }
+
+  /* the tape stripe: filled bars, the box's one ornament */
+  .pn-stripe {
+    display: flex;
+    overflow: hidden;
+    /* the bars never widen the panel they sit on */
+    contain: inline-size;
+    height: 56px;
+
+    & > span {
+      flex: none;
+      width: 28px;
+      background: var(--color-pn-ink);
+    }
+
+    & > span:nth-child(even) {
+      background: transparent;
+    }
+  }
+
+  /* Paper edges cut into scallops and notches. These gradients are masks: they cut the panel's edge into
+     round bites and paint nothing, so no gradient is ever visible. */
+  .pn-scallop-y {
+    --s: 12px;
+    mask:
+      radial-gradient(var(--s) at 50% 0, #0000 98%, #000) top / calc(var(--s) * 2.6) 51% repeat-x, /* taste-skill-ignore: mask cut */
+      radial-gradient(var(--s) at 50% 100%, #0000 98%, #000) bottom / calc(var(--s) * 2.6) 51% repeat-x; /* taste-skill-ignore: mask cut */
+  }
+
+  .pn-scallop-top {
+    --s: 26px;
+    mask: radial-gradient(var(--s) at 50% 0, #0000 98%, #000) top / calc(var(--s) * 3.8) 100% repeat-x; /* taste-skill-ignore: mask cut */
+  }
+
+  .pn-scallop-bottom {
+    --s: 12px;
+    mask: radial-gradient(var(--s) at 50% 100%, #0000 98%, #000) bottom / calc(var(--s) * 2.6) 100% repeat-x; /* taste-skill-ignore: mask cut */
+  }
+
+  /* the customs coupon: two notches and a dotted perforation between them */
+  .pn-coupon {
+    --notch: 16px;
+    --cut: 42%;
+    mask:
+      radial-gradient(var(--notch) at var(--cut) 0, #0000 98%, #000) top / 100% 51% no-repeat, /* taste-skill-ignore: mask cut */
+      radial-gradient(var(--notch) at var(--cut) 100%, #0000 98%, #000) bottom / 100% 51% no-repeat; /* taste-skill-ignore: mask cut */
+  }
+
+  .pn-perforation {
+    border-left: 5px dotted var(--color-pn-kraft);
+  }
+
+  @media (max-width: 767px) {
+    .pn-coupon {
+      --cut: 50%;
+      mask:
+        radial-gradient(var(--notch) at 0 var(--cut), #0000 98%, #000) left / 51% 100% no-repeat, /* taste-skill-ignore: mask cut */
+        radial-gradient(var(--notch) at 100% var(--cut), #0000 98%, #000) right / 51% 100% no-repeat; /* taste-skill-ignore: mask cut */
+    }
+
+    .pn-perforation {
+      border-left: 0;
+      border-top: 5px dotted var(--color-pn-kraft);
+    }
+  }
+
+  /* bubble wrap: flat filled bubbles with a highlight; popped ones flatten and darken */
+  .pn-bubble {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--color-pn-paper-deep);
+    cursor: pointer;
+    transition: transform 140ms ease-out, background-color 140ms ease-out;
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: 18%;
+      left: 22%;
+      width: 26%;
+      height: 26%;
+      border-radius: 50%;
+      background: var(--color-pn-paper);
+    }
+
+    &:hover {
+      transform: scale(1.07);
+    }
+
+    &:active {
+      transform: scale(0.9);
+    }
+
+    &[aria-pressed="true"] {
+      background: var(--color-pn-kraft-light);
+      transform: scale(0.8);
+      cursor: default;
+    }
+
+    &[aria-pressed="true"]::after {
+      opacity: 0;
+    }
+  }
+
+  /* the solid action, one shape for the whole design */
+  .pn-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 52px;
+    padding: 0 26px;
+    background: var(--color-pn-tape);
+    color: var(--color-pn-paper);
+    font-weight: 800;
+    text-decoration: none;
+    transition: transform 120ms ease-out, background-color 120ms ease-out;
+
+    &:hover {
+      background: var(--color-pn-ink);
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      transform: translateY(1px);
+    }
+  }
+
+  .pn-button-quiet {
+    background: var(--color-pn-ink);
+
+    &:hover {
+      background: var(--color-pn-tape);
+    }
+  }
+
+  .pn-link {
+    font-weight: 700;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+    transition: color 120ms ease-out;
+
+    &:hover {
+      color: var(--color-pn-tape);
+    }
+  }
+
+  /* the principal photograph: the sender, then what is in the box, crossfading slowly */
+  .pn-photos {
+    position: relative;
+    overflow: hidden;
+    background: var(--color-pn-kraft-deep);
+
+    & > img,
+    & > span {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 1.6s ease;
+    }
+
+    & > [data-active] {
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .pn-photos > img[data-active] {
+      animation: pn-drift 14s ease-out both;
+    }
+  }
+
+  @keyframes pn-drift {
+    from {
+      transform: scale(1.08);
+    }
+  }
+
+  /* a project tile in the packed wall: the picture takes the row height, its label sits under it */
+  .pn-tile {
+    display: block;
+    text-decoration: none;
+
+    & img,
+    & .pn-tile-drawn {
+      transition: transform 300ms cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+
+    &:hover img,
+    &:hover .pn-tile-drawn,
+    &:focus-visible img {
+      transform: translateY(-6px);
+    }
+
+    &:hover .pn-tile-title {
+      text-decoration: underline;
+      text-decoration-thickness: 3px;
+      text-underline-offset: 5px;
+    }
+  }
+
+  /* the packing slip: a project's markdown write-up */
+  .pn-prose {
+    & h2 {
+      font-family: var(--font-parcel-stencil);
+      font-weight: 900;
+      font-size: clamp(2rem, 3.6vw, 3.25rem);
+      line-height: 0.95;
+      margin-top: 2.5rem;
+    }
+
+    & h3 {
+      font-size: 1.375rem;
+      font-weight: 700;
+      margin-top: 2rem;
+    }
+
+    & a {
+      font-weight: 700;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 4px;
+    }
+
+    & a:hover {
+      color: var(--color-pn-tape);
+    }
+
+    & code,
+    & pre {
+      background: var(--color-pn-paper-deep);
+    }
+
+    & code {
+      padding-inline: 0.25rem;
+    }
+
+    & blockquote {
+      border-left-width: 6px;
+      border-color: var(--color-pn-kraft);
+    }
+  }
+
+  .pn-bar {
+    & > summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      min-height: 56px;
+      padding: 0 18px;
+      cursor: pointer;
+      list-style: none;
+      font-weight: 700;
+      transition: background-color 120ms ease-out;
+    }
+
+    & > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    & > summary:hover {
+      background: var(--color-pn-paper);
+    }
+
+    & > summary .pn-plus {
+      transition: transform 200ms ease-out;
+    }
+
+    &[open] > summary .pn-plus {
+      transform: rotate(45deg);
+    }
+  }
+}
