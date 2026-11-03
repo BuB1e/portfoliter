@@ -1,0 +1,219 @@
+/* preprint: the engineer typeset as a paper. One serif (STIX Two Text), five steps: display (the name),
+   heading, lead, body (19px, justified like a journal), small. Ink on paper; preprint red on links and the
+   one action. Monospace only inside the citation's real code block. */
+
+[data-theme="preprint"] {
+  background-color: var(--color-pp-paper);
+  color: var(--color-pp-ink);
+  font-family: var(--font-pp);
+  color-scheme: light;
+
+  :focus-visible {
+    outline: 2px solid var(--color-pp-red);
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background: var(--color-pp-ink);
+    color: var(--color-pp-paper);
+  }
+}
+
+@layer components {
+  .pp-page {
+    --pp-margin: clamp(16px, 2.5vw, 32px);
+    --pp-gap: clamp(112px, 12vw, 180px);
+    font-size: 1.1875rem;
+    line-height: 1.6;
+    font-variant-numeric: oldstyle-nums proportional-nums;
+  }
+
+  .pp-wrap {
+    width: 100%;
+    max-width: 1440px;
+    margin-inline: auto;
+    padding-inline: var(--pp-margin);
+  }
+
+  /* the text block of the paper: one centred measure for every section */
+  .pp-column {
+    width: 100%;
+    max-width: 44rem;
+    margin-inline: auto;
+  }
+
+  .pp-section {
+    margin-top: var(--pp-gap);
+  }
+
+  .pp-display {
+    font-size: clamp(3.25rem, 8vw, 7.5rem);
+    font-weight: 600;
+    line-height: 0.95;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+
+  .pp-heading {
+    font-size: clamp(1.75rem, 2.6vw, 2.5rem);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+
+  .pp-lead {
+    font-size: 1.5rem;
+    line-height: 1.35;
+  }
+
+  .pp-small {
+    font-size: 0.9375rem;
+    line-height: 1.45;
+  }
+
+  .pp-justify {
+    text-align: justify;
+    hyphens: auto;
+    text-wrap: pretty;
+  }
+
+  .pp-link {
+    color: var(--color-pp-red);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    transition: color 120ms ease-out;
+
+    &:hover {
+      color: var(--color-pp-ink);
+    }
+  }
+
+  .pp-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 0 22px;
+    background: var(--color-pp-red);
+    color: var(--color-pp-paper);
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 120ms ease-out, background-color 120ms ease-out;
+
+    &:hover {
+      background: var(--color-pp-ink);
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      transform: translateY(1px);
+    }
+  }
+
+  .pp-chip {
+    min-height: 44px;
+    padding: 0 16px;
+    background: var(--color-pp-desk);
+    font-weight: 600;
+    transition: background-color 120ms ease-out, color 120ms ease-out;
+
+    &:hover {
+      background: color-mix(in srgb, var(--color-pp-desk), var(--color-pp-ink) 7%);
+    }
+
+    &[aria-pressed="true"] {
+      background: var(--color-pp-ink);
+      color: var(--color-pp-paper);
+    }
+  }
+
+  /* the citation block: the one place monospace belongs, because it is real code */
+  .pp-cite pre {
+    overflow-x: auto;
+    padding: 20px 22px;
+    background: var(--color-pp-desk);
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    white-space: pre;
+  }
+
+  /* the preprint identifier printed up the left margin of the first page */
+  .pp-identifier {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    color: var(--color-pp-soft);
+  }
+
+  /* a figure: the picture with its caption under it, the caption a sentence of the paper */
+  .pp-figure {
+    display: block;
+    text-decoration: none;
+
+    & img {
+      transition: transform 300ms cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+
+    &:hover img {
+      transform: scale(1.02);
+    }
+
+    &:hover .pp-figure-title {
+      color: var(--color-pp-red);
+    }
+  }
+
+  .pp-prose {
+    & h2,
+    & h3 {
+      font-weight: 600;
+      margin-top: 2rem;
+    }
+
+    & h2 {
+      font-size: clamp(1.75rem, 2.6vw, 2.5rem);
+      line-height: 1.1;
+    }
+
+    & h3 {
+      font-size: 1.5rem;
+    }
+
+    & a {
+      color: var(--color-pp-red);
+    }
+
+    & code,
+    & pre {
+      background: var(--color-pp-desk);
+    }
+
+    & code {
+      padding-inline: 0.25rem;
+    }
+
+    & blockquote {
+      border-left: 3px solid var(--color-pp-red);
+    }
+  }
+
+  /* the masked headline: the name rises out of its own line on load, settled by 1.1s */
+  .pp-mask {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.08em;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .pp-mask > span {
+      display: block;
+      animation: pp-rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.15s both;
+    }
+  }
+
+  @keyframes pp-rise {
+    from {
+      transform: translateY(105%);
+    }
+  }
+}

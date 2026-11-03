@@ -29,6 +29,10 @@ const FEATURED_LABELS: Record<ThemeKey, string> = {
   broadsheet: "Editor's pick",
   "quest-log": "Epic quest",
   "retro-desktop": "Pinned",
+  "parcel-new": "Priority",
+  "dating-new": "Featured",
+  preprint: "Highlighted result",
+  exhibition: "Highlight of the show",
 };
 
 function render(node: React.ReactNode): string {

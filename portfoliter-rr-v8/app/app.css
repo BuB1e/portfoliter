@@ -1,4 +1,9 @@
 @import "tailwindcss";
+/* Designs made with the taste skill keep their stylesheets beside their pages. */
+@import "./themes/parcel-new/parcel-new.css";
+@import "./themes/dating-new/dating-new.css";
+@import "./themes/preprint/preprint.css";
+@import "./themes/exhibition/exhibition.css";
 
 /* Tokens for every design live here; field-guide and parcel are prefixed so names never clash. */
 @theme {
@@ -116,6 +121,41 @@
   --color-rd-link: #1a1aa6;
   --color-rd-muted: #404040;
   --color-rd-folder: #f2cf4a;
+
+  /* parcel-new: the same box redrawn with the taste rules; flat kraft, one paper, one ink, tape red on the action */
+  --color-pn-kraft: #cda677;
+  --color-pn-kraft-deep: #8b6542;
+  --color-pn-kraft-light: #dfc29b;
+  --color-pn-paper: #f0efec;
+  --color-pn-paper-deep: #e2dfd9;
+  --color-pn-ink: #1e1b18;
+  --color-pn-ink-soft: #4a413a;
+  --color-pn-tape: #c8213a;
+
+  /* dating-new: blush paper, deep wine ink, one flame accent (the old night-violet ground is gone) */
+  --color-dn-paper: #fbf2ee;
+  --color-dn-surface: #f3e2db;
+  --color-dn-wine: #3b0a1c;
+  --color-dn-muted: #6e2a3d;
+  --color-dn-flame: #c4223f;
+  --color-dn-blush: #f6c9c4;
+
+  /* preprint: the engineer as a typeset paper; paper, ink and the one red of a preprint server */
+  --font-pp: "STIX Two Text", "Noto Serif Thai", Georgia, serif;
+  --color-pp-paper: #f6f6f3;
+  --color-pp-desk: #e6e5e0;
+  --color-pp-ink: #141414;
+  --color-pp-soft: #4b4b48;
+  --color-pp-red: #a5191b;
+
+  /* exhibition: a dark gallery; warm black rooms, lifted white type, gold once per screen */
+  --font-ex: "Archivo", "Noto Sans Thai", system-ui, sans-serif;
+  --color-ex-room: #0c0a08;
+  --color-ex-wall: #181512;
+  --color-ex-plinth: #24201b;
+  --color-ex-ink: #f2efe9;
+  --color-ex-dim: #a39d95;
+  --color-ex-gold: #c9a45a;
 
   --animate-match-pop: match-pop 0.5s cubic-bezier(0.2, 1.6, 0.4, 1);
 
@@ -508,5 +548,21 @@
     background: var(--color-parcel-label)
       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5l3 3 7-8' fill='none' stroke='%23d7263d' stroke-width='2.6'/%3E%3C/svg%3E")
       center / 90% no-repeat;
+  }
+}
+
+/* Entrance motion for the taste-made designs (hooks/useReveal.ts): parts marked data-reveal rise into
+   place once, staggered by their --i step. Hidden only after the hook has run, never with reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-reveal="on"] [data-reveal] {
+    transition:
+      opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1),
+      transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+    transition-delay: calc(var(--i, 0) * 75ms);
+  }
+
+  [data-reveal="on"] [data-reveal]:not([data-shown]) {
+    opacity: 0;
+    transform: translateY(24px);
   }
 }

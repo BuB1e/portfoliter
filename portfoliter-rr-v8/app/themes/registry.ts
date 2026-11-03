@@ -6,11 +6,19 @@ import { BroadsheetPage } from "./broadsheet/BroadsheetPage";
 import { BroadsheetProjectPage } from "./broadsheet/BroadsheetProjectPage";
 import { DatingPage } from "./dating/DatingPage";
 import { DatingProjectPage } from "./dating/DatingProjectPage";
+import { DatingNewPage } from "./dating-new/DatingNewPage";
+import { DatingNewProjectPage } from "./dating-new/DatingNewProjectPage";
+import { ExhibitionPage } from "./exhibition/ExhibitionPage";
+import { ExhibitionProjectPage } from "./exhibition/ExhibitionProjectPage";
 import { FieldGuidePage } from "./field-guide/FieldGuidePage";
 import { FieldGuideProjectPage } from "./field-guide/FieldGuideProjectPage";
 import { ParcelPage } from "./parcel/ParcelPage";
 import { ParcelProjectPage } from "./parcel/ParcelProjectPage";
+import { ParcelNewPage } from "./parcel-new/ParcelNewPage";
+import { ParcelNewProjectPage } from "./parcel-new/ParcelNewProjectPage";
 import { PlainPage } from "./plain/PlainPage";
+import { PreprintPage } from "./preprint/PreprintPage";
+import { PreprintProjectPage } from "./preprint/PreprintProjectPage";
 import { PlainProjectPage } from "./plain/PlainProjectPage";
 import { QuestLogPage } from "./quest-log/QuestLogPage";
 import { QuestLogProjectPage } from "./quest-log/QuestLogProjectPage";
@@ -38,6 +46,10 @@ export const themePages: Record<ThemeKey, ComponentType<ThemePageProps>> = {
   broadsheet: BroadsheetPage,
   "quest-log": QuestLogPage,
   "retro-desktop": RetroDesktopPage,
+  "parcel-new": ParcelNewPage,
+  "dating-new": DatingNewPage,
+  preprint: PreprintPage,
+  exhibition: ExhibitionPage,
 };
 
 // /projects/:slug in each design; the Record type makes a new theme fail typecheck until it has one.
@@ -53,6 +65,10 @@ export const themeProjectPages: Record<ThemeKey, ComponentType<ThemeProjectPageP
   broadsheet: BroadsheetProjectPage,
   "quest-log": QuestLogProjectPage,
   "retro-desktop": RetroDesktopProjectPage,
+  "parcel-new": ParcelNewProjectPage,
+  "dating-new": DatingNewProjectPage,
+  preprint: PreprintProjectPage,
+  exhibition: ExhibitionProjectPage,
 };
 
 export const themeTitles: Record<ThemeKey, (fullName: string) => string> = {
@@ -67,4 +83,8 @@ export const themeTitles: Record<ThemeKey, (fullName: string) => string> = {
   broadsheet: (fullName) => `${paperName(fullName)}, the personal paper of ${fullName}`,
   "quest-log": (fullName) => `${fullName}: quest log`,
   "retro-desktop": (fullName) => `${fullName}'s desktop`,
+  "parcel-new": (fullName) => `Fragile: ${fullName}`,
+  "dating-new": (fullName) => `${fullName}, swipe right`,
+  preprint: (fullName) => `${fullName} (preprint)`,
+  exhibition: (fullName) => `${fullName}: selected works`,
 };

@@ -20,3 +20,4 @@ build/
 /portfoliter-go/server
 *.test
 *.out
+.taste-skill/

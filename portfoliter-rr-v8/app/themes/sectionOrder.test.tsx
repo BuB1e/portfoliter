@@ -112,6 +112,42 @@ const SECTION_IDS: Record<ThemeKey, Partial<Record<SectionKey, string[]>>> = {
     certifications: ["certificates-title"],
     extras: ["extra-prompts", "extra-awards", "extra-talks", "extra-languages"],
   },
+  "parcel-new": {
+    about: ["note-title"],
+    education: ["origin-title"],
+    skills: ["contents-title"],
+    experience: ["tracking-title"],
+    projects: PROJECTS,
+    certifications: ["customs-title"],
+    extras: ["section-prompts", "section-awards", "section-talks", "section-languages"],
+  },
+  "dating-new": {
+    about: ["about-title"],
+    education: ["verified-title"],
+    skills: ["interests-title"],
+    experience: ["exes-title"],
+    projects: PROJECTS,
+    certifications: ["certified-title"],
+    extras: ["section-prompts", "section-awards", "section-talks", "section-languages"],
+  },
+  preprint: {
+    about: ["abstract-title"],
+    education: ["education-title"],
+    skills: ["methods-title"],
+    experience: ["appointments-title"],
+    projects: PROJECTS,
+    certifications: ["certifications-title"],
+    extras: ["section-prompts", "section-awards", "section-talks", "section-languages"],
+  },
+  exhibition: {
+    about: ["artist-title"],
+    education: ["training-title"],
+    skills: ["media-title"],
+    experience: ["residencies-title"],
+    projects: PROJECTS,
+    certifications: ["certificates-title"],
+    extras: ["section-prompts", "section-awards", "section-talks", "section-languages"],
+  },
 };
 
 // Designs with an in-page nav that must list the sections in page order.
