@@ -19,4 +19,5 @@ var themeCatalog = []Theme{
 	{Key: "parcel-new", Name: "Parcel (new)", Description: "Parcel redrawn: a full-size shipping label beside the sender's photo, flat kraft and paper with cut edges, bubble wrap to pop."},
 	{Key: "dating-new", Name: "Dating app (new)", Description: "Dating app redrawn: the first name as a poster over the profile photo, projects as full-screen photos to like or pass."},
 	{Key: "preprint", Name: "Preprint", Description: "The engineer typeset as an academic paper: abstract, methods, projects as figures, a citation to copy, the author's biography at the end."},
+	{Key: "exhibition", Name: "Exhibition", Description: "A show in a dark gallery: projects hang as lit works with wall labels, rooms by kind of work, a floor plan to walk with the arrow keys, a guest book to sign."},
 }

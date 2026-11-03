@@ -18,7 +18,7 @@ MCP server. Your own frontend reads the data and renders the site.
 ```
 
 This branch (`develop`) is the template: clone it, fill in your own data through the MCP, and pick one
-of eleven designs with `set_theme`. Your data and your chosen design live in the database, not in code.
+of fifteen designs with `set_theme`. Your data and your chosen design live in the database, not in code.
 
 ## Contents
 
@@ -56,7 +56,8 @@ without losing anything.
    and any free-form sections (awards, talks, languages, anything). Ask Claude to publish the drafts.
 6. **Pick a design**: ask "list my themes", then "switch my site to receipt". `set_theme` accepts any
    catalog key: `plain` (the default), `dating`, `field-guide`, `parcel`, `spec-sheet`, `skytrain`,
-   `status-page`, `receipt`, `broadsheet`, `quest-log`, `retro-desktop`. The change is live on the next
+   `status-page`, `receipt`, `broadsheet`, `quest-log`, `retro-desktop`, `parcel-new`, `dating-new`,
+   `preprint`, `exhibition`. The change is live on the next
    page load.
 7. **Deploy** with `docker-compose.prod.yml` behind a TLS proxy ([Deploy](#deploy-to-production)).
 
@@ -67,7 +68,7 @@ To make a design of your own, follow "Adding a design" in [the frontend README](
 | Path | What it is |
 |---|---|
 | `portfoliter-go/` | Go backend: read API, MCP server, migrations, R2 file storage. [README](portfoliter-go/README.md) |
-| `portfoliter-rr-v8/` | React Router v8 frontend with server-side rendering and eleven designs. [README](portfoliter-rr-v8/README.md) |
+| `portfoliter-rr-v8/` | React Router v8 frontend with server-side rendering and fifteen designs. [README](portfoliter-rr-v8/README.md) |
 | `docker-compose.yml` | Local: runs backend on `:8080` and frontend on `:3000` |
 | `docker-compose.prod.yml` | Production: same two services bound to `127.0.0.1`, behind your reverse proxy |
 
@@ -221,8 +222,11 @@ reads them through one shared field layer. See [the frontend README](portfoliter
 
 ## Themes: switch designs from the AI
 
-The template ships eleven designs and lets the AI switch between them ("switch my site to parcel").
-`plain` is the default while no theme is set.
+The template ships fifteen designs and lets the AI switch between them ("switch my site to parcel").
+`plain` is the default while no theme is set. The last four were made with the taste skill's house rules
+(no monospace outside code, no thin rules, gradients, glows or pill badges, at most two typefaces):
+`parcel-new` and `dating-new` redraw `parcel` and `dating`, which stay as they were; plan in
+[docs/plans/taste-themes.md](docs/plans/taste-themes.md).
 
 | Key | Look | Page |
 |---|---|---|
@@ -237,6 +241,10 @@ The template ships eleven designs and lets the AI switch between them ("switch m
 | `broadsheet` | Newspaper front page, "The Daily <first name>"; projects are articles, skills are classifieds | `app/themes/broadsheet/BroadsheetPage.tsx` |
 | `quest-log` | RPG character sheet in blue pixel menu windows; skills are stats, jobs are quests | `app/themes/quest-log/QuestLogPage.tsx` |
 | `retro-desktop` | 1990s desktop: teal background, bevelled grey windows, a taskbar; projects are files | `app/themes/retro-desktop/RetroDesktopPage.tsx` |
+| `parcel-new` | Parcel redrawn: a full-size shipping label beside the sender's photo, flat kraft and paper with cut edges, bubble wrap to pop | `app/themes/parcel-new/ParcelNewPage.tsx` |
+| `dating-new` | Dating app redrawn: the first name as a poster over the profile photo, projects as photo plates to like or pass | `app/themes/dating-new/DatingNewPage.tsx` |
+| `preprint` | An academic paper: abstract, methods, projects as figures, a citation to copy (BibTeX or APA) | `app/themes/preprint/PreprintPage.tsx` |
+| `exhibition` | A dark gallery show: projects hang as lit works with wall labels, a floor plan walked with the arrow keys | `app/themes/exhibition/ExhibitionPage.tsx` |
 
 Every design shows projects in three sections (Work, Personal, University; empty ones are hidden),
 and every card links to `/projects/<slug>`, which renders in the same design:
@@ -254,6 +262,10 @@ and every card links to `/projects/<slug>`, which renders in the same design:
 | `broadsheet` | Business, Weekend and Campus sections (ruled columns of stories, an editor's-pick kicker) | The full article: headline, standfirst, byline, photo, two-column text and a fact box; a correction notice for 404 |
 | `quest-log` | Main, Side and Academy quests (quest cards with giver, status and rewards; "Epic quest" when featured) | A parchment quest scroll: giver, status, map, objectives, rewards, wax seal; a blank-scroll window for 404 |
 | `retro-desktop` | Work, Personal and University project folders (file tiles, "Pinned" when featured), plus desktop shortcuts and a taskbar | The file opened in its own window: toolbar, address field, document, properties and status bar; the close box links back to the folder; a "File not found" error dialog for 404 |
+| `parcel-new` | Packed at work, at home, on campus (an uneven wall of covers; a drawn box when there is none) | The project's own label beside its cover, the write-up as a packing slip, "Also in this box" |
+| `dating-new` | Serious relationships, Weekend flings, College sweethearts (full-width photo plates; Like emails the owner, Pass goes to the next) | The cover with the profile card on it, "Our story", "More matches" |
+| `preprint` | Results at work, Independent work, Coursework and thesis (figures with captions; a fact table when there is no cover) | A short paper: title, abstract, the cover as a figure, the write-up, related work |
+| `exhibition` | Commissions, Studio work, Early works (rooms of lit works with wall labels; an empty lit frame when there is no cover) | The work on its own wall with its label, "About the work", "In the same room" |
 
 How it works:
 

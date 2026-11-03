@@ -8,6 +8,8 @@ import { DatingPage } from "./dating/DatingPage";
 import { DatingProjectPage } from "./dating/DatingProjectPage";
 import { DatingNewPage } from "./dating-new/DatingNewPage";
 import { DatingNewProjectPage } from "./dating-new/DatingNewProjectPage";
+import { ExhibitionPage } from "./exhibition/ExhibitionPage";
+import { ExhibitionProjectPage } from "./exhibition/ExhibitionProjectPage";
 import { FieldGuidePage } from "./field-guide/FieldGuidePage";
 import { FieldGuideProjectPage } from "./field-guide/FieldGuideProjectPage";
 import { ParcelPage } from "./parcel/ParcelPage";
@@ -47,6 +49,7 @@ export const themePages: Record<ThemeKey, ComponentType<ThemePageProps>> = {
   "parcel-new": ParcelNewPage,
   "dating-new": DatingNewPage,
   preprint: PreprintPage,
+  exhibition: ExhibitionPage,
 };
 
 // /projects/:slug in each design; the Record type makes a new theme fail typecheck until it has one.
@@ -65,6 +68,7 @@ export const themeProjectPages: Record<ThemeKey, ComponentType<ThemeProjectPageP
   "parcel-new": ParcelNewProjectPage,
   "dating-new": DatingNewProjectPage,
   preprint: PreprintProjectPage,
+  exhibition: ExhibitionProjectPage,
 };
 
 export const themeTitles: Record<ThemeKey, (fullName: string) => string> = {
@@ -82,4 +86,5 @@ export const themeTitles: Record<ThemeKey, (fullName: string) => string> = {
   "parcel-new": (fullName) => `Fragile: ${fullName}`,
   "dating-new": (fullName) => `${fullName}, swipe right`,
   preprint: (fullName) => `${fullName} (preprint)`,
+  exhibition: (fullName) => `${fullName}: selected works`,
 };

@@ -1,7 +1,7 @@
 # portfoliter-rr-v8
 
-The frontend: a React Router v8 app with server-side rendering. It ships eleven designs (a neutral
-`plain` page plus ten themed ones) that all render the same data; the owner picks one with the
+The frontend: a React Router v8 app with server-side rendering. It ships fifteen designs (a neutral
+`plain` page plus fourteen themed ones) that all render the same data; the owner picks one with the
 `set_theme` MCP tool. Start with the [root README](../README.md) for setup.
 
 ## Run
@@ -83,6 +83,15 @@ SSR so each design's page colours apply before hydration.
 | `broadsheet` | `app/themes/broadsheet/` | `app/components/broadsheet/` | Editor's pick |
 | `quest-log` | `app/themes/quest-log/` | `app/components/quest-log/` | Epic quest |
 | `retro-desktop` | `app/themes/retro-desktop/` | `app/components/retro-desktop/` | Pinned |
+| `parcel-new` | `app/themes/parcel-new/` | `app/components/parcel-new/` | Priority |
+| `dating-new` | `app/themes/dating-new/` | `app/components/dating-new/` | Featured |
+| `preprint` | `app/themes/preprint/` | `app/components/preprint/` | Highlighted result |
+| `exhibition` | `app/themes/exhibition/` | `app/components/exhibition/` | Highlight of the show |
+
+The last four were made with the taste skill. Each keeps its stylesheet beside its pages
+(`app/themes/<key>/<key>.css`, imported at the top of `app/app.css`) and uses the shared
+`app/hooks/useReveal.ts`: parts marked `data-reveal` rise into place once as they come on screen, are never
+hidden without JavaScript or under reduced motion, and are all shown on a jump to the end of the page.
 
 Each page loads its own Google Fonts with `<link precedence>`. Newer designs list a Thai fallback font
 after their Latin face, so Thai text never drops to a system font. The retro desktop's windows are page

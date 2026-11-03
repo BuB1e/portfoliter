@@ -3,6 +3,7 @@
 @import "./themes/parcel-new/parcel-new.css";
 @import "./themes/dating-new/dating-new.css";
 @import "./themes/preprint/preprint.css";
+@import "./themes/exhibition/exhibition.css";
 
 /* Tokens for every design live here; field-guide and parcel are prefixed so names never clash. */
 @theme {
@@ -146,6 +147,15 @@
   --color-pp-ink: #141414;
   --color-pp-soft: #4b4b48;
   --color-pp-red: #a5191b;
+
+  /* exhibition: a dark gallery; warm black rooms, lifted white type, gold once per screen */
+  --font-ex: "Archivo", "Noto Sans Thai", system-ui, sans-serif;
+  --color-ex-room: #0c0a08;
+  --color-ex-wall: #181512;
+  --color-ex-plinth: #24201b;
+  --color-ex-ink: #f2efe9;
+  --color-ex-dim: #a39d95;
+  --color-ex-gold: #c9a45a;
 
   --animate-match-pop: match-pop 0.5s cubic-bezier(0.2, 1.6, 0.4, 1);
 

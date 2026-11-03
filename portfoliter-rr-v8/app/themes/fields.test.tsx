@@ -32,6 +32,7 @@ const FEATURED_LABELS: Record<ThemeKey, string> = {
   "parcel-new": "Priority",
   "dating-new": "Featured",
   preprint: "Highlighted result",
+  exhibition: "Highlight of the show",
 };
 
 function render(node: React.ReactNode): string {
