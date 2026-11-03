@@ -31,6 +31,7 @@ const FEATURED_LABELS: Record<ThemeKey, string> = {
   "retro-desktop": "Pinned",
   "parcel-new": "Priority",
   "dating-new": "Featured",
+  preprint: "Highlighted result",
 };
 
 function render(node: React.ReactNode): string {

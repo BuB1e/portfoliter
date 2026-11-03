@@ -2,6 +2,7 @@
 /* Designs made with the taste skill keep their stylesheets beside their pages. */
 @import "./themes/parcel-new/parcel-new.css";
 @import "./themes/dating-new/dating-new.css";
+@import "./themes/preprint/preprint.css";
 
 /* Tokens for every design live here; field-guide and parcel are prefixed so names never clash. */
 @theme {
@@ -137,6 +138,14 @@
   --color-dn-muted: #6e2a3d;
   --color-dn-flame: #c4223f;
   --color-dn-blush: #f6c9c4;
+
+  /* preprint: the engineer as a typeset paper; paper, ink and the one red of a preprint server */
+  --font-pp: "STIX Two Text", "Noto Serif Thai", Georgia, serif;
+  --color-pp-paper: #f6f6f3;
+  --color-pp-desk: #e6e5e0;
+  --color-pp-ink: #141414;
+  --color-pp-soft: #4b4b48;
+  --color-pp-red: #a5191b;
 
   --animate-match-pop: match-pop 0.5s cubic-bezier(0.2, 1.6, 0.4, 1);
 

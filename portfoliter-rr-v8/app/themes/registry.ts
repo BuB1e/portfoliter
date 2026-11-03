@@ -15,6 +15,8 @@ import { ParcelProjectPage } from "./parcel/ParcelProjectPage";
 import { ParcelNewPage } from "./parcel-new/ParcelNewPage";
 import { ParcelNewProjectPage } from "./parcel-new/ParcelNewProjectPage";
 import { PlainPage } from "./plain/PlainPage";
+import { PreprintPage } from "./preprint/PreprintPage";
+import { PreprintProjectPage } from "./preprint/PreprintProjectPage";
 import { PlainProjectPage } from "./plain/PlainProjectPage";
 import { QuestLogPage } from "./quest-log/QuestLogPage";
 import { QuestLogProjectPage } from "./quest-log/QuestLogProjectPage";
@@ -44,6 +46,7 @@ export const themePages: Record<ThemeKey, ComponentType<ThemePageProps>> = {
   "retro-desktop": RetroDesktopPage,
   "parcel-new": ParcelNewPage,
   "dating-new": DatingNewPage,
+  preprint: PreprintPage,
 };
 
 // /projects/:slug in each design; the Record type makes a new theme fail typecheck until it has one.
@@ -61,6 +64,7 @@ export const themeProjectPages: Record<ThemeKey, ComponentType<ThemeProjectPageP
   "retro-desktop": RetroDesktopProjectPage,
   "parcel-new": ParcelNewProjectPage,
   "dating-new": DatingNewProjectPage,
+  preprint: PreprintProjectPage,
 };
 
 export const themeTitles: Record<ThemeKey, (fullName: string) => string> = {
@@ -77,4 +81,5 @@ export const themeTitles: Record<ThemeKey, (fullName: string) => string> = {
   "retro-desktop": (fullName) => `${fullName}'s desktop`,
   "parcel-new": (fullName) => `Fragile: ${fullName}`,
   "dating-new": (fullName) => `${fullName}, swipe right`,
+  preprint: (fullName) => `${fullName} (preprint)`,
 };
