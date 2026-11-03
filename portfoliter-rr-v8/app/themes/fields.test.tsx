@@ -30,6 +30,7 @@ const FEATURED_LABELS: Record<ThemeKey, string> = {
   "quest-log": "Epic quest",
   "retro-desktop": "Pinned",
   "parcel-new": "Priority",
+  "dating-new": "Featured",
 };
 
 function render(node: React.ReactNode): string {

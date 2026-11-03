@@ -121,6 +121,15 @@ const SECTION_IDS: Record<ThemeKey, Partial<Record<SectionKey, string[]>>> = {
     certifications: ["customs-title"],
     extras: ["section-prompts", "section-awards", "section-talks", "section-languages"],
   },
+  "dating-new": {
+    about: ["about-title"],
+    education: ["verified-title"],
+    skills: ["interests-title"],
+    experience: ["exes-title"],
+    projects: PROJECTS,
+    certifications: ["certified-title"],
+    extras: ["section-prompts", "section-awards", "section-talks", "section-languages"],
+  },
 };
 
 // Designs with an in-page nav that must list the sections in page order.

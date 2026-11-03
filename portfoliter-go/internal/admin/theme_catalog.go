@@ -17,4 +17,5 @@ var themeCatalog = []Theme{
 	{Key: "quest-log", Name: "Quest log", Description: "RPG character sheet in blue pixel menu windows; skills are stats, jobs are quests, projects open as quest scrolls."},
 	{Key: "retro-desktop", Name: "Retro desktop", Description: "1990s desktop on teal with bevelled grey windows and a taskbar; projects are files that open in their own window."},
 	{Key: "parcel-new", Name: "Parcel (new)", Description: "Parcel redrawn: a full-size shipping label beside the sender's photo, flat kraft and paper with cut edges, bubble wrap to pop."},
+	{Key: "dating-new", Name: "Dating app (new)", Description: "Dating app redrawn: the first name as a poster over the profile photo, projects as full-screen photos to like or pass."},
 }

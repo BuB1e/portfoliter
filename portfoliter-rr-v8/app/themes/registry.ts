@@ -6,6 +6,8 @@ import { BroadsheetPage } from "./broadsheet/BroadsheetPage";
 import { BroadsheetProjectPage } from "./broadsheet/BroadsheetProjectPage";
 import { DatingPage } from "./dating/DatingPage";
 import { DatingProjectPage } from "./dating/DatingProjectPage";
+import { DatingNewPage } from "./dating-new/DatingNewPage";
+import { DatingNewProjectPage } from "./dating-new/DatingNewProjectPage";
 import { FieldGuidePage } from "./field-guide/FieldGuidePage";
 import { FieldGuideProjectPage } from "./field-guide/FieldGuideProjectPage";
 import { ParcelPage } from "./parcel/ParcelPage";
@@ -41,6 +43,7 @@ export const themePages: Record<ThemeKey, ComponentType<ThemePageProps>> = {
   "quest-log": QuestLogPage,
   "retro-desktop": RetroDesktopPage,
   "parcel-new": ParcelNewPage,
+  "dating-new": DatingNewPage,
 };
 
 // /projects/:slug in each design; the Record type makes a new theme fail typecheck until it has one.
@@ -57,6 +60,7 @@ export const themeProjectPages: Record<ThemeKey, ComponentType<ThemeProjectPageP
   "quest-log": QuestLogProjectPage,
   "retro-desktop": RetroDesktopProjectPage,
   "parcel-new": ParcelNewProjectPage,
+  "dating-new": DatingNewProjectPage,
 };
 
 export const themeTitles: Record<ThemeKey, (fullName: string) => string> = {
@@ -72,4 +76,5 @@ export const themeTitles: Record<ThemeKey, (fullName: string) => string> = {
   "quest-log": (fullName) => `${fullName}: quest log`,
   "retro-desktop": (fullName) => `${fullName}'s desktop`,
   "parcel-new": (fullName) => `Fragile: ${fullName}`,
+  "dating-new": (fullName) => `${fullName}, swipe right`,
 };

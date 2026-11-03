@@ -1,6 +1,7 @@
 @import "tailwindcss";
 /* Designs made with the taste skill keep their stylesheets beside their pages. */
 @import "./themes/parcel-new/parcel-new.css";
+@import "./themes/dating-new/dating-new.css";
 
 /* Tokens for every design live here; field-guide and parcel are prefixed so names never clash. */
 @theme {
@@ -128,6 +129,14 @@
   --color-pn-ink: #1e1b18;
   --color-pn-ink-soft: #4a413a;
   --color-pn-tape: #c8213a;
+
+  /* dating-new: blush paper, deep wine ink, one flame accent (the old night-violet ground is gone) */
+  --color-dn-paper: #fbf2ee;
+  --color-dn-surface: #f3e2db;
+  --color-dn-wine: #3b0a1c;
+  --color-dn-muted: #6e2a3d;
+  --color-dn-flame: #c4223f;
+  --color-dn-blush: #f6c9c4;
 
   --animate-match-pop: match-pop 0.5s cubic-bezier(0.2, 1.6, 0.4, 1);
 
