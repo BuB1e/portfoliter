@@ -11,6 +11,9 @@ services:
     ports:
       - "127.0.0.1:8083:8080"
     restart: always
+    networks:
+      - default
+      - shared_net
 
   frontend:
     build: ./portfoliter-rr-v8
@@ -23,3 +26,7 @@ services:
     depends_on:
       - backend
     restart: always
+
+networks:
+  shared_net:
+    external: true
